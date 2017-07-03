@@ -1,0 +1,9 @@
+Customer	0.109
+Lineitem	8.721
+Nation	0.000
+Orders	1.127
+Part	0.230
+PartSupp	0.475
+Region	0.000
+Supplier	0.006
+Sum	10.668

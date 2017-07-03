@@ -1,0 +1,42 @@
+#CFLAGS = -g -Wall -Weffc++ -std=c++0x
+CFLAGS = -O3 -Wall -Weffc++ -std=c++0x
+
+CC = g++
+# CC = g++-4.6
+
+INCL = -I../.. -I..
+
+VPATH = .:..:../..
+
+HDRQ = \
+	../infra/moer/measure.hh \
+	../infra/webe/print_helper.hh \
+	../infra/webe/types.hh \
+	../infra/webe/common.hh \
+	\
+	../relation/nsm_relation.hh \
+	../relation/pax_relation.hh \
+	\
+	../ops/top.hh \
+	../ops/project.hh \
+	../ops/select.hh \
+	../ops/scan.hh \
+	\
+
+
+OBJ = \
+	test_query.o \
+	test_pred.o \
+	
+all : $(OBJ)
+
+test_query.o : test_query.cc test_query.hh $(HDRQ) test_pred.hh
+	$(CC) -c $(CFLAGS) $(INCL) test_query.cc
+
+test_pred.o : test_pred.cc test_pred.hh $(HDRQ) ../pax/page_interpreter_pax.hh
+	$(CC) -c $(CFLAGS) $(INCL) test_pred.cc
+
+clean :
+	rm -f *.o a.out
+
+
