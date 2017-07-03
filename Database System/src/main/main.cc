@@ -25,14 +25,14 @@
 #include <fstream>
 #include <iostream>
 
-size_t 		PAGE_SIZE;
-size_t 		ALIGNMENT;
-size_t 		MEMCHUNK_SIZE;
-size_t 		RUNS;
-size_t 		VECTORIZE_SIZE;
-bool		MEASURE;
-bool		PRINT;
-const char*	PATH;
+size_t 		PAGE_SIZE_GLOBAL;
+size_t 		ALIGNMENT_GLOBAL;
+size_t 		MEMCHUNK_SIZE_GLOBAL;
+size_t 		RUNS_GLOBAL;
+size_t 		VECTORIZE_SIZE_GLOBAL;
+bool		MEASURE_GLOBAL;
+bool		PRINT_GLOBAL;
+const char*	PATH_GLOBAL;
 
 int main(const int argc, const char* argv[])
 {
@@ -60,6 +60,7 @@ int main(const int argc, const char* argv[])
 		return -1;
 	}
 
+	#ifdef __linux__
 	uint lHwThreadNo = lArgs.core();
 	cpu_set_t lMask;
 	CPU_ZERO(&lMask);
@@ -73,55 +74,60 @@ int main(const int argc, const char* argv[])
 	{
 		std::cerr << "binding thread to " << lHwThreadNo << " succeeded." << std::endl;
 	}
+	#endif
+
+	
 
 	/***************************************************************************************************
 	** All global variables are defined with either the respective user input or default values ********
 	***************************************************************************************************/
 
-	PAGE_SIZE 		= lArgs.pageSize();
-	ALIGNMENT 		= lArgs.alignment();
-	MEMCHUNK_SIZE 	= lArgs.chunkSize();
-	RUNS 			= lArgs.runs();
-	MEASURE 		= lArgs.measure();
-	PRINT 			= lArgs.print();
+	PAGE_SIZE_GLOBAL 		= lArgs.pageSize();
+	ALIGNMENT_GLOBAL 		= lArgs.alignment();
+	MEMCHUNK_SIZE_GLOBAL 	= lArgs.chunkSize();
+	RUNS_GLOBAL 			= lArgs.runs();
+	MEASURE_GLOBAL 			= lArgs.measure();
+	PRINT_GLOBAL 			= lArgs.print();
 	std::string tmp = lArgs.path() + storageModel + "/";
-	PATH 			= tmp.c_str();
+	PATH_GLOBAL 			= tmp.c_str();
 
 	/***************************************************************************************************
-	** If the 'MEASURE'-flag was set, the following prints an header in some output stream *************
+	** If the 'MEASURE_GLOBAL'-flag was set, the following prints an header in some output stream *************
 	***************************************************************************************************/
 
-	if(MEASURE)
+	#ifdef __linux__
+	if(MEASURE_GLOBAL)
 	{
 		GM::System lSystem(lHwThreadNo);
-		std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE);
+		std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL);
 		DateJd jd;
 		jd.set_to_current_date();
 		std::string lHeader = storageModel + " DBS TEST (" + std::to_string(jd.day()) + "/" + std::to_string(jd.month()) + "/" + std::to_string(jd.year()) + ")";
 		std::ostream* os = &std::cout;
 		std::ofstream out;
-		if(PRINT)
+		if(PRINT_GLOBAL)
 		{	
-			std::string lPath = PATH + lSetting + ".txt";
+			std::string lPath = PATH_GLOBAL + lSetting + ".txt";
 			out.open(lPath.c_str(), std::ios::out | std::ios::app);
 			os = &out;
 		}
 
-		if(out.is_open() == PRINT)
+		if(out.is_open() == PRINT_GLOBAL)
 		{
 			print_header(*os, lHeader);
-			*os << std::setw(15) << "Page Size: " << PAGE_SIZE << "    " << "Alignment: " << ALIGNMENT << "    " << "#Runs: " << RUNS << std::endl;
+			*os << std::setw(15) << "Page Size: " << PAGE_SIZE_GLOBAL << "    " << "Alignment: " << ALIGNMENT_GLOBAL << "    " << "#Runs: " << RUNS_GLOBAL << std::endl;
 			print_header(*os, "System");
 			lSystem.print(*os);
 			print_header(*os, "RANDOM vs. SEQUENTIAL MEMORY ACCESS");
 			MemoryAccess memoryAccess(10 * 1000 * 1000);
 			memoryAccess.fRunTest(*os);
-			if(PRINT)
+			if(PRINT_GLOBAL)
 			{	
 				out.close();
 			}
 		}
 	}
+	#endif
 
 
 	/***************************************************************************************************
@@ -138,10 +144,10 @@ int main(const int argc, const char* argv[])
 				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize());
 				row_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorizedSize());
 
-				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, MEASURE, RUNS, r_test_updateInt_path);
-				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, MEASURE, 1, r_bulk_load_path);
-				// row_test_query1(nsm_rel_vec[1], VECTORIZE_SIZE, selectivity, MEASURE, RUNS, r_test_query1_path);
-				// row_test_update1(nsm_rel_vec[1], attrUpdates, MEASURE, RUNS, r_test_update1_path);
+				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_updateInt_path);
+				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, MEASURE_GLOBAL, 1, r_bulk_load_path);
+				// row_test_query1(nsm_rel_vec[1], VECTORIZE_SIZE_GLOBAL, selectivity, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_query1_path);
+				// row_test_update1(nsm_rel_vec[1], attrUpdates, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_update1_path);
 			}
 			else
 			{
@@ -172,10 +178,10 @@ int main(const int argc, const char* argv[])
 			{
 				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize());
 				col_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorizedSize());
-				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, MEASURE, RUNS, r_test_updateInt_path);
-				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, MEASURE, 1, r_bulk_load_path);
-				// row_test_query1(nsm_rel_vec[1], VECTORIZE_SIZE, selectivity, MEASURE, RUNS, r_test_query1_path);
-				// row_test_update1(nsm_rel_vec[1], attrUpdates, MEASURE, RUNS, r_test_update1_path);
+				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_updateInt_path);
+				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, MEASURE_GLOBAL, 1, r_bulk_load_path);
+				// row_test_query1(nsm_rel_vec[1], VECTORIZE_SIZE_GLOBAL, selectivity, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_query1_path);
+				// row_test_update1(nsm_rel_vec[1], attrUpdates, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_update1_path);
 			}
 			else
 			{

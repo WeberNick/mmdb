@@ -7,7 +7,7 @@ byte* MemoryManager::_endOfChunk = 0;
 byte* MemoryManager::allocAlignedMemChunk(const uint aNumbOfPages)
 {
 	byte* lChunkPointer;
-	switch(posix_memalign((void**)&lChunkPointer, ALIGNMENT, aNumbOfPages * PAGE_SIZE))
+	switch(posix_memalign((void**)&lChunkPointer, ALIGNMENT_GLOBAL, aNumbOfPages * PAGE_SIZE_GLOBAL))
 	{
 		case 0:
 			MemoryManager::_chunks.push_back(lChunkPointer);
@@ -34,12 +34,12 @@ byte* MemoryManager::getPage()
 {
 	if(MemoryManager::_firstFreePage >= MemoryManager::_endOfChunk)
 	{
-		MemoryManager::_firstFreePage = MemoryManager::allocAlignedMemChunk(MEMCHUNK_SIZE);
-		MemoryManager::_endOfChunk = _firstFreePage + MEMCHUNK_SIZE * PAGE_SIZE;	
+		MemoryManager::_firstFreePage = MemoryManager::allocAlignedMemChunk(MEMCHUNK_SIZE_GLOBAL);
+		MemoryManager::_endOfChunk = _firstFreePage + MEMCHUNK_SIZE_GLOBAL * PAGE_SIZE_GLOBAL;	
 	}
 
 	byte* lFreePage = MemoryManager::_firstFreePage;
-	MemoryManager::_firstFreePage += PAGE_SIZE;
+	MemoryManager::_firstFreePage += PAGE_SIZE_GLOBAL;
 	return lFreePage;
 }
 		

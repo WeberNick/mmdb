@@ -5,9 +5,7 @@
 #include "print_helper.hh"
 #include "file_helper.hh"
 #include "string_helper.hh"
-#include "infra/gnuplot-iostream/gnuplot-iostream.h"
-
-#include <boost/tuple/tuple.hpp>
+#include "gnuplot-iostream.hh"
 
 #include <string>
 #include <vector>

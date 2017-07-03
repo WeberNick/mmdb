@@ -13,7 +13,7 @@ void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSe
 	std::string lPath = "../tables/tables_" + aScaleFactor + "/";
 	double_vt bulk_load_sumPerRel(8, 0);
 	double_vt bulk_insert_sumPerRel(8, 0);
-	for(size_t i = 0; i < RUNS; ++i)
+	for(size_t i = 0; i < RUNS_GLOBAL; ++i)
 	{
 		MemoryManager::freeAll();
 		_relation_vector.clear();
@@ -33,7 +33,7 @@ void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSe
 		{
 			BulkLoader bl(lFileNames[j].c_str(), _relation_vector[j], aDelimiter, aSeperator, aBufferSize);
 			Measure lMeasure;
-			if(MEASURE)
+			if(MEASURE_GLOBAL)
 			{
 				lMeasure.start();
 			}
@@ -46,7 +46,7 @@ void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSe
 				std::cerr << "ERROR: " << ex.what() << std::endl;
 			}
 			lMeasure.stop();
-			if(MEASURE)
+			if(MEASURE_GLOBAL)
 			{
 				bulk_load_sumPerRel[j] += lMeasure.mTotalTime();
 			}
@@ -56,7 +56,7 @@ void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSe
 			{
 				BulkInsertSP bi;
 				NSM_Relation* p = (NSM_Relation*)&_relation_vector[j];
-				if(MEASURE)
+				if(MEASURE_GLOBAL)
 				{
 					lMeasure.start();
 				}
@@ -66,26 +66,26 @@ void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSe
 			{
 				BulkInsertPAX bi;
 				PAX_Relation* p = (PAX_Relation*)&_relation_vector[j];
-				if(MEASURE)
+				if(MEASURE_GLOBAL)
 				{
 					lMeasure.start();
 				}
 				bi.bulk_insert(bl, p);
 			}
 			lMeasure.stop();
-			if(MEASURE)
+			if(MEASURE_GLOBAL)
 			{
 				bulk_insert_sumPerRel[j] += lMeasure.mTotalTime();
 			}
 		}
 	}
-	if(MEASURE)
+	if(MEASURE_GLOBAL)
 	{
 		string_vt relation_names = {"Customer", "Lineitem", "Nation", "Orders", "Part", "PartSupp", "Region", "Supplier", "Sum"};
   		double sum = 0;
   		for(size_t i = 0; i < 8; ++i)
   		{
-  			bulk_load_sumPerRel[i] /= RUNS;
+  			bulk_load_sumPerRel[i] /= RUNS_GLOBAL;
   			sum += bulk_load_sumPerRel[i];
   		}
   		bulk_load_sumPerRel.push_back(sum);
@@ -94,7 +94,7 @@ void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSe
   		sum = 0;
   		for(size_t i = 0; i < 8; ++i)
   		{
-  			bulk_insert_sumPerRel[i] /=  RUNS;
+  			bulk_insert_sumPerRel[i] /=  RUNS_GLOBAL;
   			sum += bulk_insert_sumPerRel[i];
   		}
   		bulk_insert_sumPerRel.push_back(sum);

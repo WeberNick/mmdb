@@ -8,15 +8,16 @@
 #include <vector>
 #include <limits>
 #include <sys/utsname.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sched.h>
 
 #ifdef __linux__
 #include <sys/sysinfo.h>
 #endif
 
 #ifdef __APPLE__
-#include <sys/types.h>
 #include <sys/sysctl.h> 
 #endif
 
