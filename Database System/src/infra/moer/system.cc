@@ -1,4 +1,3 @@
-#include <limits>
 #include "system.hh"
 
 namespace GM {
@@ -38,6 +37,10 @@ System::System() : _hwthreadno(0), _ok(true), _hostname(), _osname(), _osversion
   _vendor = kArm;
   #elif __ARM_ARCH_6
   _vendor = kArm;
+  #endif
+
+  #ifdef __APPLE__
+
   #endif
 
   get_clockticks(0);
@@ -80,15 +83,30 @@ System::System(const int aHwThreadNo)
   _vendor = kArm;
   #endif
 
+   #ifdef __APPLE__
+
+  #endif
+
   get_clockticks(hwthreadno());
 }
 
 
 void
 System::get_sysinfo() {
+  #ifdef __linux__
   struct sysinfo lSysinfo;
   sysinfo(&lSysinfo);
   _totalram = lSysinfo.totalram;
+  #elif __APPLE__
+  int mib[2];
+    size_t length;
+
+    // Get the Physical memory size
+    mib[0] = CTL_HW;
+    mib[1] = HW_MEMSIZE;
+    length = sizeof(_totalram);
+    sysctl(mib, 2, &_totalram, &length, NULL, 0);
+  #endif
 }
 
 void
@@ -122,59 +140,12 @@ System::get_sys_devices_info() {
     }
   }
 
-/*
-  bool lIsOk = true;
-  for(uint i = 0; lIsOk; ++i) {
-    unsigned int lLevel = 0;
-    unsigned int lSize  = 0;
-    std::string  lType;
-    char lSizeChar;
-    char lNameLevel[100];
-    char lNameSize[100];
-    char lNameType[100];
-    unsigned int lThreadNo = 0;
-    snprintf(lNameLevel, 99, "/sys/devices/system/cpu/cpu%d/cache/index%d/level", lThreadNo, i);
-    snprintf(lNameSize,  99, "/sys/devices/system/cpu/cpu%d/cache/index%d/size", lThreadNo, i);
-    snprintf(lNameType,  99, "/sys/devices/system/cpu/cpu%d/cache/index%d/type", lThreadNo, i);
-    std::ifstream lIsLevel(lNameLevel);
-    std::ifstream lIsSize(lNameSize);
-    std::ifstream lIsType(lNameType);
-    if(lIsLevel && lIsSize && lIsType) {
-      lIsLevel >> lLevel;
-      lIsSize  >> lSize >> lSizeChar;
-      lIsType  >> lType;
-      std::cout << "cache " << i << ": " << 'L' << lLevel  << " of size " << lSize 
-                << " with size char " << lSizeChar << " of type " << lType << std::endl;
-      if('K' == lSizeChar || 'k' == lSizeChar) {
-        lSize *= 1024;
-      }
-    } else {
-      lIsOk = false;
-      // if(!lIsLevel) { std::cout << "cache: level unreadable." << std::endl; }
-      // if(!lIsSize) { std::cout << "cache: size unreadable." << std::endl; }
-      // if(!lIsType) { std::cout << "cache: type unreadable." << std::endl; }
-    }
-  }
-*/
-
 
   // determine number of CPU's = number of physical packages
 
   bool lIsOk = true;
   char lNameCpuNo[200];
   char lNameCoreNo[200];
-
-/*
-  uint lMaxCpuNo = 0;
-  for(lThreadNo = 0; lIsOk; ++lThreadNo) {
-    unsigned int lCpuNo    = 0;
-    snprintf(lNameCpuNo, 199,    "/sys/devices/system/cpu/cpu%d/topology/physical_package_id", i);
-    std::ifstream lIsCpuNo(lNameCpuNo);
-    if(!lIsCpuNo) {
-      break;
-    }
-  }
-*/    
     
 
   for(uint i = 0; lIsOk; ++i) {
@@ -453,12 +424,17 @@ System::printCompare(std::ostream& os) const {
 void
 System::print_sysinfo(std::ostream& os) const {
   std::cout << "sysinfo: " << std::endl;
+
+  #ifdef __linux__
   struct sysinfo lSysinfo;
   sysinfo(&lSysinfo);
   os << "total  ram: " << lSysinfo.totalram << std::endl
      << "free   ram: " << lSysinfo.freeram  << std::endl
      // << "#processes: " << lSysinfo.procs    << std::endl
      ;
+  #endif
+
+  
 }
 
 void
@@ -498,40 +474,6 @@ System::print_cpuid(std::ostream& os) const {
 
   os << " vendor: " << lVendor << std::endl;
 
-/*
-  // read number of threads, same for Intel and AMD
-  if(1 <= lMaxInstrLevel) {
-    b = c = d = 0;
-    a = 0x1;
-    __cpuid(a, a, b, c, d);
-    lNoThreads = (b >> 16) & 0xFF; // read_val(&b, 16, 23);
-    std::cout << "no threads: " << lNoThreads << std::endl;
-  }
-
-  // read number of cores
-  if(kIntel == lVendor) {
-    lInstr = 0x4;
-    a = b = c = d = 0;
-    a = lInstr;
-    __cpuid(lInstr, a, b, c, d);
-    lNoCores = ((a >> 26) & 0x3F) + 1;
-    std::cout << "no cores: " << lNoCores << std::endl;
-  } else
-  if(kAmd == lVendor) {
-  }
-*/
-
-
-/*
-
-    3:0 – Stepping
-    7:4 – Model
-    11:8 – Family
-    13:12 – Processor Type
-    19:16 – Extended Model
-    27:20 – Extended Family
-  */
-
   if(kIntel == lVendor) {
     lInstr = 0x1;
     a = b = c = d = 0;
@@ -545,44 +487,6 @@ System::print_cpuid(std::ostream& os) const {
               << " XFamily: " << ((a >> 20) & 0xFF) << std::endl
               ;
   }
-
-  // more fun
-/*
-  for(unsigned int i = 0; i < lMaxInstrLevel; ++i) {
-    a = b = c = d = 0;
-    __cpuid(i, a, b, c, d);
-    os << std::setw(2)  << i << ' '
-       << std::setw(12) << a << ' ' 
-       << std::setw(12) << b << ' ' 
-       << std::setw(12) << c << ' ' 
-       << std::setw(12) << d << std::endl;
-  }
-*/
-/*
-   from libcpuinfo.h
-
-    if (!cpuid_present()) {
-        std::cout << "Sorry, your CPU doesn't support CPUID!" << std::endl;
-        return;
-    }
-
-    struct cpu_raw_data_t raw; 
-    struct cpu_id_t data;     
-
-    if (cpuid_get_raw_data(&raw) < 0) { 
-        printf("Sorry, cannot get the CPUID raw data.\n");
-        printf("Error: %s\n", cpuid_error());
-        return;
-    }
-
-    if (cpu_identify(&raw, &data) < 0) {    
-        printf("Sorrry, CPU identification failed.\n");
-        printf("Error: %s\n", cpuid_error());
-        return;
-    }
-
-    printf("Processor has %d physical cores\n", data.num_cores);
-*/
 
  #endif
 }
@@ -622,6 +526,3 @@ operator<<(std::ostream& os, const System::CacheType x) {
   
 
 } // end namespace
-
-
-
