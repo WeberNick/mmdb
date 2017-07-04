@@ -10,7 +10,7 @@ PageInterpreterPAX::initNewPage(byte* aPP, uint_vt& aPartitionData) {
     attach(aPP);
     header()->_noAttributes   = 0;
     header()->_noRecords   = 0;
-    header()->_freeSpace   = (PAGE_SIZE - sizeof(header_t));
+    header()->_freeSpace   = (PAGE_SIZE_GLOBAL - sizeof(header_t));
     header()->_maxRecords = 0;
     pagePartition(aPartitionData);
   }
@@ -32,7 +32,7 @@ PageInterpreterPAX::addNewRecord(const uint aRecordSize)
 void PageInterpreterPAX::pagePartition(const uint_vt& aAttrSizeVec)
 {
   header()->_noAttributes = aAttrSizeVec.size() - 1;
-  uint lFreeSpace = (PAGE_SIZE - sizeof(header_t) - (header()->_noAttributes * sizeof(slot_t)));
+  uint lFreeSpace = (PAGE_SIZE_GLOBAL - sizeof(header_t) - (header()->_noAttributes * sizeof(slot_t)));
   uint lTotalAttrSize = aAttrSizeVec[header()->_noAttributes];
 
   uint lNoRec = (lFreeSpace / lTotalAttrSize) + 1;

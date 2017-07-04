@@ -23,7 +23,7 @@ PageInterpreterSP::initNewPage(byte* aPP) {
   {
     attach(aPP);
     header()->_noRecords   = 0;
-    header()->_freeSpace   = (PAGE_SIZE - sizeof(header_t));
+    header()->_freeSpace   = (PAGE_SIZE_GLOBAL - sizeof(header_t));
     header()->_nextFreeRecord = 0;
     header()->_placeholder = 0;
   }

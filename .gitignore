@@ -33,8 +33,11 @@
 
 #Tables Folder
 Database System/tables/tables_1.0/
-Database System/data
-Database System/results
+Database System/data/
+Database System/results/
+
+#Other folder
+Database System/src/infra/gnuplot-iostream/
 
 #Text Files, Gnuplot Files and CSV-Files
 *.txt

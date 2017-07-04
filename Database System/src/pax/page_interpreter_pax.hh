@@ -45,8 +45,8 @@ class PageInterpreterPAX {
     inline const uint16_t offset(const uint i) const { return _slot[- (int) i]._miniPageOffset; }
     inline       uint16_t offset(const uint i)       { return _slot[- (int) i]._miniPageOffset; }
   private:
-    inline header_t* get_hdr_ptr() { return ((header_t*) (_pp + PAGE_SIZE - sizeof(header_t))); }
-    inline slot_t*   get_slot_base_ptr() { return ((slot_t*) (_pp + PAGE_SIZE - sizeof(header_t) - sizeof(slot_t))); }
+    inline header_t* get_hdr_ptr() { return ((header_t*) (_pp + PAGE_SIZE_GLOBAL - sizeof(header_t))); }
+    inline slot_t*   get_slot_base_ptr() { return ((slot_t*) (_pp + PAGE_SIZE_GLOBAL - sizeof(header_t) - sizeof(slot_t))); }
     void  pagePartition(const uint_vt& aAttrSizeVec); //partitions page into mini pages
   public:
     byte*     _pp;

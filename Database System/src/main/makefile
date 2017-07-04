@@ -3,9 +3,9 @@
 CFLAGS = -O3 -std=c++0x
 
 CC = g++
-# CC = g++-4.6
 
-INCL = -I../.. -I.. -I /home/nickwebe/boost_1_63_0
+#INCL = -I../.. -I.. -I/home/nickwebe/boost_1_63_0
+INCL = -I../.. -I.. -I/usr/local/boost_for_gcc/include
 
 VPATH = .:..:../..
 
@@ -97,8 +97,11 @@ ALL = main
 
 all : $(ALL)
 
+#main: main.o $(OBJ)
+#	$(CC) -o main main.o $(OBJ) -lboost_iostreams -lboost_system -lboost_filesystem
+
 main: main.o $(OBJ)
-	$(CC) -o main main.o $(OBJ) -lboost_iostreams -lboost_system -lboost_filesystem
+	$(CC) -o main main.o $(OBJ) -L/usr/local/boost_for_gcc/lib -lboost_iostreams -lboost_system -lboost_filesystem
 
 main.o : main.cc $(HDR)
 	$(CC) -c $(CFLAGS) $(INCL) main.cc

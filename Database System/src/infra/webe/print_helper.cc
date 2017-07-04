@@ -113,8 +113,8 @@ void print_bulk_load_insert_result(const string_vt& aRelationNames, const double
 	std::ofstream raw;
 	std::string lTestName = aFlag ? "load" : "insert";
 	GM::System lSystem;
-	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE);
-	std::string lPath = std::string(PATH) + "raw/" + lTestName + "_" + lSetting + ".txt";
+	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL);
+	std::string lPath = std::string(PATH_GLOBAL) + "raw/" + lTestName + "_" + lSetting + ".txt";
 	raw.open(lPath.c_str(), std::ios::out | std::ios::trunc);
 	if(raw.is_open())
 	{
@@ -127,21 +127,21 @@ void print_bulk_load_insert_result(const string_vt& aRelationNames, const double
 	
 	std::ostream* os = &std::cout;
 	std::ofstream out;
-	if(PRINT)
+	if(PRINT_GLOBAL)
 	{	
-		lPath = PATH + lSetting + ".txt";
+		lPath = PATH_GLOBAL + lSetting + ".txt";
 		out.open(lPath.c_str(), std::ios::out | std::ios::app);
 		os = &out;
 	}
 
-	if(out.is_open() == PRINT)
+	if(out.is_open() == PRINT_GLOBAL)
 	{
 		print_header(*os, "bulk-" + lTestName);
 		for(size_t i = 0; i < aRelationNames.size(); ++i)
 		{
 			*os << std::setw(10) << aRelationNames[i] << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "s" << std::endl;
 		}
-		if(PRINT)
+		if(PRINT_GLOBAL)
 		{	
 			out.close();
 		}
@@ -153,8 +153,8 @@ void print_int_projection_result(const size_t aAttrNo, const double_vt& aMeasure
 	std::ofstream raw;
 	std::string lTestName = "int-projection";
 	GM::System lSystem;
-	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE);
-	std::string lPath = std::string(PATH) + "raw/" + lTestName + "_" + lSetting + ".txt";
+	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL);
+	std::string lPath = std::string(PATH_GLOBAL) + "raw/" + lTestName + "_" + lSetting + ".txt";
 	raw.open(lPath.c_str(), std::ios::out | std::ios::trunc);
 	if(raw.is_open())
 	{
@@ -167,21 +167,21 @@ void print_int_projection_result(const size_t aAttrNo, const double_vt& aMeasure
 	
 	std::ostream* os = &std::cout;
 	std::ofstream out;
-	if(PRINT)
+	if(PRINT_GLOBAL)
 	{	
-		lPath = PATH + lSetting + ".txt";
+		lPath = PATH_GLOBAL + lSetting + ".txt";
 		out.open(lPath.c_str(), std::ios::out | std::ios::app);
 		os = &out;
 	}
 
-	if(out.is_open() == PRINT)
+	if(out.is_open() == PRINT_GLOBAL)
 	{
 		print_header(*os, lTestName);
 		for(size_t i = 0; i < aAttrNo; ++i)
 		{
 			*os << std::setw(10) << (i+1) << " attributes" << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "ms" << std::endl;
 		}
-		if(PRINT)
+		if(PRINT_GLOBAL)
 		{	
 			out.close();
 		}
@@ -191,7 +191,7 @@ void print_int_projection_result(const size_t aAttrNo, const double_vt& aMeasure
 void print_tq1_result(const char* aPath, int aSelectivity, double aTime)
 {
 	aTime *= 1000; 
-	std::string fileName(aPath + std::to_string(PAGE_SIZE) + ".txt");
+	std::string fileName(aPath + std::to_string(PAGE_SIZE_GLOBAL) + ".txt");
 	std::ofstream os;
 	os.open (fileName.c_str(), std::ios::out | std::ios::app);
 	os << aSelectivity << '\t' << std::setprecision(3) << std::fixed << aTime << std::endl;
@@ -201,7 +201,7 @@ void print_tq1_result(const char* aPath, int aSelectivity, double aTime)
 void print_tu1_result(const char* aPath, int aAttrNo, double aTime)
 {
 	aTime *= 1000;
-	std::string fileName(aPath + std::to_string(PAGE_SIZE) + ".txt");
+	std::string fileName(aPath + std::to_string(PAGE_SIZE_GLOBAL) + ".txt");
 	std::ofstream os;
 	os.open (fileName.c_str(), std::ios::out | std::ios::app);
 	os << aAttrNo << '\t' << std::setprecision(3) << std::fixed << aTime << std::endl;

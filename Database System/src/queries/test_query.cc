@@ -2,7 +2,7 @@
 
 void row_test_query(NSM_Relation& aRelation, const size_t aVectorizedSize)
 {
-	for(size_t i = 0; i < RUNS; ++i)
+	for(size_t i = 0; i < RUNS_GLOBAL; ++i)
 	{
 		TestPred::Parameter lPara = {5, 100000.99};
 		TestPred lPredicate(lPara);
@@ -21,7 +21,7 @@ void row_test_query(NSM_Relation& aRelation, const size_t aVectorizedSize)
 
 void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize)
 {
-	for(size_t i = 0; i < RUNS; ++i)
+	for(size_t i = 0; i < RUNS_GLOBAL; ++i)
 	{
 		TestPred::Parameter lPara = {5, 100000.99};
 		TestPred lPredicate(lPara);
@@ -43,7 +43,7 @@ void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize)
 
 	// for(size_t i = 1; i <= aAttrNo; ++i)
 	// {
-	// 	for(size_t j = 0; j < RUNS; ++j)
+	// 	for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 	// 	{
 	// 		Measure lMeasure;
 	// 		if(aMeasure)
@@ -62,7 +62,7 @@ void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize)
 // 		{
 // 			BulkLoader bl(lFileNames[j].c_str(), _relation_vector[j], aDelimiter, aSeperator, aBufferSize);
 // 			Measure lMeasure;
-// 			if(MEASURE)
+// 			if(MEASURE_GLOBAL)
 // 			{
 // 				lMeasure.start();
 // 			}
@@ -75,7 +75,7 @@ void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize)
 // 				std::cerr << "ERROR: " << ex.what() << std::endl;
 // 			}
 // 			lMeasure.stop();
-// 			if(MEASURE)
+// 			if(MEASURE_GLOBAL)
 // 			{
 // 				bulk_load_sumPerRel[j] += lMeasure.mTotalTime();
 // 			}
@@ -85,7 +85,7 @@ void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize)
 // 			{
 // 				BulkInsertSP bi;
 // 				NSM_Relation* p = (NSM_Relation*)&_relation_vector[j];
-// 				if(MEASURE)
+// 				if(MEASURE_GLOBAL)
 // 				{
 // 					lMeasure.start();
 // 				}
@@ -95,26 +95,26 @@ void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize)
 // 			{
 // 				BulkInsertPAX bi;
 // 				PAX_Relation* p = (PAX_Relation*)&_relation_vector[j];
-// 				if(MEASURE)
+// 				if(MEASURE_GLOBAL)
 // 				{
 // 					lMeasure.start();
 // 				}
 // 				bi.bulk_insert(bl, p);
 // 			}
 // 			lMeasure.stop();
-// 			if(MEASURE)
+// 			if(MEASURE_GLOBAL)
 // 			{
 // 				bulk_insert_sumPerRel[j] += lMeasure.mTotalTime();
 // 			}
 // 		}
 // 	}
-// 	if(MEASURE)
+// 	if(MEASURE_GLOBAL)
 // 	{
 // 		string_vt relation_names = {"Customer", "Lineitem", "Nation", "Orders", "Part", "PartSupp", "Region", "Supplier", "Sum"};
 //   		double sum = 0;
 //   		for(size_t i = 0; i < 8; ++i)
 //   		{
-//   			bulk_load_sumPerRel[i] /= RUNS;
+//   			bulk_load_sumPerRel[i] /= RUNS_GLOBAL;
 //   			sum += bulk_load_sumPerRel[i];
 //   		}
 //   		bulk_load_sumPerRel.push_back(sum);
@@ -123,7 +123,7 @@ void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize)
 //   		sum = 0;
 //   		for(size_t i = 0; i < 8; ++i)
 //   		{
-//   			bulk_insert_sumPerRel[i] /=  RUNS;
+//   			bulk_insert_sumPerRel[i] /=  RUNS_GLOBAL;
 //   			sum += bulk_insert_sumPerRel[i];
 //   		}
 //   		bulk_insert_sumPerRel.push_back(sum);
@@ -138,30 +138,30 @@ void row_test_projection(NSM_Relation& aRelation, const size_t aAttrNo)
 	{
 		uint_vt lAttrNoList;
 		lAttrNoList.push_back(i);
-		for(size_t j = 0; j < RUNS; ++j)
+		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
 			row_top_test_query_t		lTop;
 			row_project_test_query_t	lProject(&lTop, lAttrNoList);
 			Scan<row_project_test_query_t, NSM_Relation> lScan(&lProject, aRelation);
 			Measure lMeasure;
-			if(MEASURE)
+			if(MEASURE_GLOBAL)
 			{
 				lMeasure.start();
 			}
 			lScan.run();
 			lMeasure.stop();
-			if(MEASURE)
+			if(MEASURE_GLOBAL)
 			{
 				measure_int_projection[i] += (lMeasure.mTotalTime() * 1000);
 			}
 
 		}
 	}
-	if(MEASURE)
+	if(MEASURE_GLOBAL)
 	{
 		for(size_t i = 0; i < aAttrNo; ++i)
 		{
-			measure_int_projection[i] /= RUNS;
+			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
 		print_int_projection_result(aAttrNo, measure_int_projection);
 	}
@@ -175,30 +175,30 @@ void col_test_projection(PAX_Relation& aRelation, const size_t aAttrNo)
 	{
 		uint_vt lAttrNoList;
 		lAttrNoList.push_back(i);
-		for(size_t j = 0; j < RUNS; ++j)
+		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
 			col_top_test_query_t		lTop;
 			col_project_test_query_t	lProject(&lTop, lAttrNoList);
 			Scan<col_project_test_query_t, PAX_Relation> lScan(&lProject, aRelation);
 			Measure lMeasure;
-			if(MEASURE)
+			if(MEASURE_GLOBAL)
 			{
 				lMeasure.start();
 			}
 			lScan.run();
 			lMeasure.stop();
-			if(MEASURE)
+			if(MEASURE_GLOBAL)
 			{
 				measure_int_projection[i] += (lMeasure.mTotalTime() * 1000);
 			}
 
 		}
 	}
-	if(MEASURE)
+	if(MEASURE_GLOBAL)
 	{
 		for(size_t i = 0; i < aAttrNo; ++i)
 		{
-			measure_int_projection[i] /= RUNS;
+			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
 		print_int_projection_result(aAttrNo, measure_int_projection);
 	}

@@ -37,8 +37,8 @@ class PageInterpreterSP {
     inline const slot_t& slot(const uint i) const { return _slots[- (int) i]; }
     inline       slot_t& slot(const uint i)       { return _slots[- (int) i]; }
   private:
-    inline header_t* get_hdr_ptr() { return ((header_t*) (_pp + PAGE_SIZE - sizeof(header_t))); }
-    inline slot_t*   get_slot_base_ptr() { return ((slot_t*) (_pp + PAGE_SIZE - sizeof(header_t) - sizeof(slot_t))); }
+    inline header_t* get_hdr_ptr() { return ((header_t*) (_pp + PAGE_SIZE_GLOBAL - sizeof(header_t))); }
+    inline slot_t*   get_slot_base_ptr() { return ((slot_t*) (_pp + PAGE_SIZE_GLOBAL - sizeof(header_t) - sizeof(slot_t))); }
   public:
     byte*     _pp;
     header_t* _header;
