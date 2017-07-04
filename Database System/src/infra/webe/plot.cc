@@ -106,7 +106,7 @@ void plotIntProjection(const std::string nsmPath, const string_vt& nsmDataFilesT
 		gp << "set title 'Average Projection Time for a different Number of Attributes' font ',15'\n";
 		gp << "set style data linespoints\n";
 		gp << "set auto x\n";
-		gp << "set yrange [0:600]\n";
+		gp << "set yrange [0:900]\n";
 		gp << "set key top left font ', 10'\n";
 
 		std::string command = "plot ";

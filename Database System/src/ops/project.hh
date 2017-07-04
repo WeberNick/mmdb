@@ -154,7 +154,7 @@ Project<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_
 	uint lAttrSize;
 	byte* lMiniPagePointer;
 
-	unval_t* lTupelPointerOut;
+	unval_t* 	lTupelPointerOut;
 	byte* 		lAttrPointerIn;
 	unval_t* 	lAttrPointerOut;
 

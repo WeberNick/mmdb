@@ -14,7 +14,7 @@ void construct_arg_desc(argdesc_vt& x)
 	x.push_back( new barg_t("--nsm", false, &Args::nsm, "use the n-ary storage model"));
 	x.push_back( new barg_t("--pax", false, &Args::pax, "use the pax storage model"));
 	x.push_back( new uarg_t("--core", 0, &Args::core, "core number to run the execution on"));
-	x.push_back( new uarg_t("--pagesize", 16384, &Args::pageSize, "memory page size to use"));
+	x.push_back( new uarg_t("--pagesize", 16384, &Args::pageSize, "memory page size to use (e.g., 16384, 8192, 4096, ...)"));
 	x.push_back( new uarg_t("--alignment", 4096, &Args::alignment, "memory page alignment to use. must be a multiple of sizeof(void*), that is also a power of two"));
 	x.push_back( new uarg_t("--chunksize", 1000, &Args::chunkSize, "the number of memory pages in each chunk"));
 	x.push_back( new barg_t("--tpch", false, &Args::tpch, "use the tpc-h dataset and benchmark *benchmark needs to be implemented*"));
