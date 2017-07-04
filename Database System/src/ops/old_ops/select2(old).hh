@@ -55,7 +55,8 @@ Select<T_Consumer, T_Predicate, T_Relation>::init(unval_vt& aTupel)
 	aTupel.push_back(unval_t());
 	_input = aTupel[_indexNo1]._unval_pt;
 	_output = aTupel[_indexNo2]._unval_pt;
-	_output = new unval_t[_vectorizedSize];
+	_output = new unval_t[_vectorizedSize + 1];
+	_output[_vectorizedSize]._size = _vectorizedSize;
 	_nextOp->init(aTupel);
 }
 
@@ -63,11 +64,12 @@ template<typename T_Consumer, typename T_Predicate, typename T_Relation>
 void
 Select<T_Consumer, T_Predicate, T_Relation>::step(unval_vt& aTupel, T_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
-	//This recursion is not fully tested!! ToDo: think about it or fully test it
-	if(_pred(_input, _output, aSize, _vectorizedSize, aRelation))
+	const size_t lTupleSize = _input[aSize]._size;
+
+	if(_pred(_input, _output, lTupleSize, _vectorizedSize, aRelation))
 	{
 		_nextOp->step(aTupel, aRelation, _vectorizedSize, aNoMoreData);
-		if(_pred.getInputIndex() < aSize)
+		if(_pred.getInputIndex() < lTupleSize)
 		{
 			step(aTupel, aRelation, aSize, aNoMoreData);
 		}
@@ -75,7 +77,8 @@ Select<T_Consumer, T_Predicate, T_Relation>::step(unval_vt& aTupel, T_Relation& 
 	}
 	else if(aNoMoreData && _pred.getOutputIndex() > 0)
 	{
-		_nextOp->step(aTupel, aRelation, _pred.getOutputIndex(), aNoMoreData);
+		_output[_vectorizedSize]._size = _pred.getOutputIndex();
+		_nextOp->step(aTupel, aRelation, _vectorizedSize, aNoMoreData);
 	}
 }
 

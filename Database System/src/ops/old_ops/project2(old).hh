@@ -29,9 +29,7 @@ class Project
 		const size_t _noAttributes;
 		const size_t _vectorizedSize;
 		size_t _indexNo1;
-		unval_pt _input;
 		size_t _indexNo2;
-		unval_pt _output;
 		size_t _inputIndex;
 		size_t _outputIndex;
 
@@ -41,7 +39,7 @@ template<typename T_Consumer>
 Project<T_Consumer>::Project(
 									T_Consumer* aConsOp, 
 									const uint_vt& aAttrNoList)
-	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(1), _indexNo1(), _input(), _indexNo2(), _output(), _inputIndex(), _outputIndex()
+	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(1), _indexNo1(), _indexNo2(), _inputIndex(), _outputIndex()
 {}
 
 template<typename T_Consumer>
@@ -59,13 +57,11 @@ Project<T_Consumer>::init(unval_vt& aTupel)
 	_indexNo1 = aTupel.size() - 1;
 	_indexNo2 = aTupel.size();
 	aTupel.push_back(unval_t());
-	_input = aTupel[_indexNo1]._unval_pt;
-	_output = aTupel[_indexNo2]._unval_pt;
-	_output = new unval_t[_vectorizedSize + 1];
-	_output[_vectorizedSize]._size = _vectorizedSize;
+	aTupel[_indexNo2]._unval_pt = new unval_t[_vectorizedSize + 1];
+	aTupel[_indexNo2]._unval_pt[_vectorizedSize]._size = _vectorizedSize;
 	for(size_t i = 0; i < _vectorizedSize; ++i)
 	{
-		_output[i]._unval_pt = new unval_t[_noAttributes];
+		aTupel[_indexNo2]._unval_pt[i]._unval_pt = new unval_t[_noAttributes];
 	}
 	_nextOp->init(aTupel);
 }
@@ -74,16 +70,18 @@ template<typename T_Consumer>
 void
 Project<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
+	const size_t lTupleSize = aTupel[_indexNo1]._unval_pt[aSize]._size;
+
 	byte* 		lTupelPointerIn;
 	unval_t* 	lTupelPointerOut;
 
 	byte* 		lAttrPointerIn;
 	unval_t* 	lAttrPointerOut;
 
-	while(_inputIndex < aSize)
+	while(_inputIndex < lTupleSize)
 	{
-		lTupelPointerIn = _input[_inputIndex]._pointer;
-		lTupelPointerOut = _output[_outputIndex]._unval_pt;
+		lTupelPointerIn = aTupel[_indexNo1]._unval_pt[_inputIndex]._pointer;
+		lTupelPointerOut = aTupel[_indexNo2]._unval_pt[_outputIndex]._unval_pt;
 		for(size_t i = 0; i < _noAttributes; ++i)
 		{
 			lAttrPointerIn = lTupelPointerIn + aRelation.getOffset()[_attrNoList[i]];
@@ -126,10 +124,10 @@ Project<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelation, const size_
 		++_inputIndex;
 		if(_outputIndex == _vectorizedSize)
 		{
-			_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 			_outputIndex = 0;
+			_nextOp->step(aTupel, aRelation, _vectorizedSize, aNoMoreData);
 			// _nextOp->printProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
-			if(_inputIndex < aSize)
+			if(_inputIndex < lTupleSize)
 			{
 				step(aTupel, aRelation, aSize, aNoMoreData);
 			}
@@ -138,8 +136,8 @@ Project<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelation, const size_
 	_inputIndex = 0;
 	if(aNoMoreData && _outputIndex > 0)
 	{
-		_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
-		_outputIndex = 0;
+		aTupel[_indexNo2]._unval_pt[_vectorizedSize]._size = _outputIndex;
+		_nextOp->step(aTupel, aRelation, _vectorizedSize, aNoMoreData);
 		// _nextOp->printProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 	}
 }
@@ -148,6 +146,8 @@ template<typename T_Consumer>
 void
 Project<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
+	const size_t lTupleSize = aTupel[_indexNo1]._unval_pt[aSize]._size;
+
 	PageInterpreterPAX aPageInterpreter;
 	uint32_t lPageNo;
 	uint32_t lRecordNo;
@@ -158,14 +158,14 @@ Project<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_
 	byte* 		lAttrPointerIn;
 	unval_t* 	lAttrPointerOut;
 
-	while(_inputIndex < aSize)
+	while(_inputIndex < lTupleSize)
 	{
-		lPageNo = _input[_inputIndex]._tid[0];
-		lRecordNo = _input[_inputIndex]._tid[1];
+		lPageNo = aTupel[_indexNo1]._unval_pt[_inputIndex]._tid[0];
+		lRecordNo = aTupel[_indexNo1]._unval_pt[_inputIndex]._tid[1];
 
 		aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
 
-		lTupelPointerOut = _output[_outputIndex]._unval_pt;
+		lTupelPointerOut = aTupel[_indexNo2]._unval_pt[_outputIndex]._unval_pt;
 
 
 		for(size_t i = 0; i < _noAttributes; ++i)
@@ -214,10 +214,10 @@ Project<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_
 		++_inputIndex;
 		if(_outputIndex == _vectorizedSize)
 		{
-			_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 			_outputIndex = 0;
+			_nextOp->step(aTupel, aRelation, _vectorizedSize, aNoMoreData);
 			// _nextOp->printProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
-			if(_inputIndex < aSize)
+			if(_inputIndex < lTupleSize)
 			{
 				step(aTupel, aRelation, aSize, aNoMoreData);
 			}
@@ -226,8 +226,8 @@ Project<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_
 	_inputIndex = 0;
 	if(aNoMoreData && _outputIndex > 0)
 	{
-		_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
-		_outputIndex = 0;
+		aTupel[_indexNo2]._unval_pt[_vectorizedSize]._size = _outputIndex;
+		_nextOp->step(aTupel, aRelation, _vectorizedSize, aNoMoreData);
 		// _nextOp->printProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 	}
 }
@@ -239,9 +239,9 @@ Project<T_Consumer>::finish(unval_vt& aTupel)
 	_nextOp->finish(aTupel);
 	for(size_t i = 0; i < _vectorizedSize; ++i)
 	{
-		delete[] _output[i]._unval_pt;
+		delete[] aTupel[_indexNo2]._unval_pt[i]._unval_pt;
 	}
-	delete[] _output;
+	delete[] aTupel[_indexNo2]._unval_pt;
 }
 
 

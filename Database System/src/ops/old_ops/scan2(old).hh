@@ -71,7 +71,8 @@ Scan<T_Consumer, T_Relation>::init()
 	_indexNo = _tuple.size();
 	_tuple.push_back(unval_t());
 	_output = _tuple[_indexNo]._unval_pt;
-	_output = new unval_t[_vectorizedSize];
+	_output = new unval_t[_vectorizedSize + 1];
+	_output[_vectorizedSize]._size = _vectorizedSize;
 	_nextOp->init(_tuple);
 }
 
@@ -116,19 +117,20 @@ Scan<T_Consumer, T_Relation>::startScan(NSM_Relation& aRelation)
 				{
 					_meas += (lMeasure.mTotalTime() * 1000);
 				}
-				_nextOp->step(_tuple, aRelation, lCounter, false);
+				_nextOp->step(_tuple, aRelation, _vectorizedSize, false);
 				lMeasure.start();
 				lCounter = 0;
 			}
 		}
 		if(!(++lPageNo < aRelation.getSegment().getNoPages()))	//if the previous page was the last page, hand over the vectorized buffer with the remaining record pointer
 		{
+			_output[_vectorizedSize]._size = lCounter;
 			lMeasure.stop();
 			if(MEASURE_GLOBAL)
 			{
 				_meas += (lMeasure.mTotalTime() * 1000);
 			}
-			_nextOp->step(_tuple, aRelation, lCounter, true);
+			_nextOp->step(_tuple, aRelation, _vectorizedSize, true);
 			lMeasure.start();
 			lCounter = 0;
 		}
@@ -175,19 +177,20 @@ Scan<T_Consumer, T_Relation>::startScan(PAX_Relation& aRelation)
 				{
 					_meas += (lMeasure.mTotalTime() * 1000);
 				}
-				_nextOp->step(_tuple, aRelation, lCounter, false);
+				_nextOp->step(_tuple, aRelation, _vectorizedSize, false);
 				lMeasure.start();
 				lCounter = 0;
 			}
 		}
 		if(!(++lPageNo < aRelation.getSegment().getNoPages()))	//if the previous page was the last page, hand over the vectorized buffer with the remaining record pointer
 		{
+			_output[_vectorizedSize]._size = lCounter;
 			lMeasure.stop();
 			if(MEASURE_GLOBAL)
 			{
 				_meas += (lMeasure.mTotalTime() * 1000);
 			}
-			_nextOp->step(_tuple, aRelation, lCounter, true);
+			_nextOp->step(_tuple, aRelation, _vectorizedSize, true);
 			lMeasure.start();
 		}
 		lRecordNo = 0;

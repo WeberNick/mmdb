@@ -1,5 +1,5 @@
 #CFLAGS = -g -Wall -Weffc++ -std=c++0x
-CFLAGS = -O3 -Wall -Weffc++ -std=c++0x
+CFLAGS = -O3 -std=c++0x
 
 CC = g++
 

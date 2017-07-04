@@ -70,6 +70,7 @@ union unval_t
 	uint32_t _tid[2];
 	unval_t* _unval_pt;
 };
+typedef unval_t* unval_pt;
 typedef std::vector<unval_t> unval_vt;
 typedef std::vector<unval_t*> unval_vpt;
 
