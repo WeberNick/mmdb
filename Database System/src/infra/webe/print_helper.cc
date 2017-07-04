@@ -148,6 +148,46 @@ void print_bulk_load_insert_result(const string_vt& aRelationNames, const double
 	}
 }
 
+void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData)
+{
+	std::ofstream raw;
+	std::string lTestName = "scan";
+	GM::System lSystem;
+	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL);
+	std::string lPath = std::string(PATH_GLOBAL) + "raw/" + lTestName + "_" + lSetting + ".txt";
+	raw.open(lPath.c_str(), std::ios::out | std::ios::trunc);
+	if(raw.is_open())
+	{
+		for(size_t i = 0; i < aAttrNo; ++i)
+		{
+			raw << (i+1) << ' ' << std::setprecision(3) << std::fixed << aMeasurementData[i] << std::endl;
+		}
+		raw.close();
+	}
+	
+	std::ostream* os = &std::cout;
+	std::ofstream out;
+	if(PRINT_GLOBAL)
+	{	
+		lPath = PATH_GLOBAL + lSetting + ".txt";
+		out.open(lPath.c_str(), std::ios::out | std::ios::app);
+		os = &out;
+	}
+
+	if(out.is_open() == PRINT_GLOBAL)
+	{
+		print_header(*os, lTestName);
+		for(size_t i = 0; i < aAttrNo; ++i)
+		{
+			*os << std::setw(10) << (i+1) << " attributes" << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "ms" << std::endl;
+		}
+		if(PRINT_GLOBAL)
+		{	
+			out.close();
+		}
+	}
+}
+
 void print_int_projection_result(const size_t aAttrNo, const double_vt& aMeasurementData)
 {
 	std::ofstream raw;

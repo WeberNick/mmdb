@@ -130,25 +130,27 @@ void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize)
 //   		print_bulk_load_insert_result(relation_names, bulk_insert_sumPerRel, false);
 // 	}
 
-void row_test_projection(NSM_Relation& aRelation, const size_t aAttrNo)
+void row_test_projection(NSM_Relation& aRelation, const size_t aAttrNo, const size_t aVectorizedSize)
 {
 	double_vt measure_int_projection(aAttrNo, 0);
+	double_vt measure_scan(aAttrNo, 0);
 	
 	for(size_t i = 0; i < aAttrNo; ++i)
 	{
+		std::cout << "Attr. " << (i+1) << "/" << aAttrNo << std::endl;
 		uint_vt lAttrNoList;
 		lAttrNoList.push_back(i);
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
-			row_top_test_query_t		lTop;
-			row_project_test_query_t	lProject(&lTop, lAttrNoList);
-			Scan<row_project_test_query_t, NSM_Relation> lScan(&lProject, aRelation);
+			row_top_test_query_t							lTop;
+			row_project_test_query_t						lProject(&lTop, lAttrNoList, aVectorizedSize);
+			Scan<row_project_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
 			Measure lMeasure;
 			if(MEASURE_GLOBAL)
 			{
 				lMeasure.start();
 			}
-			lScan.run();
+			measure_scan[i] += lScan.run();
 			lMeasure.stop();
 			if(MEASURE_GLOBAL)
 			{
@@ -162,30 +164,34 @@ void row_test_projection(NSM_Relation& aRelation, const size_t aAttrNo)
 		for(size_t i = 0; i < aAttrNo; ++i)
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
+			measure_scan[i] /= RUNS_GLOBAL;
 		}
 		print_int_projection_result(aAttrNo, measure_int_projection);
+		print_scan_result(aAttrNo, measure_scan);
 	}
 }
 
-void col_test_projection(PAX_Relation& aRelation, const size_t aAttrNo)
+void col_test_projection(PAX_Relation& aRelation, const size_t aAttrNo, const size_t aVectorizedSize)
 {
 	double_vt measure_int_projection(aAttrNo, 0);
+	double_vt measure_scan(aAttrNo, 0);
 	
 	for(size_t i = 0; i < aAttrNo; ++i)
 	{
+		std::cout << "Attr. " << (i+1) << "/" << aAttrNo << std::endl;
 		uint_vt lAttrNoList;
 		lAttrNoList.push_back(i);
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
-			col_top_test_query_t		lTop;
-			col_project_test_query_t	lProject(&lTop, lAttrNoList);
-			Scan<col_project_test_query_t, PAX_Relation> lScan(&lProject, aRelation);
+			col_top_test_query_t							lTop;
+			col_project_test_query_t						lProject(&lTop, lAttrNoList, aVectorizedSize);
+			Scan<col_project_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
 			Measure lMeasure;
 			if(MEASURE_GLOBAL)
 			{
 				lMeasure.start();
 			}
-			lScan.run();
+			measure_scan[i] += lScan.run();
 			lMeasure.stop();
 			if(MEASURE_GLOBAL)
 			{
@@ -199,8 +205,10 @@ void col_test_projection(PAX_Relation& aRelation, const size_t aAttrNo)
 		for(size_t i = 0; i < aAttrNo; ++i)
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
+			measure_scan[i] /= RUNS_GLOBAL;
 		}
 		print_int_projection_result(aAttrNo, measure_int_projection);
+		print_scan_result(aAttrNo, measure_scan);
 	}
 }
 

@@ -37,9 +37,9 @@ void row_test_query(NSM_Relation& aRelation, const size_t aVectorizedSize);
 
 void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize);
 
-void row_test_projection(NSM_Relation& aRelation, const size_t aNoAttr);
+void row_test_projection(NSM_Relation& aRelation, const size_t aNoAttr, const size_t aVectorizedSize);
 
-void col_test_projection(PAX_Relation& aRelation, const size_t aNoAttr);
+void col_test_projection(PAX_Relation& aRelation, const size_t aNoAttr, const size_t aVectorizedSize);
 
 
 #endif

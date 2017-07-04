@@ -8,6 +8,8 @@
 #include "relation/pax_relation.hh"
 #include "pax/page_interpreter_pax.hh"
 
+#include "infra/moer/measure.hh"
+
 #include <vector>
 
 template<typename T_Consumer, typename T_Relation>
@@ -18,7 +20,7 @@ class Scan
 		Scan(T_Consumer* aConsumer, T_Relation& aRelation, const size_t aVectorizedSize);
 
 	public:
-		void run();
+		double run();
 
 	private:
 		void init();
@@ -32,6 +34,7 @@ class Scan
 		const size_t _vectorizedSize;
 		unval_vt _output;
 		size_t _indexNo;
+		double _meas;
 
 };
 
@@ -51,17 +54,19 @@ Scan<T_Consumer, T_Relation>::Scan(
 {}
 
 template<typename T_Consumer, typename T_Relation>
-void Scan<T_Consumer, T_Relation>::run()
+double Scan<T_Consumer, T_Relation>::run()
 {
 	init();
 	startScan(_relation);
 	finish();
+	return _meas;
 }
 
 template<typename T_Consumer, typename T_Relation>
 void
 Scan<T_Consumer, T_Relation>::init() 
 {
+	_meas = 0;
 	_indexNo = _output.size();
 	_output.push_back(unval_t());
 	_output[_indexNo]._unval_pt = new unval_t[_vectorizedSize + 1];
@@ -81,6 +86,11 @@ template<typename T_Consumer, typename T_Relation>
 void
 Scan<T_Consumer, T_Relation>::startScan(NSM_Relation& aRelation)
 {
+	Measure lMeasure;
+	if(MEASURE_GLOBAL)
+	{
+		lMeasure.start();
+	}
 	size_t lPageNo = 0;
 	size_t lRecordNo = 0;
 	size_t lCounter = 0;
@@ -98,16 +108,33 @@ Scan<T_Consumer, T_Relation>::startScan(NSM_Relation& aRelation)
 			}
 			else												//if the vectorized buffer is full hand it over to the next operator
 			{
+				lMeasure.stop();
+				if(MEASURE_GLOBAL)
+				{
+					_meas += (lMeasure.mTotalTime() * 1000);
+				}
 				_nextOp->step(_output, aRelation, _vectorizedSize, false);
+				lMeasure.start();
 				lCounter = 0;
 			}
 		}
 		if(!(++lPageNo < aRelation.getSegment().getNoPages()))	//if the previous page was the last page, hand over the vectorized buffer with the remaining record pointer
 		{
 			_output[_indexNo]._unval_pt[_vectorizedSize]._size = lCounter;
+			lMeasure.stop();
+			if(MEASURE_GLOBAL)
+			{
+				_meas += (lMeasure.mTotalTime() * 1000);
+			}
 			_nextOp->step(_output, aRelation, _vectorizedSize, true);
+			lMeasure.start();
 		}
 		lRecordNo = 0;
+	}
+	lMeasure.stop();
+	if(MEASURE_GLOBAL)
+	{
+		_meas += (lMeasure.mTotalTime() * 1000);
 	}
 }
 
@@ -115,6 +142,11 @@ template<typename T_Consumer, typename T_Relation>
 void
 Scan<T_Consumer, T_Relation>::startScan(PAX_Relation& aRelation)
 {
+	Measure lMeasure;
+	if(MEASURE_GLOBAL)
+	{
+		lMeasure.start();
+	}
 	size_t lPageNo = 0;
 	size_t lRecordNo = 0;
 	size_t lCounter = 0;
@@ -133,16 +165,33 @@ Scan<T_Consumer, T_Relation>::startScan(PAX_Relation& aRelation)
 			}
 			else												//if the vectorized buffer is full hand it over to the next operator
 			{
+				lMeasure.stop();
+				if(MEASURE_GLOBAL)
+				{
+					_meas += (lMeasure.mTotalTime() * 1000);
+				}
 				_nextOp->step(_output, aRelation, _vectorizedSize, false);
+				lMeasure.start();
 				lCounter = 0;
 			}
 		}
 		if(!(++lPageNo < aRelation.getSegment().getNoPages()))	//if the previous page was the last page, hand over the vectorized buffer with the remaining record pointer
 		{
 			_output[_indexNo]._unval_pt[_vectorizedSize]._size = lCounter;
+			lMeasure.stop();
+			if(MEASURE_GLOBAL)
+			{
+				_meas += (lMeasure.mTotalTime() * 1000);
+			}
 			_nextOp->step(_output, aRelation, _vectorizedSize, true);
+			lMeasure.start();
 		}
 		lRecordNo = 0;
+	}
+	lMeasure.stop();
+	if(MEASURE_GLOBAL)
+	{
+		_meas += (lMeasure.mTotalTime() * 1000);
 	}
 }
 

@@ -86,9 +86,10 @@ int main(const int argc, const char* argv[])
 	ALIGNMENT_GLOBAL 		= lArgs.alignment();
 	MEMCHUNK_SIZE_GLOBAL 	= lArgs.chunkSize();
 	RUNS_GLOBAL 			= lArgs.runs();
+	VECTORIZE_SIZE_GLOBAL	= lArgs.vectorizedSize();
 	MEASURE_GLOBAL 			= lArgs.measure();
 	PRINT_GLOBAL 			= lArgs.print();
-	std::string tmp = lArgs.path() + storageModel + "/";
+	std::string tmp 		= lArgs.path() + storageModel + "/";
 	PATH_GLOBAL 			= tmp.c_str();
 
 	/***************************************************************************************************
@@ -115,7 +116,7 @@ int main(const int argc, const char* argv[])
 		if(out.is_open() == PRINT_GLOBAL)
 		{
 			print_header(*os, lHeader);
-			*os << std::setw(15) << "Page Size: " << PAGE_SIZE_GLOBAL << "    " << "Alignment: " << ALIGNMENT_GLOBAL << "    " << "#Runs: " << RUNS_GLOBAL << std::endl;
+			*os << std::setw(15) << "Page Size: " << PAGE_SIZE_GLOBAL << "    " << "Alignment: " << ALIGNMENT_GLOBAL << "    " << "#Runs: " << RUNS_GLOBAL << "    " << "VectorizedSize: " << VECTORIZE_SIZE_GLOBAL << std::endl;
 			print_header(*os, "System");
 			lSystem.print(*os);
 			print_header(*os, "RANDOM vs. SEQUENTIAL MEMORY ACCESS");
@@ -128,7 +129,6 @@ int main(const int argc, const char* argv[])
 		}
 	}
 	#endif
-
 
 	/***************************************************************************************************
 	** If the 'NSM'- or 'PAX'-flag was set, the DBS loads the respective storage model mode ************
@@ -161,7 +161,7 @@ int main(const int argc, const char* argv[])
 		{
 			BIG_INT_RELATION<NSM_Relation> b_i_r(true);
 			b_i_r.init(100, 10000000, lArgs.bufferSize());
-			row_test_projection(b_i_r.getRelation(), 100);
+			row_test_projection(b_i_r.getRelation(), 100, lArgs.vectorizedSize());
 		}
 		else
 		{
@@ -195,7 +195,7 @@ int main(const int argc, const char* argv[])
 		{
 			BIG_INT_RELATION<PAX_Relation> b_i_r(false);
 			b_i_r.init(100, 10000000, lArgs.bufferSize());
-			col_test_projection(b_i_r.getRelation(), 100);
+			col_test_projection(b_i_r.getRelation(), 100, lArgs.vectorizedSize());
 		}
 		else
 		{

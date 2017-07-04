@@ -21,9 +21,6 @@ class Args
 		inline const bool pax(){ return _pax;}
 		inline void pax(const bool& x){ _pax = x;}
 
-		inline const bool vectorized(){ return _vectorized;}
-		inline void vectorized(const bool& x){ _vectorized = x;}
-
 		inline const uint core(){ return _core;}
 		inline void core(const uint& x){ _core = x;}
 
@@ -67,7 +64,7 @@ class Args
 		inline void runs(const uint& x){ _runs = x;}
 
 		inline const uint vectorizedSize(){ return _vectorizedSize;}
-		inline void vectorizedSize(const uint& x){ _vectorizedSize = x; vectorized(true);}
+		inline void vectorizedSize(const uint& x){ _vectorizedSize = x;}
 
 		inline const char delimiter(){ return _delimiter; }
 		inline void delimiter(const char& x) { _delimiter = x; }
@@ -82,7 +79,6 @@ class Args
 		bool _help;
 		bool _nsm;
 		bool _pax;
-		bool _vectorized;
 		bool _tpch;
 		bool _int_relation;
 		bool _all;
