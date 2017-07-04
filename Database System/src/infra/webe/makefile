@@ -3,8 +3,8 @@ CFLAGS = -O3 -Wall -Weffc++ -std=c++0x
 
 CC = g++
 
-#INCL = -I../.. -I.. -I/home/nickwebe/boost_1_63_0
-INCL = -I../.. -I.. -I/usr/local/boost_for_gcc/include
+INCL = -I../.. -I.. -I/home/nickwebe/boost_1_63_0
+#INCL = -I../.. -I.. -I/usr/local/boost_for_gcc/include
 
 VPATH = .:..:../..
 
