@@ -134,11 +134,11 @@ void row_test_projection(NSM_Relation& aRelation, const size_t aAttrNo, const si
 {
 	double_vt measure_int_projection(aAttrNo, 0);
 	double_vt measure_scan(aAttrNo, 0);
+	uint_vt lAttrNoList;
 	
 	for(size_t i = 0; i < aAttrNo; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aAttrNo << std::endl;
-		uint_vt lAttrNoList;
 		lAttrNoList.push_back(i);
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
@@ -175,11 +175,11 @@ void col_test_projection(PAX_Relation& aRelation, const size_t aAttrNo, const si
 {
 	double_vt measure_int_projection(aAttrNo, 0);
 	double_vt measure_scan(aAttrNo, 0);
+	uint_vt lAttrNoList;
 	
 	for(size_t i = 0; i < aAttrNo; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aAttrNo << std::endl;
-		uint_vt lAttrNoList;
 		lAttrNoList.push_back(i);
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{

@@ -1,8 +1,7 @@
-#CFLAGS = -g -Wall -Weffc++ -std=c++0x
-CFLAGS = -O3 -std=c++0x
+#CXXFLAGS = -g -Wall -Weffc++ -std=c++0x
+CXXFLAGS = -O2 -g -std=c++0x
 
 CC = g++
-# CC = g++-4.6
 
 INCL = -I../.. -I..
 
@@ -29,7 +28,7 @@ OBJ = \
 all : $(OBJ)
 
 tpc_h.o : tpc_h.cc tpc_h.hh $(HDR)
-	$(CC) -c $(CFLAGS) $(INCL) tpc_h.cc
+	$(CC) -c $(CXXFLAGS) $(INCL) tpc_h.cc
 
 clean :
 	rm -f *.o a.out

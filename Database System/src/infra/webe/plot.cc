@@ -107,7 +107,7 @@ void plotIntProjection(const std::string nsmPath, const string_vt& nsmDataFilesT
 		gp << "set style data linespoints\n";
 		gp << "set pointsize 0.5\n";
 		gp << "set auto x\n";
-		gp << "set yrange [0:600]\n";
+		gp << "set yrange [0:3000]\n";
 		gp << "set key top left font ', 10'\n";
 
 		std::string command = "plot ";

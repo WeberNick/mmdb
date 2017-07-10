@@ -70,8 +70,8 @@ Scan<T_Consumer, T_Relation>::init()
 	_meas = 0;
 	_indexNo = _tuple.size();
 	_tuple.push_back(unval_t());
+	_tuple[_indexNo]._unval_pt = new unval_t[_vectorizedSize];
 	_output = _tuple[_indexNo]._unval_pt;
-	_output = new unval_t[_vectorizedSize];
 	_nextOp->init(_tuple);
 }
 

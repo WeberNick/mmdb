@@ -26,8 +26,8 @@ void construct_arg_desc(argdesc_vt& x)
 	x.push_back( new barg_t("--print", false, &Args::print, "sets the flag to print all test results into a file"));
 	x.push_back( new barg_t("--plot", false, &Args::plot, "sets the flag to start the plotting process"));
 	x.push_back( new sarg_t("--path", "../data/", &Args::path, "path to the location where to store results of tests. relative path from folder 'src' or absolute path possible"));
-	x.push_back( new uarg_t("--runs", 1, &Args::runs, "the number of how often a test is repeated"));
-	x.push_back( new uarg_t("--vectorizedsize", 1, &Args::vectorizedSize, "use vectorized processing and assigns a vector size"));
+	x.push_back( new uarg_t("--runs", 1, &Args::runs, "the number how often a test is repeated"));
+	x.push_back( new uarg_t("--vectorized", 1, &Args::vectorized, "use vectorized processing and assigns a vector size"));
 	x.push_back( new carg_t("--del", '\0', &Args::delimiter, "string delimiter used in the input file. char '\\0' (NUL) is the default delimiter and indicates that no delimiter is used"));
 	x.push_back( new carg_t("--sep", '|', &Args::seperator, "attribute/column seperator used in the input file (e.g, '|', ';', ',',...)"));
 	x.push_back( new uarg_t("--buffersize", 1000, &Args::bufferSize, "the number of tuples per chunk in the bulk load buffer"));
@@ -50,7 +50,7 @@ Args::Args() :
 	_chunkSize(1000),
 	_bufferSize(1000),
 	_runs(1),
-	_vectorizedSize(1),
+	_vectorized(1),
 	_delimiter(0),
 	_seperator(124),
 	_sf("1.0"),

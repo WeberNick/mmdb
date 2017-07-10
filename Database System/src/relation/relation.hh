@@ -42,6 +42,8 @@ class Relation
 		inline const schema_vt& getLogSchema() const;
 		/**/
 		inline const Relation::attr_desc_vt& getAttrDesc() const;
+		/**/
+		inline const Relation::cont_desc_vt& getContDesc() const;
 		/*return the logical size of a tuple (in bytes)*/
 		inline const uint getLogTupleSize() const;
 		/*return a reference to the vector storing the addresses of the container*/
@@ -101,6 +103,11 @@ const schema_vt& Relation::getLogSchema() const
 const Relation::attr_desc_vt& Relation::getAttrDesc() const
 {
 	return _attrDescVec;
+}
+
+const Relation::cont_desc_vt& Relation::getContDesc() const
+{
+	return _contDescVec;
 }
 
 const uint Relation::getLogTupleSize() const

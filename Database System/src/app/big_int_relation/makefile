@@ -1,8 +1,7 @@
-#CFLAGS = -g -Wall -Weffc++ -std=c++0x
-CFLAGS = -O3 -std=c++0x
+#CXXFLAGS = -g -Wall -Weffc++ -std=c++0x
+CXXFLAGS = -O2 -g -std=c++0x
 
 CC = g++
-# CC = g++-4.6
 
 INCL = -I../.. -I..
 
@@ -29,7 +28,7 @@ OBJ = \
 all : $(OBJ)
 
 big_int_relation.o : big_int_relation.cc big_int_relation.hh $(HDR)
-	$(CC) -c $(CFLAGS) $(INCL) big_int_relation.cc
+	$(CC) -c $(CXXFLAGS) $(INCL) big_int_relation.cc
 
 clean :
 	rm -f *.o a.out

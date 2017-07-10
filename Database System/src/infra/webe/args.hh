@@ -63,8 +63,8 @@ class Args
 		inline const uint runs(){ return _runs;}
 		inline void runs(const uint& x){ _runs = x;}
 
-		inline const uint vectorizedSize(){ return _vectorizedSize;}
-		inline void vectorizedSize(const uint& x){ _vectorizedSize = x;}
+		inline const uint vectorized(){ return _vectorized;}
+		inline void vectorized(const uint& x){ _vectorized = x;}
 
 		inline const char delimiter(){ return _delimiter; }
 		inline void delimiter(const char& x) { _delimiter = x; }
@@ -93,7 +93,7 @@ class Args
 		uint _chunkSize;		//memory chunk
 		uint _bufferSize;	//bulk load buffer chunk
 		uint _runs;
-		uint _vectorizedSize;
+		uint _vectorized;
 
 		char _delimiter;
 		char _seperator;

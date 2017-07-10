@@ -1,6 +1,6 @@
-#CFLAGS = -g -Wall -Weffc++ -std=c++0x
-CFLAGS = -O2 -std=c++0x
-#CFLAGS = -O3 -std=c++0x
+#CXXFLAGS = -g -Wall -Weffc++ -std=c++0x
+CXXFLAGS = -O2 -g -std=c++0x
+#CXXFLAGS = -O3 -std=c++0x
 
 CC = g++
 
@@ -104,7 +104,7 @@ main: main.o $(OBJ)
 #	$(CC) -o main main.o $(OBJ) -L/usr/local/boost_for_gcc/lib -lboost_iostreams -lboost_system -lboost_filesystem
 
 main.o : main.cc $(HDR)
-	$(CC) -c $(CFLAGS) $(INCL) main.cc
+	$(CC) -c $(CXXFLAGS) $(INCL) main.cc
 
 clean :
 	rm -f *.o a.out $(ALL)

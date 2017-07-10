@@ -1,9 +1,8 @@
-#CFLAGS = -g -Wall -Weffc++ -std=c++0x
-CFLAGS = -O2 -Wall -Weffc++ -std=c++0x
-#CFLAGS = -O3 -Wall -Weffc++ -std=c++0x
+#CXXFLAGS = -g -Wall -Weffc++ -std=c++0x
+CXXFLAGS = -O2 -g -Wall -Weffc++ -std=c++0x
+#CXXFLAGS = -O3 -Wall -Weffc++ -std=c++0x
 
 CC = g++
-# CC = g++-4.6
 
 INCL = -I../.. -I..
 
@@ -32,10 +31,10 @@ OBJ = \
 all : $(OBJ)
 
 test_query.o : test_query.cc test_query.hh $(HDRQ) test_pred.hh
-	$(CC) -c $(CFLAGS) $(INCL) test_query.cc
+	$(CC) -c $(CXXFLAGS) $(INCL) test_query.cc
 
 test_pred.o : test_pred.cc test_pred.hh $(HDRQ) ../pax/page_interpreter_pax.hh
-	$(CC) -c $(CFLAGS) $(INCL) test_pred.cc
+	$(CC) -c $(CXXFLAGS) $(INCL) test_pred.cc
 
 clean :
 	rm -f *.o a.out

@@ -53,9 +53,9 @@ Select<T_Consumer, T_Predicate, T_Relation>::init(unval_vt& aTupel)
 	_indexNo1 = aTupel.size() - 1;
 	_indexNo2 = aTupel.size();
 	aTupel.push_back(unval_t());
+	aTupel[_indexNo2]._unval_pt = new unval_t[_vectorizedSize];
 	_input = aTupel[_indexNo1]._unval_pt;
 	_output = aTupel[_indexNo2]._unval_pt;
-	_output = new unval_t[_vectorizedSize];
 	_nextOp->init(aTupel);
 }
 

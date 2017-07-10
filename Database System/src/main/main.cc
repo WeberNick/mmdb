@@ -86,7 +86,7 @@ int main(const int argc, const char* argv[])
 	ALIGNMENT_GLOBAL 		= lArgs.alignment();
 	MEMCHUNK_SIZE_GLOBAL 	= lArgs.chunkSize();
 	RUNS_GLOBAL 			= lArgs.runs();
-	VECTORIZE_SIZE_GLOBAL	= lArgs.vectorizedSize();
+	VECTORIZE_SIZE_GLOBAL	= lArgs.vectorized();
 	MEASURE_GLOBAL 			= lArgs.measure();
 	PRINT_GLOBAL 			= lArgs.print();
 	std::string tmp 		= lArgs.path() + storageModel + "/";
@@ -142,7 +142,7 @@ int main(const int argc, const char* argv[])
 			if(lArgs.all())
 			{
 				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize());
-				row_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorizedSize());
+				row_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorized());
 
 				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_updateInt_path);
 				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, MEASURE_GLOBAL, 1, r_bulk_load_path);
@@ -161,7 +161,7 @@ int main(const int argc, const char* argv[])
 		{
 			BIG_INT_RELATION<NSM_Relation> b_i_r(true);
 			b_i_r.init(100, 10000000, lArgs.bufferSize());
-			row_test_projection(b_i_r.getRelation(), 100, lArgs.vectorizedSize());
+			row_test_projection(b_i_r.getRelation(), 100, lArgs.vectorized());
 		}
 		else
 		{
@@ -177,7 +177,7 @@ int main(const int argc, const char* argv[])
 			if(lArgs.all())
 			{
 				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize());
-				col_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorizedSize());
+				col_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorized());
 				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_updateInt_path);
 				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, MEASURE_GLOBAL, 1, r_bulk_load_path);
 				// row_test_query1(nsm_rel_vec[1], VECTORIZE_SIZE_GLOBAL, selectivity, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_query1_path);
@@ -195,7 +195,7 @@ int main(const int argc, const char* argv[])
 		{
 			BIG_INT_RELATION<PAX_Relation> b_i_r(false);
 			b_i_r.init(100, 10000000, lArgs.bufferSize());
-			col_test_projection(b_i_r.getRelation(), 100, lArgs.vectorizedSize());
+			col_test_projection(b_i_r.getRelation(), 100, lArgs.vectorized());
 		}
 		else
 		{

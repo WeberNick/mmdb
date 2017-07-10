@@ -1,8 +1,7 @@
-#CFLAGS = -g -Wall -Weffc++ -std=c++0x
-CFLAGS = -O3 -Wall -Weffc++ -std=c++0x
+#CXXFLAGS = -g -Wall -Weffc++ -std=c++0x
+CXXFLAGS = -O2 -g -Wall -Weffc++ -std=c++0x
 
 CC = g++
-# CC = g++-4.6
 
 INCL = -I../.. -I..
 
@@ -24,10 +23,10 @@ OBJ = \
 all : $(OBJ)
 
 page_interpreter_sp.o : page_interpreter_sp.cc page_interpreter_sp.hh $(HDR)
-	$(CC) -c $(CFLAGS) $(INCL) page_interpreter_sp.cc
+	$(CC) -c $(CXXFLAGS) $(INCL) page_interpreter_sp.cc
 
 bulk_insert_sp.o : bulk_insert_sp.cc bulk_insert_sp.hh page_interpreter_sp.hh $(HDR)
-	$(CC) -c $(CFLAGS) $(INCL) bulk_insert_sp.cc
+	$(CC) -c $(CXXFLAGS) $(INCL) bulk_insert_sp.cc
 
 clean :
 	rm -f *.o a.out
