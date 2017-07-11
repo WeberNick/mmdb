@@ -7,12 +7,10 @@ BulkInsertPAX::BulkInsertPAX()
 
 void BulkInsertPAX::bulk_insert(const std::vector<unval_t*>& aBuffer, const uint aTuplePerChunk, const uint aTupleTotal, PAX_Relation* aRelation)
 {
-	uint_vt lPartitionData(aRelation->getNoAttributes() + 1);
 	uint_vt lMiniPageOffsets(aRelation->getNoAttributes());
 	uint_vt lMiniPageAttrSize(aRelation->getNoAttributes());
-	aRelation->getPartitionData(lPartitionData);
 	PageInterpreterPAX lPageInterpreter;
-	lPageInterpreter.initNewPage(aRelation->getSegment().getNewPage(), lPartitionData);
+	lPageInterpreter.initNewPage(aRelation->getSegment().getNewPage(), aRelation->getPartitionData());
 	for(uint i = 0; i < aRelation->getNoAttributes(); ++i)
     {
       lMiniPageOffsets[i] = lPageInterpreter.getMiniPageOffset(i);
@@ -32,7 +30,7 @@ void BulkInsertPAX::bulk_insert(const std::vector<unval_t*>& aBuffer, const uint
 			int index = lPageInterpreter.addNewRecord(aRelation->getLogTupleSize());
 			if(index == -1)
 			{
-				lPageInterpreter.initNewPage(aRelation->getSegment().getNewPage(), lPartitionData);
+				lPageInterpreter.initNewPage(aRelation->getSegment().getNewPage(), aRelation->getPartitionData());
 			}
 			else
 			{

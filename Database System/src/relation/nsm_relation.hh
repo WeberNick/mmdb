@@ -16,6 +16,8 @@ class NSM_Relation : public Relation
 		void printNSM(uint aNoPages, uint aMod);
 		void print(const unval_t* aTupel, std::ostream& os, const size_t aSize);
 
+		inline const uint_vt& getPartitionData() const;
+
 	public:
 		NSM_Relation();
 		NSM_Relation(const std::string aRelName, const attr_desc_vt& aAttrDesc, const schema_vt& aLogSchema, const cont_desc_vt& aContDesc, Segment aSegment, byte_vpt& aDictEntryPointer);
@@ -28,6 +30,11 @@ class NSM_Relation : public Relation
 };
 
 const uint_vt& NSM_Relation::getOffset() const
+{
+	return _offset;
+}
+
+const uint_vt& NSM_Relation::getPartitionData() const
 {
 	return _offset;
 }

@@ -9,6 +9,7 @@
 #include "relation/pax_relation.hh"
 #include "ops/top.hh"
 #include "ops/project.hh"
+#include "ops/project_mat.hh"
 #include "ops/select.hh"
 #include "ops/scan.hh"
 
@@ -17,11 +18,8 @@
 
 
 #include <stdlib.h>
-#include <fstream>
+#include <iostream>
 #include <vector>
-
-#include <thread>         // std::this_thread::sleep_for
-#include <chrono>  
 
 typedef Top<false>													row_top_test_query_t;
 typedef Project<row_top_test_query_t>								row_project_test_query_t;
@@ -33,6 +31,11 @@ typedef Project<col_top_test_query_t>								col_project_test_query_t;
 typedef Select<col_project_test_query_t, TestPred, PAX_Relation>	col_select_test_query_t;
 typedef Scan<col_select_test_query_t, PAX_Relation> 				col_scan_test_query_t;
 
+typedef MaterializedProject<row_top_test_query_t, NSM_Relation, NSM_Relation> rowToRow_project_mat_test_query_t;
+typedef MaterializedProject<col_top_test_query_t, NSM_Relation, PAX_Relation> rowToCol_project_mat_test_query_t;
+typedef MaterializedProject<row_top_test_query_t, PAX_Relation, NSM_Relation> colToRow_project_mat_test_query_t;
+typedef MaterializedProject<col_top_test_query_t, PAX_Relation, PAX_Relation> colToCol_project_mat_test_query_t;
+
 void row_test_query(NSM_Relation& aRelation, const size_t aVectorizedSize);
 
 void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize);
@@ -40,6 +43,10 @@ void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize);
 void row_test_projection(NSM_Relation& aRelation, const size_t aNoAttr, const size_t aVectorizedSize);
 
 void col_test_projection(PAX_Relation& aRelation, const size_t aNoAttr, const size_t aVectorizedSize);
+
+void row_test_projection_mat(NSM_Relation& aRelation, const size_t aNoAttr, const size_t aVectorizedSize);
+
+void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoAttr, const size_t aVectorizedSize);
 
 
 #endif

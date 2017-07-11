@@ -8,9 +8,8 @@
 
 class PAX_Relation : public Relation
 {
-	public:
-		/*fills the vector passed as parameter with the information needed to partition the pax page*/
-		void getPartitionData(uint_vt& aAttrSizeVec);
+	public:		
+		inline const uint_vt& getPartitionData() const;
 		/*initialize the relation*/
 		void initSubRelation(const std::string aRelName, const attr_desc_vt& aAttrDesc, const schema_vt& aLogSchema, const cont_desc_vt& aContDesc, Segment aSegment, byte_vpt& aDictEntryPointer);
 		void printPAX(uint aNoPages, uint aMod);
@@ -23,6 +22,16 @@ class PAX_Relation : public Relation
 		~PAX_Relation();
 
 	private:
+		/*fills the vector passed as parameter with the information needed to partition the pax page*/
+		void setPartitionData();
+
+	private:
+		uint_vt _partitionData;
 };
+
+const uint_vt& PAX_Relation::getPartitionData() const
+{
+	return _partitionData;
+}
 
 #endif

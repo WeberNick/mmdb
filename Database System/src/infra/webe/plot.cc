@@ -39,26 +39,31 @@ void getIndeces(uint_vt& nsmPlotIndeces, const string_vvt& nsmFileNameTokens, ui
 	}
 }
 
-void plotBulkLoadInsert(const std::string nsmPath, const string_vt& nsmDataFilesToPlot, const string_vvt& nsmFileNameTokens, const uint_vt& nsmPlotIndeces, const std::string paxPath, const string_vt& paxDataFilesToPlot, const string_vvt& paxFileNameTokens, const uint_vt& paxPlotIndeces)
+void plotBulkLoadInsert(const bool aIsLoad, const std::string nsmPath, const string_vt& nsmDataFilesToPlot, const string_vvt& nsmFileNameTokens, const uint_vt& nsmPlotIndeces, const std::string paxPath, const string_vt& paxDataFilesToPlot, const string_vvt& paxFileNameTokens, const uint_vt& paxPlotIndeces)
 {
 	const size_t numberOfFilesToPlot = nsmPlotIndeces.size() + paxPlotIndeces.size();
+
+	const std::string lTestName = (aIsLoad) ? "Bulk Loading" : "Bulk Insert";
+
+	std::string lFileName = (aIsLoad) ? "bulk_load" : "bulk_insert";
+
 	if(numberOfFilesToPlot != 0)
 	{
 		Gnuplot gp;
 		gp << "set terminal pdf\n";
-		gp << "set output '../results/bulk_load.pdf'\n";
+		gp << "set output '../results/" << lFileName << ".pdf'\n";
 		gp << "set grid\n";
 		gp << "set autoscale\n";
 		gp << "set ylabel 'Average time in sec' font ',12'\n";
 		gp << "set xtics font ',8'\n";
-		gp << "set title 'Average Time of Bulk Loading each Relation' font ',15'\n";
+		gp << "set title 'Average Time of " << lTestName << " each Relation' font ',15'\n";
 		gp << "set boxwidth 0.7 relative\n";
 		gp << "set style data histograms\n";
 		gp << "set style histogram cluster\n";
 		gp << "set style fill solid 1.0 border lt -1\n";
 		gp << "set auto x\n";
 		gp << "set auto y\n";
-		gp << "set key top left font ', 10'\n";
+		gp << "set key top left font ', 6'\n";
 
 		std::string command = "plot ";
 		std::string title;
@@ -107,6 +112,7 @@ void plotIntProjection(const std::string nsmPath, const string_vt& nsmDataFilesT
 		gp << "set style data linespoints\n";
 		gp << "set pointsize 0.5\n";
 		gp << "set auto x\n";
+		// gp << "set xrange [0:20]\n";
 		gp << "set yrange [0:3000]\n";
 		gp << "set key top left font ', 10'\n";
 
@@ -232,9 +238,9 @@ void startPlotProcess()
 	uint_vvt nsmPlotIndeces(4);
 	uint_vvt paxPlotIndeces(4);
 	getIndeces(nsmPlotIndeces[0], nsmFileNameTokens, paxPlotIndeces[0], paxFileNameTokens, "load");
-	plotBulkLoadInsert(nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[0], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[0]);
+	plotBulkLoadInsert(true, nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[0], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[0]);
 	getIndeces(nsmPlotIndeces[1], nsmFileNameTokens, paxPlotIndeces[1], paxFileNameTokens, "insert");
-	plotBulkLoadInsert(nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[1], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[1]);
+	plotBulkLoadInsert(false, nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[1], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[1]);
 	getIndeces(nsmPlotIndeces[2], nsmFileNameTokens, paxPlotIndeces[2], paxFileNameTokens, "int-projection");
 	plotIntProjection(nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[2], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[2]);
 	getIndeces(nsmPlotIndeces[3], nsmFileNameTokens, paxPlotIndeces[3], paxFileNameTokens, "scan");

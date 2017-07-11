@@ -4,7 +4,7 @@ PageInterpreterPAX::PageInterpreterPAX() : _pp(NULL), _header(NULL), _slot(NULL)
 }
 
 void 
-PageInterpreterPAX::initNewPage(byte* aPP, uint_vt& aPartitionData) {
+PageInterpreterPAX::initNewPage(byte* aPP, const uint_vt& aPartitionData) {
   if(aPP)
   {
     attach(aPP);

@@ -44,6 +44,7 @@ HDR = \
 	../ops/scan.hh \
 	../ops/select.hh \
 	../ops/project.hh \
+	../ops/project_mat.hh \
 	../ops/top.hh \
 	\
 	\

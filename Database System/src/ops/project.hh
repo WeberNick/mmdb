@@ -41,7 +41,7 @@ template<typename T_Consumer>
 Project<T_Consumer>::Project(
 									T_Consumer* aConsOp, 
 									const uint_vt& aAttrNoList)
-	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(1), _indexNo1(), _input(), _indexNo2(), _output(), _inputIndex(), _outputIndex()
+	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(1), _indexNo1(0), _input(), _indexNo2(0), _output(), _inputIndex(0), _outputIndex(0)
 {}
 
 template<typename T_Consumer>
@@ -49,7 +49,7 @@ Project<T_Consumer>::Project(
 									T_Consumer* aConsOp, 
 									const uint_vt& aAttrNoList, 
 									size_t aVectorizedSize)
-	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(aVectorizedSize), _indexNo1(), _indexNo2(), _inputIndex(), _outputIndex()
+	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(aVectorizedSize), _indexNo1(0), _input(), _indexNo2(0), _output(), _inputIndex(0), _outputIndex(0)
 {}
 
 template<typename T_Consumer>

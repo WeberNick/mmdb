@@ -1,22 +1,26 @@
 #include "pax_relation.hh"
 
 PAX_Relation::PAX_Relation() :
-	Relation()
+	Relation(), _partitionData()
 {}
 
 PAX_Relation::PAX_Relation(const std::string aRelName, const attr_desc_vt& aAttrDesc, const schema_vt& aLogSchema, const cont_desc_vt& aContDesc, Segment aSegment, byte_vpt& aDictEntryPointer) :
-	Relation(aRelName, aAttrDesc, aLogSchema, aContDesc, aSegment, aDictEntryPointer)
-{}
+	Relation(aRelName, aAttrDesc, aLogSchema, aContDesc, aSegment, aDictEntryPointer), _partitionData(_noAttributes + 1, 0)
+{
+	setPartitionData();
+}
 
 PAX_Relation::PAX_Relation(const PAX_Relation& aRelation) :
-	Relation(aRelation)
-{}
+	Relation(aRelation), _partitionData(_noAttributes + 1, 0)
+{
+	setPartitionData();
+}
 
 PAX_Relation::~PAX_Relation()
 {
 }
 
-void PAX_Relation::getPartitionData(uint_vt& aAttrSizeVec)
+void PAX_Relation::setPartitionData()
 {
 	uint lTotalAttrSize = 0;
 	for(uint i = 0; i < _logSchemaVec.size(); ++i)
@@ -24,7 +28,7 @@ void PAX_Relation::getPartitionData(uint_vt& aAttrSizeVec)
 		switch(_logSchemaVec[i])
 		{
 			case kCHAR:
-				aAttrSizeVec[i] = 1;
+				_partitionData[i] = 1;
 				lTotalAttrSize += 1;
 				break;
 			case kUINT32:
@@ -32,13 +36,13 @@ void PAX_Relation::getPartitionData(uint_vt& aAttrSizeVec)
 			case kFLOAT32:
 			case kDATEJD:
 			case kSTR_SDICT:
-				aAttrSizeVec[i] = 4;
+				_partitionData[i] = 4;
 				lTotalAttrSize += 4;
 				break;
 			case kUINT64:
 			case kFLOAT64:
 			case kCHAR_STRING:
-				aAttrSizeVec[i] = 8;
+				_partitionData[i] = 8;
 				lTotalAttrSize += 8;
 				break;
 			default:
@@ -46,12 +50,14 @@ void PAX_Relation::getPartitionData(uint_vt& aAttrSizeVec)
 				break;
 		}
 	}
-	aAttrSizeVec[aAttrSizeVec.size() - 1] = lTotalAttrSize;
+	_partitionData[_partitionData.size() - 1] = lTotalAttrSize;
 }
 
 void PAX_Relation::initSubRelation(const std::string aRelName, const attr_desc_vt& aAttrDesc, const schema_vt& aLogSchema, const cont_desc_vt& aContDesc, Segment aSegment, byte_vpt& aDictEntryPointer)
 {
 	initRelation(aRelName, aAttrDesc, aLogSchema, aContDesc, aSegment, aDictEntryPointer);
+	_partitionData.resize(_noAttributes + 1, 0);
+	setPartitionData();
 }
 
 void PAX_Relation::printPAX(uint aNoPages, uint aMod)

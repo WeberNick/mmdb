@@ -23,7 +23,7 @@ class PageInterpreterPAX {
     inline void  attach(byte* aPP);
     inline void  detach(); // set at least _pp to NULL, call not mandatory but adds safety
   public:
-    void  initNewPage(byte* aPP, uint_vt& aPartitionData); // combines initialization of fresh page with attach and partition into mini pages
+    void  initNewPage(byte* aPP, const uint_vt& aPartitionData); // combines initialization of fresh page with attach and partition into mini pages
     int  addNewRecord(const uint aRecordSize);
   public:
     inline const byte*     pagePtr() const { return _pp; }
