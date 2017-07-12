@@ -34,8 +34,8 @@ class ProjectOptimizedSwitch
 		unval_pt _output;
 		size_t _inputIndex;
 		size_t _outputIndex;
-		size_t _totalInputIndex;
-		size_t _totalOutputIndex;
+		size_t _inputBegin;
+		size_t _outputBegin;
 
 };
 
@@ -43,7 +43,7 @@ template<typename T_Consumer>
 ProjectOptimizedSwitch<T_Consumer>::ProjectOptimizedSwitch(
 									T_Consumer* aConsOp, 
 									const uint_vt& aAttrNoList)
-	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(1), _indexNo1(0), _input(), _indexNo2(0), _output(), _inputIndex(0), _outputIndex(0), _totalInputIndex(0), _totalOutputIndex(0)
+	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(1), _indexNo1(0), _input(), _indexNo2(0), _output(), _inputIndex(0), _outputIndex(0), _inputBegin(0), _outputBegin(0)
 {}
 
 template<typename T_Consumer>
@@ -51,7 +51,7 @@ ProjectOptimizedSwitch<T_Consumer>::ProjectOptimizedSwitch(
 									T_Consumer* aConsOp, 
 									const uint_vt& aAttrNoList, 
 									size_t aVectorizedSize)
-	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(aVectorizedSize), _indexNo1(0), _input(), _indexNo2(0), _output(), _inputIndex(0), _outputIndex(0), _totalInputIndex(0), _totalOutputIndex(0)
+	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(aVectorizedSize), _indexNo1(0), _input(), _indexNo2(0), _output(), _inputIndex(0), _outputIndex(0), _inputBegin(0), _outputBegin(0)
 {}
 
 template<typename T_Consumer>
@@ -77,9 +77,11 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 {
 	byte* 		lTupelPointerIn;
 	unval_t* 	lTupelPointerOut;
-
 	byte* 		lAttrPointerIn;
 	unval_t* 	lAttrPointerOut;
+
+	_outputIndex = _outputBegin
+	_inputIndex = _inputBegin;
 
 	for(size_t i = 0; i < _noAttributes; ++i)
 	{
@@ -235,26 +237,27 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 		}
 		if((i + 1) < _noAttributes)
 		{
-			_outputIndex = _totalOutputIndex;
-			_inputIndex = _totalInputIndex;
+			_outputIndex = _outputBegin;
+			_inputIndex = _inputBegin;
 		}
 	}
-	_totalOutputIndex = _outputIndex;
-	_totalInputIndex = _inputIndex;
-	if(_totalOutputIndex == _vectorizedSize)
+	_outputBegin = _outputIndex;
+	_inputBegin = _inputIndex;
+	if(_outputBegin == _vectorizedSize)
 	{
-		_nextOp->step(aTupel, aRelation, _totalOutputIndex, aNoMoreData);
-		_totalOutputIndex = 0;
-		if(_totalInputIndex < aSize)
+		_nextOp->step(aTupel, aRelation, _outputBegin, aNoMoreData);
+		_outputBegin = 0;
+		if(_inputBegin < aSize)
 		{
 			step(aTupel, aRelation, aSize, aNoMoreData);
 		}
 	}
-	if(aNoMoreData && _totalOutputIndex > 0)
+	if(aNoMoreData && _outputBegin > 0)
 	{
-		_nextOp->step(aTupel, aRelation, _totalOutputIndex, aNoMoreData);
-		_totalOutputIndex = 0;
+		_nextOp->step(aTupel, aRelation, _outputBegin, aNoMoreData);
+		_outputBegin = 0;
 	}
+	_inputBegin = 0;
 }
 
 template<typename T_Consumer>
@@ -271,6 +274,9 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelati
 	byte* 		lAttrPointerIn;
 	unval_t* 	lAttrPointerOut;
 
+	_outputIndex = _outputBegin
+	_inputIndex = _inputBegin;
+
 
 	for(size_t i = 0; i < _noAttributes; ++i)
 	{
@@ -462,26 +468,27 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelati
 		}
 		if((i + 1) < _noAttributes)
 		{
-			_outputIndex = _totalOutputIndex;
-			_inputIndex = _totalInputIndex;
+			_outputIndex = _outputBegin;
+			_inputIndex = _inputBegin;
 		}
 	}
-	_totalOutputIndex = _outputIndex;
-	_totalInputIndex = _inputIndex;
-	if(_totalOutputIndex == _vectorizedSize)
+	_outputBegin = _outputIndex;
+	_inputBegin = _inputIndex;
+	if(_outputBegin == _vectorizedSize)
 	{
-		_nextOp->step(aTupel, aRelation, _totalOutputIndex, aNoMoreData);
-		_totalOutputIndex = 0;
-		if(_totalInputIndex < aSize)
+		_nextOp->step(aTupel, aRelation, _outputBegin, aNoMoreData);
+		_outputBegin = 0;
+		if(_inputBegin < aSize)
 		{
 			step(aTupel, aRelation, aSize, aNoMoreData);
 		}
 	}
-	if(aNoMoreData && _totalOutputIndex > 0)
+	if(aNoMoreData && _outputBegin > 0)
 	{
-		_nextOp->step(aTupel, aRelation, _totalOutputIndex, aNoMoreData);
-		_totalOutputIndex = 0;
+		_nextOp->step(aTupel, aRelation, _outputBegin, aNoMoreData);
+		_outputBegin = 0;
 	}
+	_inputBegin = 0;
 }
 
 template<typename T_Consumer>
