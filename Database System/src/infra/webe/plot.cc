@@ -106,14 +106,14 @@ void plotIntProjection(const std::string nsmPath, const string_vt& nsmDataFilesT
 		gp << "set output '../results/integer_projection.pdf'\n";
 		gp << "set grid\n";
 		gp << "set autoscale\n";
-		gp << "set ylabel 'Average time in ms' font ',12'\n";
-		gp << "set xlabel 'Attributes projected' font ',12' offset 0,4\n";
-		gp << "set title 'Average Projection Time for a different Number of Attributes' font ',15'\n";
+		gp << "set ylabel 'Average projection time per tuple in ns' font ',12'\n";
+		gp << "set xlabel 'Number of attributes projected' font ',12' offset 0,4\n";
+		gp << "set title 'Projection Time for a different Number of Attributes' font ',15'\n";
 		gp << "set style data linespoints\n";
 		gp << "set pointsize 0.5\n";
 		gp << "set auto x\n";
 		// gp << "set xrange [0:20]\n";
-		gp << "set yrange [0:3000]\n";
+		gp << "set yrange [0:250]\n";
 		gp << "set key top left font ', 10'\n";
 
 		std::string command = "plot ";

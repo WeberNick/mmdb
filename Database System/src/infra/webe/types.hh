@@ -18,6 +18,11 @@ typedef std::vector<string_vt> string_vvt;
 
 const double NS = (1000.0L * 1000.0L * 1000.0L);
 
+inline double secToNanoSec(const double aTime, const double aNumber) 
+{
+	return (aTime / aNumber) * NS;
+}
+
 enum SchemaTypes_et
 {
 	kNoType = 0,

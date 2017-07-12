@@ -159,9 +159,11 @@ int main(const int argc, const char* argv[])
 		}
 		else if(lArgs.intRelation())
 		{
+			const size_t lNumberOfTuples = 10000000;
 			BIG_INT_RELATION<NSM_Relation> b_i_r(true);
-			b_i_r.init(100, 10000000, lArgs.bufferSize());
-			row_test_projection(b_i_r.getRelation(), 100, lArgs.vectorized());
+			b_i_r.init(100, lNumberOfTuples, lArgs.bufferSize());
+			row_test_projection(b_i_r.getRelation(), lNumberOfTuples, 100, lArgs.vectorized());
+			// row_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, 100, lArgs.vectorized());
 		}
 		else
 		{
@@ -193,9 +195,11 @@ int main(const int argc, const char* argv[])
 		}
 		else if(lArgs.intRelation())
 		{
+			const size_t lNumberOfTuples = 10000000;
 			BIG_INT_RELATION<PAX_Relation> b_i_r(false);
-			b_i_r.init(100, 10000000, lArgs.bufferSize());
-			col_test_projection(b_i_r.getRelation(), 100, lArgs.vectorized());
+			b_i_r.init(100, lNumberOfTuples, lArgs.bufferSize());
+			col_test_projection(b_i_r.getRelation(), lNumberOfTuples, 100, lArgs.vectorized());
+			// col_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, 100, lArgs.vectorized());
 		}
 		else
 		{

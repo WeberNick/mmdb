@@ -45,6 +45,7 @@ HDR = \
 	../ops/select.hh \
 	../ops/project.hh \
 	../ops/project_mat.hh \
+	../ops/project_optimized_switch.hh \
 	../ops/top.hh \
 	\
 	\

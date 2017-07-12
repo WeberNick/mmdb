@@ -20,6 +20,7 @@ HDRQ = \
 	../ops/top.hh \
 	../ops/project.hh \
 	../ops/project_mat.hh \
+	../ops/project_optimized_switch.hh \
 	../ops/select.hh \
 	../ops/scan.hh \
 	\

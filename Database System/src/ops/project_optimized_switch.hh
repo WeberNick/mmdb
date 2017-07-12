@@ -81,9 +81,6 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 	byte* 		lAttrPointerIn;
 	unval_t* 	lAttrPointerOut;
 
-
-
-
 	for(size_t i = 0; i < _noAttributes; ++i)
 	{
 		switch(aRelation.getAttrDesc()[i]._attrType)
@@ -100,13 +97,9 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 					++_inputIndex;
 					if(_outputIndex == _vectorizedSize)
 					{
-						_outputIndex = 0;
-						_inputIndex = 0;
 						break;
 					}
 				}
-				_outputIndex = 0;
-				_inputIndex = 0;
 				break;
 			case kUINT32:
 				while(_inputIndex < aSize)
@@ -120,12 +113,9 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 					++_inputIndex;
 					if(_outputIndex == _vectorizedSize)
 					{
-						_outputIndex = 0;
 						break;
 					}
 				}
-				_outputIndex = 0;
-				_inputIndex = 0;
 				break;
 			case kSTR_SDICT:
 				while(_inputIndex < aSize)
@@ -139,12 +129,9 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 					++_inputIndex;
 					if(_outputIndex == _vectorizedSize)
 					{
-						_outputIndex = 0;
 						break;
 					}
 				}
-				_outputIndex = 0;
-				_inputIndex = 0;
 				break;
 			case kUINT64:
 				while(_inputIndex < aSize)
@@ -158,12 +145,9 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 					++_inputIndex;
 					if(_outputIndex == _vectorizedSize)
 					{
-						_outputIndex = 0;
 						break;
 					}
 				}
-				_outputIndex = 0;
-				_inputIndex = 0;
 				break;
 			case kINT32:
 				while(_inputIndex < aSize)
@@ -177,12 +161,9 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 					++_inputIndex;
 					if(_outputIndex == _vectorizedSize)
 					{
-						_outputIndex = 0;
 						break;
 					}
 				}
-				_outputIndex = 0;
-				_inputIndex = 0;
 				break;
 			case kFLOAT32:
 				while(_inputIndex < aSize)
@@ -196,12 +177,9 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 					++_inputIndex;
 					if(_outputIndex == _vectorizedSize)
 					{
-						_outputIndex = 0;
 						break;
 					}
 				}
-				_outputIndex = 0;
-				_inputIndex = 0;
 				break;
 			case kFLOAT64:
 				while(_inputIndex < aSize)
@@ -215,12 +193,9 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 					++_inputIndex;
 					if(_outputIndex == _vectorizedSize)
 					{
-						_outputIndex = 0;
 						break;
 					}
 				}
-				_outputIndex = 0;
-				_inputIndex = 0;
 				break;
 			case kCHAR_STRING:
 				while(_inputIndex < aSize)
@@ -234,12 +209,9 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 					++_inputIndex;
 					if(_outputIndex == _vectorizedSize)
 					{
-						_outputIndex = 0;
 						break;
 					}
 				}
-				_outputIndex = 0;
-				_inputIndex = 0;
 				break;
 			case kDATEJD:
 				while(_inputIndex < aSize)
@@ -253,28 +225,35 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelati
 					++_inputIndex;
 					if(_outputIndex == _vectorizedSize)
 					{
-						_outputIndex = 0;
 						break;
 					}
 				}
-				_outputIndex = 0;
-				_inputIndex = 0;
 				break;
 			default:
 				throw SwitchException(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 				break;
 		}
+		if((i + 1) < _noAttributes)
+		{
+			_outputIndex = _totalOutputIndex;
+			_inputIndex = _totalInputIndex;
+		}
 	}
-	_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
-
-	if(_inputIndex < aSize)
+	_totalOutputIndex = _outputIndex;
+	_totalInputIndex = _inputIndex;
+	if(_totalOutputIndex == _vectorizedSize)
 	{
-		step(aTupel, aRelation, aSize, aNoMoreData);
+		_nextOp->step(aTupel, aRelation, _totalOutputIndex, aNoMoreData);
+		_totalOutputIndex = 0;
+		if(_totalInputIndex < aSize)
+		{
+			step(aTupel, aRelation, aSize, aNoMoreData);
+		}
 	}
-	if(aNoMoreData && _outputIndex > 0)
+	if(aNoMoreData && _totalOutputIndex > 0)
 	{
-		_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
-		_outputIndex = 0;
+		_nextOp->step(aTupel, aRelation, _totalOutputIndex, aNoMoreData);
+		_totalOutputIndex = 0;
 	}
 }
 
@@ -292,77 +271,216 @@ ProjectOptimizedSwitch<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelati
 	byte* 		lAttrPointerIn;
 	unval_t* 	lAttrPointerOut;
 
-	while(_inputIndex < aSize)
+
+	for(size_t i = 0; i < _noAttributes; ++i)
 	{
-		lPageNo = _input[_inputIndex]._tid[0];
-		lRecordNo = _input[_inputIndex]._tid[1];
-
-		aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
-
-		lTupelPointerOut = _output[_outputIndex]._unval_pt;
-
-
-		for(size_t i = 0; i < _noAttributes; ++i)
+		switch(aRelation.getAttrDesc()[i]._attrType)
 		{
-			lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
-			lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
-
-			lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
-			lAttrPointerOut = &lTupelPointerOut[i];
-
-			switch(aRelation.getAttrDesc()[i]._attrType)
-			{
-				case kCHAR:
+			case kCHAR:
+				while(_inputIndex < aSize)
+				{
+					lPageNo = _input[_inputIndex]._tid[0];
+					lRecordNo = _input[_inputIndex]._tid[1];
+					aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
+					lTupelPointerOut = _output[_outputIndex]._unval_pt;
+					lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
+					lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
+					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
+					lAttrPointerOut = &lTupelPointerOut[i];
 					lAttrPointerOut->_c8 = *(char*)lAttrPointerIn;
-					break;
-				case kUINT32:
+					++_outputIndex;
+					++_inputIndex;
+					if(_outputIndex == _vectorizedSize)
+					{
+						break;
+					}
+				}
+				break;
+			case kUINT32:
+				while(_inputIndex < aSize)
+				{
+					lPageNo = _input[_inputIndex]._tid[0];
+					lRecordNo = _input[_inputIndex]._tid[1];
+					aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
+					lTupelPointerOut = _output[_outputIndex]._unval_pt;
+					lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
+					lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
+					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
+					lAttrPointerOut = &lTupelPointerOut[i];
 					lAttrPointerOut->_u32 = *(uint32_t*)lAttrPointerIn;
-					break;
-				case kSTR_SDICT:
+					++_outputIndex;
+					++_inputIndex;
+					if(_outputIndex == _vectorizedSize)
+					{
+						break;
+					}
+				}
+				break;
+			case kSTR_SDICT:
+				while(_inputIndex < aSize)
+				{
+					lPageNo = _input[_inputIndex]._tid[0];
+					lRecordNo = _input[_inputIndex]._tid[1];
+					aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
+					lTupelPointerOut = _output[_outputIndex]._unval_pt;
+					lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
+					lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
+					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
+					lAttrPointerOut = &lTupelPointerOut[i];
 					lAttrPointerOut->_s32 = *(uint32_t*)lAttrPointerIn;
-					break;
-				case kUINT64:
+					++_outputIndex;
+					++_inputIndex;
+					if(_outputIndex == _vectorizedSize)
+					{
+						break;
+					}
+				}
+				break;
+			case kUINT64:
+				while(_inputIndex < aSize)
+				{
+					lPageNo = _input[_inputIndex]._tid[0];
+					lRecordNo = _input[_inputIndex]._tid[1];
+					aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
+					lTupelPointerOut = _output[_outputIndex]._unval_pt;
+					lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
+					lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
+					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
+					lAttrPointerOut = &lTupelPointerOut[i];
 					lAttrPointerOut->_u64 = *(uint64_t*)lAttrPointerIn;
-					break;
-				case kINT32:
+					++_outputIndex;
+					++_inputIndex;
+					if(_outputIndex == _vectorizedSize)
+					{
+						break;
+					}
+				}
+				break;
+			case kINT32:
+				while(_inputIndex < aSize)
+				{
+					lPageNo = _input[_inputIndex]._tid[0];
+					lRecordNo = _input[_inputIndex]._tid[1];
+					aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
+					lTupelPointerOut = _output[_outputIndex]._unval_pt;
+					lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
+					lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
+					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
+					lAttrPointerOut = &lTupelPointerOut[i];
 					lAttrPointerOut->_i32 = *(int32_t*)lAttrPointerIn;
-					break;
-				case kFLOAT32:
+					++_outputIndex;
+					++_inputIndex;
+					if(_outputIndex == _vectorizedSize)
+					{
+						break;
+					}
+				}
+				break;
+			case kFLOAT32:
+				while(_inputIndex < aSize)
+				{
+					lPageNo = _input[_inputIndex]._tid[0];
+					lRecordNo = _input[_inputIndex]._tid[1];
+					aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
+					lTupelPointerOut = _output[_outputIndex]._unval_pt;
+					lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
+					lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
+					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
+					lAttrPointerOut = &lTupelPointerOut[i];
 					lAttrPointerOut->_f32 = *(float*)lAttrPointerIn;
-					break;
-				case kFLOAT64:
+					++_outputIndex;
+					++_inputIndex;
+					if(_outputIndex == _vectorizedSize)
+					{
+						break;
+					}
+				}
+				break;
+			case kFLOAT64:
+				while(_inputIndex < aSize)
+				{
+					lPageNo = _input[_inputIndex]._tid[0];
+					lRecordNo = _input[_inputIndex]._tid[1];
+					aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
+					lTupelPointerOut = _output[_outputIndex]._unval_pt;
+					lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
+					lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
+					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
+					lAttrPointerOut = &lTupelPointerOut[i];
 					lAttrPointerOut->_f64 = *(double*)lAttrPointerIn;
-					break;
-				case kCHAR_STRING:
+					++_outputIndex;
+					++_inputIndex;
+					if(_outputIndex == _vectorizedSize)
+					{
+						break;
+					}
+				}
+				break;
+			case kCHAR_STRING:
+				while(_inputIndex < aSize)
+				{
+					lPageNo = _input[_inputIndex]._tid[0];
+					lRecordNo = _input[_inputIndex]._tid[1];
+					aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
+					lTupelPointerOut = _output[_outputIndex]._unval_pt;
+					lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
+					lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
+					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
+					lAttrPointerOut = &lTupelPointerOut[i];
 					lAttrPointerOut->_cp64 = *(const char**)lAttrPointerIn;
-					break;
-				case kDATEJD:
+					++_outputIndex;
+					++_inputIndex;
+					if(_outputIndex == _vectorizedSize)
+					{
+						break;
+					}
+				}
+				break;
+			case kDATEJD:
+				while(_inputIndex < aSize)
+				{
+					lPageNo = _input[_inputIndex]._tid[0];
+					lRecordNo = _input[_inputIndex]._tid[1];
+					aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
+					lTupelPointerOut = _output[_outputIndex]._unval_pt;
+					lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
+					lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
+					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
+					lAttrPointerOut = &lTupelPointerOut[i];
 					lAttrPointerOut->_d32 = *(uint32_t*)lAttrPointerIn;
-					break;
-				default:
-					throw SwitchException(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-					break;
-			}
+					++_outputIndex;
+					++_inputIndex;
+					if(_outputIndex == _vectorizedSize)
+					{
+						break;
+					}
+				}
+				break;
+			default:
+				throw SwitchException(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+				break;
 		}
-		++_outputIndex;
-		++_inputIndex;
-		if(_outputIndex == _vectorizedSize)
+		if((i + 1) < _noAttributes)
 		{
-			_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
-			_outputIndex = 0;
-			// _nextOp->printProjectOptimizedSwitchion(aTupel, aRelation, _vectorizedSize, _attrNoList); 
-			if(_inputIndex < aSize)
-			{
-				step(aTupel, aRelation, aSize, aNoMoreData);
-			}
+			_outputIndex = _totalOutputIndex;
+			_inputIndex = _totalInputIndex;
 		}
 	}
-	_inputIndex = 0;
-	if(aNoMoreData && _outputIndex > 0)
+	_totalOutputIndex = _outputIndex;
+	_totalInputIndex = _inputIndex;
+	if(_totalOutputIndex == _vectorizedSize)
 	{
-		_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
-		_outputIndex = 0;
-		// _nextOp->printProjectOptimizedSwitchion(aTupel, aRelation, _vectorizedSize, _attrNoList); 
+		_nextOp->step(aTupel, aRelation, _totalOutputIndex, aNoMoreData);
+		_totalOutputIndex = 0;
+		if(_totalInputIndex < aSize)
+		{
+			step(aTupel, aRelation, aSize, aNoMoreData);
+		}
+	}
+	if(aNoMoreData && _totalOutputIndex > 0)
+	{
+		_nextOp->step(aTupel, aRelation, _totalOutputIndex, aNoMoreData);
+		_totalOutputIndex = 0;
 	}
 }
 
