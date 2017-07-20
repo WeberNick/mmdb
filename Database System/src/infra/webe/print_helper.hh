@@ -20,14 +20,10 @@ std::string fFormatNumber(int number);
 
 std::string getEnumAsString(int aValue, bool aFlag);
 
-void print_bulk_load_insert_result(const string_vt& aRelationNames, const double_vt& aMeasurementData, const bool aFlag);
+void print_bulk_load_insert_result(const string_vt& aRelationNames, const double_vt& aMeasurementData, const bool aFlag, const std::string aTestType = "Unknown");
 
-void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData);
+void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData, const std::string aTestType = "Unknown");
 
-void print_int_projection_result(const size_t aAttrNo, const double_vt& aMeasurementData);
-
-void print_tq1_result(const char* aPath, int aSelectivity, double aTime);
-
-void print_tu1_result(const char* aPath, int aAttrNo, double aTime);
+void print_projection_result(const size_t aAttrNo, const double_vt& aMeasurementData, const std::string aTestType = "Unknown");
 
 #endif

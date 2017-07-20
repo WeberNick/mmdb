@@ -190,7 +190,21 @@ void BulkLoader::bulk_load_int_chunk(const size_t aSize)
 		}
 		for(size_t j = 0; j < _relation.getLogSchema().size(); ++j)
 		{
-			lChunk->_u32 = (uint32_t)rand();
+			switch(_relation.getLogSchema()[j])
+			{
+				case kUINT32:
+					lChunk->_u32 = (uint32_t)rand();
+					break;
+				case kINT32:
+					lChunk->_u32 = (int32_t)rand();
+					break;
+				case kFLOAT32:
+					lChunk->_f32 = (float)rand();
+					break;
+				default:
+					throw SwitchException(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+					break;
+			}
 			++lChunk;
 		}
 	}

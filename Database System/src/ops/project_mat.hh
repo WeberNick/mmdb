@@ -12,11 +12,11 @@
 #include <type_traits>
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
-class MaterializedProject
+class ProjectMaterialized
 {
 	public:
-		MaterializedProject(T_Consumer* aConsumer, T_RelationIn& aRelation, const uint_vt& aAttrNoList);
-		MaterializedProject(T_Consumer* aConsumer, T_RelationIn& aRelation,const uint_vt& aAttrNoList, const size_t aVectorizedSize);
+		ProjectMaterialized(T_Consumer* aConsumer, T_RelationIn& aRelation, const uint_vt& aAttrNoList);
+		ProjectMaterialized(T_Consumer* aConsumer, T_RelationIn& aRelation,const uint_vt& aAttrNoList, const size_t aVectorizedSize);
 
 	public:
 		void init(unval_vt& aTupel);
@@ -48,7 +48,7 @@ class MaterializedProject
 };
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
-MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::MaterializedProject(
+ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::ProjectMaterialized(
 									T_Consumer* aConsOp,
 									T_RelationIn& aRelation, 
 									const uint_vt& aAttrNoList)
@@ -56,7 +56,7 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::MaterializedProjec
 {}
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
-MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::MaterializedProject(
+ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::ProjectMaterialized(
 									T_Consumer* aConsOp,
 									T_RelationIn& aRelation, 
 									const uint_vt& aAttrNoList, 
@@ -66,7 +66,7 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::MaterializedProjec
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
-MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::init(unval_vt& aTupel) 
+ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::init(unval_vt& aTupel) 
 {
 	std::string relName("Materialized");
 	schema_vt logSchema(_noAttributes);
@@ -107,11 +107,11 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::init(unval_vt& aTu
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
-MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::step(unval_vt& aTupel, NSM_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
+ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::step(unval_vt& aTupel, NSM_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
 	if(std::is_same<T_RelationOut, NSM_Relation>::value)
 	{
-		projectNSMtoNSM(aTupel, aRelation, aSize, aNoMoreData);
+		// projectNSMtoNSM(aTupel, aRelation, aSize, aNoMoreData);
 	}
 	else if(std::is_same<T_RelationOut, PAX_Relation>::value)
 	{
@@ -125,12 +125,12 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::step(unval_vt& aTu
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
-MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
+ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
 
 	if(std::is_same<T_RelationOut, NSM_Relation>::value)
 	{
-		projectPAXtoNSM(aTupel, aRelation, aSize, aNoMoreData);
+		// projectPAXtoNSM(aTupel, aRelation, aSize, aNoMoreData);
 	}
 	else if(std::is_same<T_RelationOut, PAX_Relation>::value)
 	{
@@ -156,7 +156,7 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::step(unval_vt& aTu
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
-MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoNSM(unval_vt& aTupel, NSM_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
+ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoNSM(unval_vt& aTupel, NSM_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
 	PageInterpreterSP lPageInterpreter;
 	lPageInterpreter.attach(_relationOut.getSegment().getPage(_currentPage));
@@ -165,6 +165,8 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoNSM(un
 	byte* 	lTupelPointerIn;
 	byte* 	lAttrPointerIn;
 	byte* 	lAttrPointerOut;
+
+	const size_t lNoAttributes = _noAttributes;
 
 	while(_inputIndex < aSize)
 	{
@@ -177,8 +179,8 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoNSM(un
 		else
 		{
 			lTupelPointerIn = _input[_inputIndex]._pointer;
-			_output[_outputIndex]._pointer = lRecordPointer;
-			for(size_t i = 0; i < _noAttributes; ++i)
+			_output[_outputIndex++]._pointer = lRecordPointer;
+			for(size_t i = 0; i < lNoAttributes; ++i)
 			{
 				lAttrPointerIn = lTupelPointerIn + aRelation.getOffset()[_attrNoList[i]];
 				lAttrPointerOut = lRecordPointer + _relationOut.getOffset()[i];
@@ -216,13 +218,11 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoNSM(un
 						break;
 				}
 			}
-			++_outputIndex;
 			++_inputIndex;
 			if(_outputIndex == _vectorizedSize)
 			{
 				_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 				_outputIndex = 0;
-				// _nextOp->printMaterializedProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 				if(_inputIndex < aSize)
 				{
 					projectNSMtoNSM(aTupel, aRelation, aSize, aNoMoreData);
@@ -235,7 +235,6 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoNSM(un
 	{
 		_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 		_outputIndex = 0;
-		// _nextOp->printMaterializedProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 	}
 }
 
@@ -245,18 +244,21 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoNSM(un
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
-MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoPAX(unval_vt& aTupel, NSM_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
+ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoPAX(unval_vt& aTupel, NSM_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
 	PageInterpreterPAX lPageInterpreter;
 	lPageInterpreter.attach(_relationOut.getSegment().getPage(_currentPage));
 
+	int 	lIndex;
 	byte* 	lTupelPointerIn;
 	byte* 	lAttrPointerIn;
 	byte* 	lAttrPointerOut;
 
+	const size_t lNoAttributes = _noAttributes;
+
 	while(_inputIndex < aSize)
 	{
-		const int lIndex = lPageInterpreter.addNewRecord(_relationOut.getLogTupleSize());
+		lIndex = lPageInterpreter.addNewRecord(_relationOut.getLogTupleSize());
 		if(lIndex == -1)
 		{
 			lPageInterpreter.initNewPage(_relationOut.getSegment().getNewPage(), _relationOut.getPartitionData());
@@ -266,8 +268,8 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoPAX(un
 		{
 			lTupelPointerIn = _input[_inputIndex]._pointer;
 			_output[_outputIndex]._tid[0] = (uint32_t)_currentPage;
-			_output[_outputIndex]._tid[1] = (uint32_t)lIndex;
-			for(size_t i = 0; i < _noAttributes; ++i)
+			_output[_outputIndex++]._tid[1] = (uint32_t)lIndex;
+			for(size_t i = 0; i < lNoAttributes; ++i)
 			{
 				lAttrPointerIn = lTupelPointerIn + aRelation.getOffset()[_attrNoList[i]];
 				lAttrPointerOut = lPageInterpreter.pagePtr() + lPageInterpreter.getMiniPageOffset(i) + (lIndex * lPageInterpreter.getAttrSize(i));
@@ -305,13 +307,11 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoPAX(un
 						break;
 				}
 			}
-			++_outputIndex;
 			++_inputIndex;
 			if(_outputIndex == _vectorizedSize)
 			{
 				_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 				_outputIndex = 0;
-				// _nextOp->printMaterializedProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 				if(_inputIndex < aSize)
 				{
 					projectNSMtoPAX(aTupel, aRelation, aSize, aNoMoreData);
@@ -324,7 +324,6 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoPAX(un
 	{
 		_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 		_outputIndex = 0;
-		// _nextOp->printMaterializedProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 	}
 }
 
@@ -334,21 +333,21 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoPAX(un
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
-MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoNSM(unval_vt& aTupel, PAX_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
+ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoNSM(unval_vt& aTupel, PAX_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
 	PageInterpreterPAX lPageInterpreterIn;
 	PageInterpreterSP lPageInterpreterOut;
 	lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_currentPage));
 
 	byte* 	lRecordPointer;
-
 	uint32_t lPageNo;
 	uint32_t lRecordNo;
 	uint lAttrSize;
 	byte* lMiniPagePointer;
-
 	byte* 		lAttrPointerIn;
 	byte* 	lAttrPointerOut;
+
+	const size_t lNoAttributes = _noAttributes;
 
 	while(_inputIndex < aSize)
 	{
@@ -363,7 +362,8 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoNSM(un
 		}
 		else
 		{
-			for(size_t i = 0; i < _noAttributes; ++i)
+			_output[_outputIndex++]._pointer = lRecordPointer;
+			for(size_t i = 0; i < lNoAttributes; ++i)
 			{
 				lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
 				lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
@@ -405,16 +405,14 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoNSM(un
 						break;
 				}
 			}
-			++_outputIndex;
 			++_inputIndex;
 			if(_outputIndex == _vectorizedSize)
 			{
 				_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 				_outputIndex = 0;
-				// _nextOp->printMaterializedProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 				if(_inputIndex < aSize)
 				{
-					projectPAXtoPAX(aTupel, aRelation, aSize, aNoMoreData);
+					projectPAXtoNSM(aTupel, aRelation, aSize, aNoMoreData);
 				}
 			}
 		}
@@ -424,7 +422,6 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoNSM(un
 	{
 		_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 		_outputIndex = 0;
-		// _nextOp->printMaterializedProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 	}
 }
 
@@ -434,19 +431,21 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoNSM(un
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
-MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoPAX(unval_vt& aTupel, PAX_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
+ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoPAX(unval_vt& aTupel, PAX_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
 	PageInterpreterPAX lPageInterpreterIn;
 	PageInterpreterPAX lPageInterpreterOut;
 	lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_currentPage));
 
-	uint32_t lPageNo;
-	uint32_t lRecordNo;
-	uint lAttrSize;
-	byte* lMiniPagePointer;
+	int 		lIndex;
+	uint32_t	lPageNo;
+	uint32_t	lRecordNo;
+	uint 		lAttrSize;
+	byte* 		lMiniPagePointer;
+	byte* 		lAttrPointerIn;
+	byte* 		lAttrPointerOut;
 
-	byte* 	lAttrPointerIn;
-	byte* 	lAttrPointerOut;
+	const size_t lNoAttributes = _noAttributes;
 
 	while(_inputIndex < aSize)
 	{
@@ -455,7 +454,7 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoPAX(un
 
 		lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
 
-		const int lIndex = lPageInterpreterOut.addNewRecord(_relationOut.getLogTupleSize());
+		lIndex = lPageInterpreterOut.addNewRecord(_relationOut.getLogTupleSize());
 		if(lIndex == -1)
 		{
 			lPageInterpreterOut.initNewPage(_relationOut.getSegment().getNewPage(), _relationOut.getPartitionData());
@@ -463,7 +462,9 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoPAX(un
 		}
 		else
 		{
-			for(size_t i = 0; i < _noAttributes; ++i)
+			_output[_outputIndex]._tid[0] = (uint32_t)_currentPage;
+			_output[_outputIndex++]._tid[1] = (uint32_t)lIndex;
+			for(size_t i = 0; i < lNoAttributes; ++i)
 			{
 				lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
 				lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
@@ -505,13 +506,11 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoPAX(un
 						break;
 				}
 			}
-			++_outputIndex;
 			++_inputIndex;
 			if(_outputIndex == _vectorizedSize)
 			{
 				_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 				_outputIndex = 0;
-				// _nextOp->printMaterializedProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 				if(_inputIndex < aSize)
 				{
 					projectPAXtoPAX(aTupel, aRelation, aSize, aNoMoreData);
@@ -524,14 +523,13 @@ MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoPAX(un
 	{
 		_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 		_outputIndex = 0;
-		// _nextOp->printMaterializedProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 	}
 }
 
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
-MaterializedProject<T_Consumer, T_RelationIn, T_RelationOut>::finish(unval_vt& aTupel) 
+ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::finish(unval_vt& aTupel) 
 {
 	_nextOp->finish(aTupel);
 	delete[] _output;

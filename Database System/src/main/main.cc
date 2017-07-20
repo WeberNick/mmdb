@@ -142,7 +142,10 @@ int main(const int argc, const char* argv[])
 			if(lArgs.all())
 			{
 				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize());
-				row_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorized());
+				// row_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorized());
+				// row_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lArgs.vectorized());
+				row_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lArgs.vectorized());
+
 
 				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_updateInt_path);
 				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, MEASURE_GLOBAL, 1, r_bulk_load_path);
@@ -159,11 +162,14 @@ int main(const int argc, const char* argv[])
 		}
 		else if(lArgs.intRelation())
 		{
-			const size_t lNumberOfTuples = 10000000;
+			const size_t lNumberOfTuples = 1000000;
+			const size_t lNumberOfAttributes = 100;
 			BIG_INT_RELATION<NSM_Relation> b_i_r(true);
-			b_i_r.init(100, lNumberOfTuples, lArgs.bufferSize());
-			row_test_projection(b_i_r.getRelation(), lNumberOfTuples, 100, lArgs.vectorized());
-			// row_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, 100, lArgs.vectorized());
+			b_i_r.init(lNumberOfAttributes, lNumberOfTuples, lArgs.bufferSize());
+			// row_test_projection(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			// row_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			row_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			// row_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
 		}
 		else
 		{
@@ -179,7 +185,11 @@ int main(const int argc, const char* argv[])
 			if(lArgs.all())
 			{
 				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize());
-				col_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorized());
+				// col_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorized());
+				col_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lArgs.vectorized());
+				// col_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lArgs.vectorized());
+
+
 				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_updateInt_path);
 				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, MEASURE_GLOBAL, 1, r_bulk_load_path);
 				// row_test_query1(nsm_rel_vec[1], VECTORIZE_SIZE_GLOBAL, selectivity, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_query1_path);
@@ -195,11 +205,14 @@ int main(const int argc, const char* argv[])
 		}
 		else if(lArgs.intRelation())
 		{
-			const size_t lNumberOfTuples = 10000000;
+			const size_t lNumberOfTuples = 1000000;
+			const size_t lNumberOfAttributes = 100;
 			BIG_INT_RELATION<PAX_Relation> b_i_r(false);
-			b_i_r.init(100, lNumberOfTuples, lArgs.bufferSize());
-			col_test_projection(b_i_r.getRelation(), lNumberOfTuples, 100, lArgs.vectorized());
-			// col_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, 100, lArgs.vectorized());
+			b_i_r.init(lNumberOfAttributes, lNumberOfTuples, lArgs.bufferSize());
+			// col_test_projection(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			// col_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			col_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			// col_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
 		}
 		else
 		{

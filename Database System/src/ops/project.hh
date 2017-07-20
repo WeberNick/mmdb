@@ -62,9 +62,10 @@ Project<T_Consumer>::init(unval_vt& aTupel)
 	aTupel[_indexNo2]._unval_pt = new unval_t[_vectorizedSize];
 	_input = aTupel[_indexNo1]._unval_pt;
 	_output = aTupel[_indexNo2]._unval_pt;
-	for(size_t i = 0; i < _vectorizedSize; ++i)
+	_output[0]._unval_pt = new unval_t[_vectorizedSize * _noAttributes];
+	for(size_t i = 1; i < _vectorizedSize; ++i)
 	{
-		_output[i]._unval_pt = new unval_t[_noAttributes];
+		_output[i]._unval_pt = _output[i-1]._unval_pt + _noAttributes;
 	}
 	_nextOp->init(aTupel);
 }
@@ -75,15 +76,15 @@ Project<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelation, const size_
 {
 	byte* 		lTupelPointerIn;
 	unval_t* 	lTupelPointerOut;
-
 	byte* 		lAttrPointerIn;
 	unval_t* 	lAttrPointerOut;
+	const size_t lNoAttributes = _noAttributes;
 
 	while(_inputIndex < aSize)
 	{
 		lTupelPointerIn = _input[_inputIndex]._pointer;
-		lTupelPointerOut = _output[_outputIndex]._unval_pt;
-		for(size_t i = 0; i < _noAttributes; ++i)
+		lTupelPointerOut = _output[_outputIndex++]._unval_pt;
+		for(size_t i = 0; i < lNoAttributes; ++i)
 		{
 			lAttrPointerIn = lTupelPointerIn + aRelation.getOffset()[_attrNoList[i]];
 			lAttrPointerOut = &lTupelPointerOut[i];
@@ -121,13 +122,11 @@ Project<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelation, const size_
 					break;
 			}
 		}
-		++_outputIndex;
 		++_inputIndex;
 		if(_outputIndex == _vectorizedSize)
 		{
 			_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 			_outputIndex = 0;
-			// _nextOp->printProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 			if(_inputIndex < aSize)
 			{
 				step(aTupel, aRelation, aSize, aNoMoreData);
@@ -139,7 +138,6 @@ Project<T_Consumer>::step(unval_vt& aTupel, NSM_Relation& aRelation, const size_
 	{
 		_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 		_outputIndex = 0;
-		// _nextOp->printProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 	}
 }
 
@@ -152,10 +150,10 @@ Project<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_
 	uint32_t lRecordNo;
 	uint lAttrSize;
 	byte* lMiniPagePointer;
-
 	unval_t* 	lTupelPointerOut;
 	byte* 		lAttrPointerIn;
 	unval_t* 	lAttrPointerOut;
+	const size_t lNoAttributes = _noAttributes;
 
 	while(_inputIndex < aSize)
 	{
@@ -164,10 +162,9 @@ Project<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_
 
 		aPageInterpreter.attach(aRelation.getSegment().getPage(lPageNo));
 
-		lTupelPointerOut = _output[_outputIndex]._unval_pt;
+		lTupelPointerOut = _output[_outputIndex++]._unval_pt;
 
-
-		for(size_t i = 0; i < _noAttributes; ++i)
+		for(size_t i = 0; i < lNoAttributes; ++i)
 		{
 			lAttrSize = aPageInterpreter.getAttrSize(_attrNoList[i]);
 			lMiniPagePointer = aPageInterpreter.getMiniPagePointer(_attrNoList[i]);
@@ -209,13 +206,11 @@ Project<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_
 					break;
 			}
 		}
-		++_outputIndex;
 		++_inputIndex;
 		if(_outputIndex == _vectorizedSize)
 		{
 			_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 			_outputIndex = 0;
-			// _nextOp->printProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 			if(_inputIndex < aSize)
 			{
 				step(aTupel, aRelation, aSize, aNoMoreData);
@@ -227,7 +222,6 @@ Project<T_Consumer>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_
 	{
 		_nextOp->step(aTupel, aRelation, _outputIndex, aNoMoreData);
 		_outputIndex = 0;
-		// _nextOp->printProjection(aTupel, aRelation, _vectorizedSize, _attrNoList); 
 	}
 }
 
@@ -236,10 +230,11 @@ void
 Project<T_Consumer>::finish(unval_vt& aTupel) 
 {
 	_nextOp->finish(aTupel);
-	for(size_t i = 0; i < _vectorizedSize; ++i)
-	{
-		delete[] _output[i]._unval_pt;
-	}
+	// for(size_t i = 0; i < _vectorizedSize; ++i)
+	// {
+	// 	delete[] _output[i]._unval_pt;
+	// }
+	delete[] _output[0]._unval_pt;
 	delete[] _output;
 }
 

@@ -12,13 +12,27 @@
 template<typename T_Relation>
 void initIntegerChunk(T_Relation& aRelation, const size_t aAttrNo)
 {
-	std::string relName("Int_Chunk");
+	std::string relName("4BYTE_Chunk");
 	schema_vt logSchema(aAttrNo);
 	Relation::attr_desc_vt attrDesc(aAttrNo);
 	for(size_t i = 0; i < aAttrNo; ++i)
 	{
-		logSchema[i] = kUINT32;
-		attrDesc[i] = {"Test_Int" + std::to_string(i), kUINT32, static_cast<uint>(i), kNoContainer, -1};
+		if(i % 3 == 0)
+		{
+			logSchema[i] = kUINT32;
+			attrDesc[i] = {"Test_UINT" + std::to_string(i), kUINT32, static_cast<uint>(i), kNoContainer, -1};
+		}
+		else if(i % 3 == 1)
+		{
+			logSchema[i] = kINT32;
+			attrDesc[i] = {"Test_INT" + std::to_string(i), kINT32, static_cast<uint>(i), kNoContainer, -1};
+		}
+		else if(i % 3 == 2)
+		{
+			logSchema[i] = kFLOAT32;
+			attrDesc[i] = {"Test_FLOAT" + std::to_string(i), kFLOAT32, static_cast<uint>(i), kNoContainer, -1};
+		}
+		
 	}
 	Segment segment;
 	Relation::cont_desc_vt contDesc;

@@ -37,18 +37,14 @@ void col_test_query(PAX_Relation& aRelation, const size_t aVectorizedSize)
 	}
 }
 
-
-
-
-
-void row_test_projection(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aAttrNo, const size_t aVectorizedSize)
+void row_test_tpch_projection(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
 {
-	double_vt measure_int_projection(aAttrNo, 0);
+	double_vt measure_int_projection(aNoAttr, 0);
 	uint_vt lAttrNoList;
 	
-	for(size_t i = 0; i < aAttrNo; ++i)
+	for(size_t i = 0; i < aNoAttr; ++i)
 	{
-		std::cout << "Attr. " << (i+1) << "/" << aAttrNo << std::endl;
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
 		lAttrNoList.push_back(i);
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
@@ -71,22 +67,22 @@ void row_test_projection(NSM_Relation& aRelation, const size_t aNoTuple, const s
 	}
 	if(MEASURE_GLOBAL)
 	{
-		for(size_t i = 0; i < aAttrNo; ++i)
+		for(size_t i = 0; i < aNoAttr; ++i)
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
-		print_int_projection_result(aAttrNo, measure_int_projection);
+		print_projection_result(aNoAttr, measure_int_projection, "Standard[TPCH]");
 	}
 }
 
-void col_test_projection(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aAttrNo, const size_t aVectorizedSize)
+void col_test_tpch_projection(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
 {
-	double_vt measure_int_projection(aAttrNo, 0);
+	double_vt measure_int_projection(aNoAttr, 0);
 	uint_vt lAttrNoList;
 	
-	for(size_t i = 0; i < aAttrNo; ++i)
+	for(size_t i = 0; i < aNoAttr; ++i)
 	{
-		std::cout << "Attr. " << (i+1) << "/" << aAttrNo << std::endl;
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
 		lAttrNoList.push_back(i);
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
@@ -109,22 +105,22 @@ void col_test_projection(PAX_Relation& aRelation, const size_t aNoTuple, const s
 	}
 	if(MEASURE_GLOBAL)
 	{
-		for(size_t i = 0; i < aAttrNo; ++i)
+		for(size_t i = 0; i < aNoAttr; ++i)
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
-		print_int_projection_result(aAttrNo, measure_int_projection);
+		print_projection_result(aNoAttr, measure_int_projection, "Standard[TPCH]");
 	}
 }
 
-void row_test_projection_optimized_switch(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aAttrNo, const size_t aVectorizedSize)
+void row_test_tpch_projection_optimized_switch(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
 {
-	double_vt measure_int_projection(aAttrNo, 0);
+	double_vt measure_int_projection(aNoAttr, 0);
 	uint_vt lAttrNoList;
 	
-	for(size_t i = 0; i < aAttrNo; ++i)
+	for(size_t i = 0; i < aNoAttr; ++i)
 	{
-		std::cout << "Attr. " << (i+1) << "/" << aAttrNo << std::endl;
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
 		lAttrNoList.push_back(i);
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
@@ -147,22 +143,23 @@ void row_test_projection_optimized_switch(NSM_Relation& aRelation, const size_t 
 	}
 	if(MEASURE_GLOBAL)
 	{
-		for(size_t i = 0; i < aAttrNo; ++i)
+		for(size_t i = 0; i < aNoAttr; ++i)
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
-		print_int_projection_result(aAttrNo, measure_int_projection);
+		print_projection_result(aNoAttr, measure_int_projection, "OptimizedSwitch[TPCH]");
 	}
+
 }
 
-void col_test_projection_optimized_switch(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aAttrNo, const size_t aVectorizedSize)
+void col_test_tpch_projection_optimized_switch(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
 {
-	double_vt measure_int_projection(aAttrNo, 0);
+	double_vt measure_int_projection(aNoAttr, 0);
 	uint_vt lAttrNoList;
 	
-	for(size_t i = 0; i < aAttrNo; ++i)
+	for(size_t i = 0; i < aNoAttr; ++i)
 	{
-		std::cout << "Attr. " << (i+1) << "/" << aAttrNo << std::endl;
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
 		lAttrNoList.push_back(i);
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
@@ -185,28 +182,186 @@ void col_test_projection_optimized_switch(PAX_Relation& aRelation, const size_t 
 	}
 	if(MEASURE_GLOBAL)
 	{
-		for(size_t i = 0; i < aAttrNo; ++i)
+		for(size_t i = 0; i < aNoAttr; ++i)
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
-		print_int_projection_result(aAttrNo, measure_int_projection);
+		print_projection_result(aNoAttr, measure_int_projection, "OptimizedSwitch[TPCH]");
 	}
 }
 
-void row_test_projection_mat(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aAttrNo, const size_t aVectorizedSize)
+
+
+
+
+void row_test_projection(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
 {
-	double_vt measure_int_projection(aAttrNo, 0);
+	double_vt measure_int_projection(aNoAttr, 0);
 	uint_vt lAttrNoList;
 	
-	for(size_t i = 0; i < aAttrNo; ++i)
+	for(size_t i = 0; i < aNoAttr; ++i)
 	{
-		std::cout << "Attr. " << (i+1) << "/" << aAttrNo << std::endl;
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
+		lAttrNoList.push_back(i);
+		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
+		{
+			row_top_test_query_t							lTop;
+			row_project_test_query_t						lProject(&lTop, lAttrNoList, aVectorizedSize);
+			Scan<row_project_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			Measure lMeasure;
+			if(MEASURE_GLOBAL)
+			{
+				lMeasure.start();
+			}
+			lScan.run();
+			lMeasure.stop();
+			if(MEASURE_GLOBAL)
+			{
+				measure_int_projection[i] += secToNanoSec(lMeasure.mTotalTime(), aNoTuple);
+			}
+
+		}
+	}
+	if(MEASURE_GLOBAL)
+	{
+		for(size_t i = 0; i < aNoAttr; ++i)
+		{
+			measure_int_projection[i] /= RUNS_GLOBAL;
+		}
+		print_projection_result(aNoAttr, measure_int_projection, "Standard[BTR]");
+	}
+}
+
+void col_test_projection(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
+{
+	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrNoList;
+	
+	for(size_t i = 0; i < aNoAttr; ++i)
+	{
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
+		lAttrNoList.push_back(i);
+		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
+		{
+			col_top_test_query_t							lTop;
+			col_project_test_query_t						lProject(&lTop, lAttrNoList, aVectorizedSize);
+			Scan<col_project_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			Measure lMeasure;
+			if(MEASURE_GLOBAL)
+			{
+				lMeasure.start();
+			}
+			lScan.run();
+			lMeasure.stop();
+			if(MEASURE_GLOBAL)
+			{
+				measure_int_projection[i] += secToNanoSec(lMeasure.mTotalTime(), aNoTuple);
+			}
+
+		}
+	}
+	if(MEASURE_GLOBAL)
+	{
+		for(size_t i = 0; i < aNoAttr; ++i)
+		{
+			measure_int_projection[i] /= RUNS_GLOBAL;
+		}
+		print_projection_result(aNoAttr, measure_int_projection, "Standard[BTR]");
+	}
+}
+
+void row_test_projection_optimized_switch(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
+{
+	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrNoList;
+	
+	for(size_t i = 0; i < aNoAttr; ++i)
+	{
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
+		lAttrNoList.push_back(i);
+		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
+		{
+			row_top_test_query_t										lTop;
+			row_project_opt_switch_test_query_t							lProject(&lTop, lAttrNoList, aVectorizedSize);
+			Scan<row_project_opt_switch_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			Measure lMeasure;
+			if(MEASURE_GLOBAL)
+			{
+				lMeasure.start();
+			}
+			lScan.run();
+			lMeasure.stop();
+			if(MEASURE_GLOBAL)
+			{
+				measure_int_projection[i] += secToNanoSec(lMeasure.mTotalTime(), aNoTuple);
+			}
+
+		}
+	}
+	if(MEASURE_GLOBAL)
+	{
+		for(size_t i = 0; i < aNoAttr; ++i)
+		{
+			measure_int_projection[i] /= RUNS_GLOBAL;
+		}
+		print_projection_result(aNoAttr, measure_int_projection, "OptimizedSwitch[BTR]");
+	}
+}
+
+void col_test_projection_optimized_switch(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
+{
+	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrNoList;
+	
+	for(size_t i = 0; i < aNoAttr; ++i)
+	{
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
+		lAttrNoList.push_back(i);
+		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
+		{
+			col_top_test_query_t										lTop;
+			col_project_opt_switch_test_query_t							lProject(&lTop, lAttrNoList, aVectorizedSize);
+			Scan<col_project_opt_switch_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			Measure lMeasure;
+			if(MEASURE_GLOBAL)
+			{
+				lMeasure.start();
+			}
+			lScan.run();
+			lMeasure.stop();
+			if(MEASURE_GLOBAL)
+			{
+				measure_int_projection[i] += secToNanoSec(lMeasure.mTotalTime(), aNoTuple);
+			}
+
+		}
+	}
+	if(MEASURE_GLOBAL)
+	{
+		for(size_t i = 0; i < aNoAttr; ++i)
+		{
+			measure_int_projection[i] /= RUNS_GLOBAL;
+		}
+		print_projection_result(aNoAttr, measure_int_projection, "OptimizedSwitch[BTR]");
+	}
+}
+
+void row_test_projection_mat(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
+{
+	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrNoList;
+	
+	for(size_t i = 0; i < aNoAttr; ++i)
+	{
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
 		lAttrNoList.push_back(i);
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
 			row_top_test_query_t									lTop;
-			rowToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
-			Scan<rowToRow_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			// rowToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			// Scan<rowToRow_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			rowToCol_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			Scan<rowToCol_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
 			Measure lMeasure;
 			if(MEASURE_GLOBAL)
 			{
@@ -223,28 +378,31 @@ void row_test_projection_mat(NSM_Relation& aRelation, const size_t aNoTuple, con
 	}
 	if(MEASURE_GLOBAL)
 	{
-		for(size_t i = 0; i < aAttrNo; ++i)
+		for(size_t i = 0; i < aNoAttr; ++i)
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
-		print_int_projection_result(aAttrNo, measure_int_projection);
+		// print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]r2r");
+		print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]r2c");
 	}
 }
 
-void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aAttrNo, const size_t aVectorizedSize)
+void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
 {
-	double_vt measure_int_projection(aAttrNo, 0);
+	double_vt measure_int_projection(aNoAttr, 0);
 	uint_vt lAttrNoList;
 	
-	for(size_t i = 0; i < aAttrNo; ++i)
+	for(size_t i = 0; i < aNoAttr; ++i)
 	{
-		std::cout << "Attr. " << (i+1) << "/" << aAttrNo << std::endl;
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
 		lAttrNoList.push_back(i);
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
 			col_top_test_query_t									lTop;
-			colToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
-			Scan<colToRow_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			// colToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			// Scan<colToRow_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			colToCol_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			Scan<colToCol_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
 			Measure lMeasure;
 			if(MEASURE_GLOBAL)
 			{
@@ -261,19 +419,102 @@ void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, con
 	}
 	if(MEASURE_GLOBAL)
 	{
-		for(size_t i = 0; i < aAttrNo; ++i)
+		for(size_t i = 0; i < aNoAttr; ++i)
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
-		print_int_projection_result(aAttrNo, measure_int_projection);
+		// print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]c2r");
+		print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]c2c");
+	}
+}
+
+void row_test_projection_mat_optimized_switch(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
+{
+	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrNoList;
+	
+	for(size_t i = 0; i < aNoAttr; ++i)
+	{
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
+		lAttrNoList.push_back(i);
+		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
+		{
+			row_top_test_query_t												lTop;
+			// rowToRow_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			// Scan<rowToRow_project_mat_opt_switch_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			rowToCol_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			Scan<rowToCol_project_mat_opt_switch_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			Measure lMeasure;
+			if(MEASURE_GLOBAL)
+			{
+				lMeasure.start();
+			}
+			lScan.run();
+			lMeasure.stop();
+			if(MEASURE_GLOBAL)
+			{
+				measure_int_projection[i] += secToNanoSec(lMeasure.mTotalTime(), aNoTuple);
+			}
+
+		}
+	}
+	if(MEASURE_GLOBAL)
+	{
+		for(size_t i = 0; i < aNoAttr; ++i)
+		{
+			measure_int_projection[i] /= RUNS_GLOBAL;
+		}
+		// print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]r2r");
+		print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]r2c");
+	}
+}
+
+void col_test_projection_mat_optimized_switch(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const size_t aVectorizedSize)
+{
+	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrNoList;
+	
+	for(size_t i = 0; i < aNoAttr; ++i)
+	{
+		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
+		lAttrNoList.push_back(i);
+		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
+		{
+			col_top_test_query_t												lTop;
+			// colToRow_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			// Scan<colToRow_project_mat_opt_switch_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			colToCol_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			Scan<colToCol_project_mat_opt_switch_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			Measure lMeasure;
+			if(MEASURE_GLOBAL)
+			{
+				lMeasure.start();
+			}
+			lScan.run();
+			lMeasure.stop();
+			if(MEASURE_GLOBAL)
+			{
+				measure_int_projection[i] += secToNanoSec(lMeasure.mTotalTime(), aNoTuple);
+			}
+
+		}
+	}
+	if(MEASURE_GLOBAL)
+	{
+		for(size_t i = 0; i < aNoAttr; ++i)
+		{
+			measure_int_projection[i] /= RUNS_GLOBAL;
+		}
+		// print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]c2r");
+		print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]c2c");
 	}
 }
 
 
 
-// void row_test_update1(NSM_Relation& aRelation, const uint aAttrNo, const bool aMeasure, const size_t aRuns, const char* aPath)
+// void row_test_update1(NSM_Relation& aRelation, const uint aNoAttr, const bool aMeasure, const size_t aRuns, const char* aPath)
 // {
-// 	for(size_t x = 1; x <= aAttrNo; ++x)
+// 	for(size_t x = 1; x <= aNoAttr; ++x)
 // 	{
 // 		double avg = 0;
 // 		for(size_t j = 0; j < aRuns; ++j)
@@ -363,9 +604,9 @@ void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, con
 // 	}
 // }
 
-// void col_test_update1(PAX_Relation& aRelation, const uint aAttrNo, const bool aMeasure, const size_t aRuns, const char* aPath)
+// void col_test_update1(PAX_Relation& aRelation, const uint aNoAttr, const bool aMeasure, const size_t aRuns, const char* aPath)
 // {
-// 	for(size_t x = 1; x <= aAttrNo; ++x)
+// 	for(size_t x = 1; x <= aNoAttr; ++x)
 // 	{
 // 		double avg = 0;
 // 		for(size_t j = 0; j < aRuns; ++j)

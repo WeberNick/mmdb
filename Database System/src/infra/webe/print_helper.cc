@@ -108,12 +108,12 @@ std::string getEnumAsString(int aValue, bool aFlag)
 
 
 
-void print_bulk_load_insert_result(const string_vt& aRelationNames, const double_vt& aMeasurementData, const bool aFlag)
+void print_bulk_load_insert_result(const string_vt& aRelationNames, const double_vt& aMeasurementData, const bool aFlag, const std::string aTestType)
 {
 	std::ofstream raw;
 	std::string lTestName = aFlag ? "load" : "insert";
 	GM::System lSystem;
-	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL);
+	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL) + "_" + aTestType;
 	std::string lPath = std::string(PATH_GLOBAL) + "raw/" + lTestName + "_" + lSetting + ".txt";
 	raw.open(lPath.c_str(), std::ios::out | std::ios::trunc);
 	if(raw.is_open())
@@ -148,12 +148,12 @@ void print_bulk_load_insert_result(const string_vt& aRelationNames, const double
 	}
 }
 
-void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData)
+void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData, const std::string aTestType)
 {
 	std::ofstream raw;
 	std::string lTestName = "scan";
 	GM::System lSystem;
-	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL);
+	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL) + "_" + aTestType;
 	std::string lPath = std::string(PATH_GLOBAL) + "raw/" + lTestName + "_" + lSetting + ".txt";
 	raw.open(lPath.c_str(), std::ios::out | std::ios::trunc);
 	if(raw.is_open())
@@ -188,12 +188,12 @@ void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData)
 	}
 }
 
-void print_int_projection_result(const size_t aAttrNo, const double_vt& aMeasurementData)
+void print_projection_result(const size_t aAttrNo, const double_vt& aMeasurementData, const std::string aTestType)
 {
 	std::ofstream raw;
-	std::string lTestName = "int-projection";
+	std::string lTestName = "projection";
 	GM::System lSystem;
-	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL);
+	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL) + "_" + aTestType;
 	std::string lPath = std::string(PATH_GLOBAL) + "raw/" + lTestName + "_" + lSetting + ".txt";
 	raw.open(lPath.c_str(), std::ios::out | std::ios::trunc);
 	if(raw.is_open())
@@ -226,24 +226,4 @@ void print_int_projection_result(const size_t aAttrNo, const double_vt& aMeasure
 			out.close();
 		}
 	}
-}
-
-void print_tq1_result(const char* aPath, int aSelectivity, double aTime)
-{
-	aTime *= 1000; 
-	std::string fileName(aPath + std::to_string(PAGE_SIZE_GLOBAL) + ".txt");
-	std::ofstream os;
-	os.open (fileName.c_str(), std::ios::out | std::ios::app);
-	os << aSelectivity << '\t' << std::setprecision(3) << std::fixed << aTime << std::endl;
-	os.close();
-}
-
-void print_tu1_result(const char* aPath, int aAttrNo, double aTime)
-{
-	aTime *= 1000;
-	std::string fileName(aPath + std::to_string(PAGE_SIZE_GLOBAL) + ".txt");
-	std::ofstream os;
-	os.open (fileName.c_str(), std::ios::out | std::ios::app);
-	os << aAttrNo << '\t' << std::setprecision(3) << std::fixed << aTime << std::endl;
-	os.close();
 }

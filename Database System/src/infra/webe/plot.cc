@@ -54,9 +54,9 @@ void plotBulkLoadInsert(const bool aIsLoad, const std::string nsmPath, const str
 		gp << "set output '../results/" << lFileName << ".pdf'\n";
 		gp << "set grid\n";
 		gp << "set autoscale\n";
-		gp << "set ylabel 'Average time in sec' font ',12'\n";
+		gp << "set ylabel 'Average time in sec' font ', 8'\n";
 		gp << "set xtics font ',8'\n";
-		gp << "set title 'Average Time of " << lTestName << " each Relation' font ',15'\n";
+		gp << "set title 'Average Time of " << lTestName << " each Relation' font ',12'\n";
 		gp << "set boxwidth 0.7 relative\n";
 		gp << "set style data histograms\n";
 		gp << "set style histogram cluster\n";
@@ -72,7 +72,7 @@ void plotBulkLoadInsert(const bool aIsLoad, const std::string nsmPath, const str
 		for(size_t i = 0; i < nsmPlotIndeces.size(); ++i)
 		{
 			index = nsmPlotIndeces[i];
-			title = "NSM-" + nsmFileNameTokens[index][0] + "(" + nsmFileNameTokens[index][1] + "/" + nsmFileNameTokens[index][2] + ")";
+			title = "NSM-" + nsmFileNameTokens[index][0] + "(" + nsmFileNameTokens[index][1] + "/" + nsmFileNameTokens[index][2] + "/" + nsmFileNameTokens[index][3] + ")";
 			command += "'" + nsmPath + nsmDataFilesToPlot[index] + "' using 2:xticlabels(1) title '" + title + "'";
 			++count;
 			if(count < numberOfFilesToPlot)
@@ -83,7 +83,7 @@ void plotBulkLoadInsert(const bool aIsLoad, const std::string nsmPath, const str
 		for(size_t i = 0; i < paxPlotIndeces.size(); ++i)
 		{
 			index = paxPlotIndeces[i];
-			title = "PAX-" + paxFileNameTokens[index][0] + "(" + paxFileNameTokens[index][1] + "/" + paxFileNameTokens[index][2] + ")";
+			title = "PAX-" + paxFileNameTokens[index][0] + "(" + paxFileNameTokens[index][1] + "/" + paxFileNameTokens[index][2] + "/" + paxFileNameTokens[index][3] + ")";
 			command += "'" + paxPath + paxDataFilesToPlot[index] + "' using 2:xticlabels(1) title '" + title + "'";
 			++count;
 			if(count < numberOfFilesToPlot)
@@ -96,25 +96,25 @@ void plotBulkLoadInsert(const bool aIsLoad, const std::string nsmPath, const str
 	}
 }
 
-void plotIntProjection(const std::string nsmPath, const string_vt& nsmDataFilesToPlot, const string_vvt& nsmFileNameTokens, const uint_vt& nsmPlotIndeces, const std::string paxPath, const string_vt& paxDataFilesToPlot, const string_vvt& paxFileNameTokens, const uint_vt& paxPlotIndeces)
+void plotProjection(const std::string nsmPath, const string_vt& nsmDataFilesToPlot, const string_vvt& nsmFileNameTokens, const uint_vt& nsmPlotIndeces, const std::string paxPath, const string_vt& paxDataFilesToPlot, const string_vvt& paxFileNameTokens, const uint_vt& paxPlotIndeces)
 {
 	const size_t numberOfFilesToPlot = nsmPlotIndeces.size() + paxPlotIndeces.size();
 	if(numberOfFilesToPlot != 0)
 	{
 		Gnuplot gp;
 		gp << "set terminal pdf\n";
-		gp << "set output '../results/integer_projection.pdf'\n";
+		gp << "set output '../results/projection.pdf'\n";
 		gp << "set grid\n";
 		gp << "set autoscale\n";
-		gp << "set ylabel 'Average projection time per tuple in ns' font ',12'\n";
-		gp << "set xlabel 'Number of attributes projected' font ',12' offset 0,4\n";
-		gp << "set title 'Projection Time for a different Number of Attributes' font ',15'\n";
+		gp << "set ylabel 'Average projection time per tuple in ns' font ', 8'\n";
+		gp << "set xlabel 'Number of attributes projected' font ', 8'\n";
+		gp << "set title 'Projection Time for a different Number of Attributes' font ',12'\n";
 		gp << "set style data linespoints\n";
 		gp << "set pointsize 0.5\n";
 		gp << "set auto x\n";
 		// gp << "set xrange [0:20]\n";
-		gp << "set yrange [0:250]\n";
-		gp << "set key top left font ', 10'\n";
+		gp << "set yrange [0:600]\n";
+		gp << "set key top left font ', 6'\n";
 
 		std::string command = "plot ";
 		std::string title;
@@ -123,7 +123,7 @@ void plotIntProjection(const std::string nsmPath, const string_vt& nsmDataFilesT
 		for(size_t i = 0; i < nsmPlotIndeces.size(); ++i)
 		{
 			index = nsmPlotIndeces[i];
-			title = "NSM-" + nsmFileNameTokens[index][0] + "(" + nsmFileNameTokens[index][1] + "/" + nsmFileNameTokens[index][2] + ")";
+			title = "NSM-" + nsmFileNameTokens[index][0] + "(" + nsmFileNameTokens[index][1] + "/" + nsmFileNameTokens[index][2] + "/" + nsmFileNameTokens[index][3] + ")";
 			command += "'" + nsmPath + nsmDataFilesToPlot[index] + "' using 1:2 title '" + title + "'";
 			++count;
 			if(count < numberOfFilesToPlot)
@@ -134,7 +134,7 @@ void plotIntProjection(const std::string nsmPath, const string_vt& nsmDataFilesT
 		for(size_t i = 0; i < paxPlotIndeces.size(); ++i)
 		{
 			index = paxPlotIndeces[i];
-			title = "PAX-" + paxFileNameTokens[index][0] + "(" + paxFileNameTokens[index][1] + "/" + paxFileNameTokens[index][2] + ")";
+			title = "PAX-" + paxFileNameTokens[index][0] + "(" + paxFileNameTokens[index][1] + "/" + paxFileNameTokens[index][2] + "/" + paxFileNameTokens[index][3] + ")";
 			command += "'" + paxPath + paxDataFilesToPlot[index] + "' using 1:2 title '" + title + "'";
 			++count;
 			if(count < numberOfFilesToPlot)
@@ -157,14 +157,14 @@ void plotScan(const std::string nsmPath, const string_vt& nsmDataFilesToPlot, co
 		gp << "set output '../results/scan.pdf'\n";
 		gp << "set grid\n";
 		gp << "set autoscale\n";
-		gp << "set ylabel 'Average time in ms' font ',12'\n";
-		gp << "set xlabel 'Attributes scanned' font ',12' offset 0,4\n";
-		gp << "set title 'Average Scan Time for a different Number of Attributes' font ',15'\n";
+		gp << "set ylabel 'Average time in ms' font ', 8'\n";
+		gp << "set xlabel 'Attributes scanned' font ', 8'\n";
+		gp << "set title 'Average Scan Time for a different Number of Attributes' font ',12'\n";
 		gp << "set style data linespoints\n";
 		gp << "set pointsize 0.5\n";
 		gp << "set auto x\n";
 		gp << "set yrange [0:200]\n";
-		gp << "set key top left font ', 10'\n";
+		gp << "set key top left font ', 6'\n";
 
 		std::string command = "plot ";
 		std::string title;
@@ -173,7 +173,7 @@ void plotScan(const std::string nsmPath, const string_vt& nsmDataFilesToPlot, co
 		for(size_t i = 0; i < nsmPlotIndeces.size(); ++i)
 		{
 			index = nsmPlotIndeces[i];
-			title = "NSM-" + nsmFileNameTokens[index][0] + "(" + nsmFileNameTokens[index][1] + "/" + nsmFileNameTokens[index][2] + ")";
+			title = "NSM-" + nsmFileNameTokens[index][0] + "(" + nsmFileNameTokens[index][1] + "/" + nsmFileNameTokens[index][2] + "/" + nsmFileNameTokens[index][3] + ")";
 			command += "'" + nsmPath + nsmDataFilesToPlot[index] + "' using 1:2 title '" + title + "'";
 			++count;
 			if(count < numberOfFilesToPlot)
@@ -184,7 +184,7 @@ void plotScan(const std::string nsmPath, const string_vt& nsmDataFilesToPlot, co
 		for(size_t i = 0; i < paxPlotIndeces.size(); ++i)
 		{
 			index = paxPlotIndeces[i];
-			title = "PAX-" + paxFileNameTokens[index][0] + "(" + paxFileNameTokens[index][1] + "/" + paxFileNameTokens[index][2] + ")";
+			title = "PAX-" + paxFileNameTokens[index][0] + "(" + paxFileNameTokens[index][1] + "/" + paxFileNameTokens[index][2] + "/" + paxFileNameTokens[index][3] + ")";
 			command += "'" + paxPath + paxDataFilesToPlot[index] + "' using 1:2 title '" + title + "'";
 			++count;
 			if(count < numberOfFilesToPlot)
@@ -241,8 +241,8 @@ void startPlotProcess()
 	plotBulkLoadInsert(true, nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[0], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[0]);
 	getIndeces(nsmPlotIndeces[1], nsmFileNameTokens, paxPlotIndeces[1], paxFileNameTokens, "insert");
 	plotBulkLoadInsert(false, nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[1], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[1]);
-	getIndeces(nsmPlotIndeces[2], nsmFileNameTokens, paxPlotIndeces[2], paxFileNameTokens, "int-projection");
-	plotIntProjection(nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[2], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[2]);
+	getIndeces(nsmPlotIndeces[2], nsmFileNameTokens, paxPlotIndeces[2], paxFileNameTokens, "projection");
+	plotProjection(nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[2], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[2]);
 	getIndeces(nsmPlotIndeces[3], nsmFileNameTokens, paxPlotIndeces[3], paxFileNameTokens, "scan");
 	plotScan(nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[3], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[3]);
 }

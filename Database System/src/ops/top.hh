@@ -24,12 +24,13 @@ class Top
 
 	private:
 		size_t _indexNo;
+		size_t _tplCount;
 		unval_pt _input;
 };
 
 template<bool print>
 Top<print>::Top()
-	:   _indexNo(), _input()
+	:   _indexNo(), _tplCount(), _input()
 {}
 
 template<bool print>
@@ -54,6 +55,7 @@ template<bool print>
 void
 Top<print>::step(unval_vt& aTupel, NSM_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
+	_tplCount += aSize;
 	if(print)
 	{
 		aRelation.print(_input, std::cout, aSize);
@@ -64,6 +66,7 @@ template<bool print>
 void
 Top<print>::step(unval_vt& aTupel, PAX_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
+	_tplCount += aSize;
 	if(print)
 	{
 		aRelation.print(_input, std::cout, aSize);
@@ -74,7 +77,7 @@ template<bool print>
 void
 Top<print>::finish(unval_vt& aTupel) 
 {
-	std::cout << "FIN" << std::endl;
+	std::cout << "(FIN) Tuple Count: " << _tplCount << std::endl;
 }
 
 
