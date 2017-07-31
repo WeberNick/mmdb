@@ -358,10 +358,10 @@ void row_test_projection_mat(NSM_Relation& aRelation, const size_t aNoTuple, con
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
 			row_top_test_query_t									lTop;
-			// rowToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
-			// Scan<rowToRow_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
-			rowToCol_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
-			Scan<rowToCol_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			rowToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			Scan<rowToRow_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			// rowToCol_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			// Scan<rowToCol_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
 			Measure lMeasure;
 			if(MEASURE_GLOBAL)
 			{
@@ -382,8 +382,8 @@ void row_test_projection_mat(NSM_Relation& aRelation, const size_t aNoTuple, con
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
-		// print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]r2r");
-		print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]r2c");
+		print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]r2r");
+		// print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]r2c");
 	}
 }
 
@@ -399,10 +399,10 @@ void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, con
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
 			col_top_test_query_t									lTop;
-			// colToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
-			// Scan<colToRow_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
-			colToCol_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
-			Scan<colToCol_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			colToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			Scan<colToRow_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			// colToCol_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			// Scan<colToCol_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
 			Measure lMeasure;
 			if(MEASURE_GLOBAL)
 			{
@@ -423,8 +423,8 @@ void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, con
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
-		// print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]c2r");
-		print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]c2c");
+		print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]c2r");
+		// print_projection_result(aNoAttr, measure_int_projection, "Materialized[BTR]c2c");
 	}
 }
 
@@ -440,10 +440,10 @@ void row_test_projection_mat_optimized_switch(NSM_Relation& aRelation, const siz
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
 			row_top_test_query_t												lTop;
-			// rowToRow_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
-			// Scan<rowToRow_project_mat_opt_switch_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
-			rowToCol_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
-			Scan<rowToCol_project_mat_opt_switch_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			rowToRow_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			Scan<rowToRow_project_mat_opt_switch_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			// rowToCol_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			// Scan<rowToCol_project_mat_opt_switch_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
 			Measure lMeasure;
 			if(MEASURE_GLOBAL)
 			{
@@ -464,8 +464,8 @@ void row_test_projection_mat_optimized_switch(NSM_Relation& aRelation, const siz
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
-		// print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]r2r");
-		print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]r2c");
+		print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]r2r");
+		// print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]r2c");
 	}
 }
 
@@ -481,10 +481,10 @@ void col_test_projection_mat_optimized_switch(PAX_Relation& aRelation, const siz
 		for(size_t j = 0; j < RUNS_GLOBAL; ++j)
 		{
 			col_top_test_query_t												lTop;
-			// colToRow_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
-			// Scan<colToRow_project_mat_opt_switch_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
-			colToCol_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
-			Scan<colToCol_project_mat_opt_switch_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			colToRow_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			Scan<colToRow_project_mat_opt_switch_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
+			// colToCol_project_mat_opt_switch_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aVectorizedSize);
+			// Scan<colToCol_project_mat_opt_switch_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aVectorizedSize);
 			Measure lMeasure;
 			if(MEASURE_GLOBAL)
 			{
@@ -505,8 +505,8 @@ void col_test_projection_mat_optimized_switch(PAX_Relation& aRelation, const siz
 		{
 			measure_int_projection[i] /= RUNS_GLOBAL;
 		}
-		// print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]c2r");
-		print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]c2c");
+		print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]c2r");
+		// print_projection_result(aNoAttr, measure_int_projection, "MaterializedOptimizedSwitch[BTR]c2c");
 	}
 }
 

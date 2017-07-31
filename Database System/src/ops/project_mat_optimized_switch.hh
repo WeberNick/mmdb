@@ -113,13 +113,11 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::ste
 {
 	if(std::is_same<T_RelationOut, NSM_Relation>::value)
 	{
-		std::cout << "NSM to NSM" << std::endl;
-		//projectNSMtoNSM(aTupel, aRelation, aSize, aNoMoreData);
+		projectNSMtoNSM(aTupel, aRelation, aSize, aNoMoreData);
 	}
 	else if(std::is_same<T_RelationOut, PAX_Relation>::value)
 	{
-		std::cout << "NSM to PAX" << std::endl;
-		projectNSMtoPAX(aTupel, aRelation, aSize, aNoMoreData);
+		// projectNSMtoPAX(aTupel, aRelation, aSize, aNoMoreData);
 	}
 	else
 	{
@@ -134,12 +132,10 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::ste
 
 	if(std::is_same<T_RelationOut, NSM_Relation>::value)
 	{
-		std::cout << "PAX to NSM" << std::endl;
-		//projectPAXtoNSM(aTupel, aRelation, aSize, aNoMoreData);
+		// projectPAXtoNSM(aTupel, aRelation, aSize, aNoMoreData);
 	}
 	else if(std::is_same<T_RelationOut, PAX_Relation>::value)
 	{
-		std::cout << "PAX to PAX" << std::endl;
 		projectPAXtoPAX(aTupel, aRelation, aSize, aNoMoreData);
 	}
 	else
@@ -164,25 +160,25 @@ template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
 ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoNSM(unval_vt& aTupel, NSM_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
-	PageInterpreterSP lPageInterpreter;
-	byte_vpt		lRecordPointer(_vectorizedSize);
-	byte* 			lAttrPointerIn;
-	byte* 			lAttrPointerOut;
-	size_t 			lOutputIndex = _outputBegin;
-	size_t 			lInputIndex = _inputBegin;
-	const size_t 	lNoAttributes = _noAttributes;
+	PageInterpreterSP 	lPageInterpreterOut;
+	lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_currentPage));
+	byte*				lRecordPointer;
+	size_t				lOffsetIn;
+	size_t				lOffsetOut;
+	size_t 				lOutputIndex = _outputBegin;
+	size_t 				lInputIndex = _inputBegin;
+	const size_t 		lNoAttributes = _noAttributes;
 	while(lInputIndex < aSize)
 	{
-		lPageInterpreter.attach(_relationOut.getSegment().getPage(_currentPage));
-		lRecordPointer[lOutputIndex] = lPageInterpreter.addNewRecord(_relationOut.getLogTupleSize());
-		if(lRecordPointer[lOutputIndex] == 0)
+		lRecordPointer = lPageInterpreterOut.addNewRecord(_relationOut.getLogTupleSize());
+		if(lRecordPointer == 0)
 		{
-			lPageInterpreter.initNewPage(_relationOut.getSegment().getNewPage());
+			lPageInterpreterOut.initNewPage(_relationOut.getSegment().getNewPage());
 			++_currentPage;
 		}
 		else
 		{
-			_output[lOutputIndex]._pointer = lRecordPointer[lOutputIndex];
+			_output[lOutputIndex]._pointer = lRecordPointer;
 			++lOutputIndex;
 			++lInputIndex;
 			if(lOutputIndex == _vectorizedSize)
@@ -196,14 +192,14 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 
 	for(size_t i = 0; i < lNoAttributes; ++i)
 	{
+		lOffsetIn = aRelation.getOffset()[_attrNoList[i]];
+		lOffsetOut = _relationOut.getOffset()[i];
 		switch(_relationOut.getAttrDesc()[i]._attrType)
 		{
 			case kCHAR:
 				while(lInputIndex < aSize)
 				{
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(char*)lAttrPointerOut = *(char*)lAttrPointerIn;
+					*(char*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(char*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -213,9 +209,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kUINT32:
 				while(lInputIndex < aSize)
 				{
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					*(uint32_t*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(uint32_t*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -225,9 +219,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kUINT64:
 				while(lInputIndex < aSize)
 				{
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(uint64_t*)lAttrPointerOut = *(uint64_t*)lAttrPointerIn;
+					*(uint64_t*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(uint64_t*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -237,9 +229,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kINT32:
 				while(lInputIndex < aSize)
 				{
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(int32_t*)lAttrPointerOut = *(int32_t*)lAttrPointerIn;
+					*(int32_t*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(int32_t*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -249,9 +239,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kFLOAT32:
 				while(lInputIndex < aSize)
 				{
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(float*)lAttrPointerOut = *(float*)lAttrPointerIn;
+					*(float*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(float*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -261,9 +249,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kFLOAT64:
 				while(lInputIndex < aSize)
 				{
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(double*)lAttrPointerOut = *(double*)lAttrPointerIn;
+					*(double*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(double*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -273,9 +259,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kCHAR_STRING:
 				while(lInputIndex < aSize)
 				{
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(const char**)lAttrPointerOut = *(const char**)lAttrPointerIn;
+					*(const char**)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(const char**)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -285,9 +269,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kDATEJD:
 				while(lInputIndex < aSize)
 				{
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					*(uint32_t*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(uint32_t*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -297,9 +279,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kSTR_SDICT:
 				while(lInputIndex < aSize)
 				{
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					*(uint32_t*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(uint32_t*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -343,21 +323,20 @@ template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
 ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::projectNSMtoPAX(unval_vt& aTupel, NSM_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
-	PageInterpreterPAX lPageInterpreter;
-
-	int_vt			lIndeces(_vectorizedSize);
-	byte* 			lAttrPointerIn;
-	byte* 			lAttrPointerOut;
-	size_t 			lOutputIndex = _outputBegin;
-	size_t 			lInputIndex = _inputBegin;
-	const size_t	lNoAttributes = _noAttributes;
+	PageInterpreterPAX 	lPageInterpreterOut;
+	lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_currentPage));
+	int_vt				lIndeces(_vectorizedSize);
+	size_t 				lOffsetIn;
+	size_t 				lOutputIndex = _outputBegin;
+	size_t 				lInputIndex = _inputBegin;
+	size_t 				lAttrSize;
+	const size_t		lNoAttributes = _noAttributes;
 	while(lInputIndex < aSize)
 	{
-		lPageInterpreter.attach(_relationOut.getSegment().getPage(_currentPage));
-		lIndeces[lOutputIndex] = lPageInterpreter.addNewRecord(_relationOut.getLogTupleSize());
+		lIndeces[lOutputIndex] = lPageInterpreterOut.addNewRecord(_relationOut.getLogTupleSize());
 		if(lIndeces[lOutputIndex] == -1)
 		{
-			lPageInterpreter.initNewPage(_relationOut.getSegment().getNewPage(), _relationOut.getPartitionData());
+			lPageInterpreterOut.initNewPage(_relationOut.getSegment().getNewPage(), _relationOut.getPartitionData());
 			++_currentPage;
 		}
 		else
@@ -377,15 +356,15 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 
 	for(size_t i = 0; i < lNoAttributes; ++i)
 	{
+		lOffsetIn = aRelation.getOffset()[_attrNoList[i]];
+		lAttrSize = _relationOut.getPartitionData()[i];
 		switch(_relationOut.getAttrDesc()[i]._attrType)
 		{
 			case kCHAR:
 				while(lInputIndex < aSize)
 				{
-					lPageInterpreter.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lPageInterpreter.pagePtr() + lPageInterpreter.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreter.getAttrSize(i));
-					*(char*)lAttrPointerOut = *(char*)lAttrPointerIn;
+					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
+					*(char*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(char*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -395,10 +374,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kUINT32:
 				while(lInputIndex < aSize)
 				{
-					lPageInterpreter.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lPageInterpreter.pagePtr() + lPageInterpreter.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreter.getAttrSize(i));
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
+					*(uint32_t*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(uint32_t*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -408,10 +385,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kUINT64:
 				while(lInputIndex < aSize)
 				{
-					lPageInterpreter.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lPageInterpreter.pagePtr() + lPageInterpreter.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreter.getAttrSize(i));
-					*(uint64_t*)lAttrPointerOut = *(uint64_t*)lAttrPointerIn;
+					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
+					*(uint64_t*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(uint64_t*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -421,10 +396,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kINT32:
 				while(lInputIndex < aSize)
 				{
-					lPageInterpreter.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lPageInterpreter.pagePtr() + lPageInterpreter.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreter.getAttrSize(i));
-					*(int32_t*)lAttrPointerOut = *(int32_t*)lAttrPointerIn;
+					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
+					*(int32_t*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(int32_t*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -434,10 +407,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kFLOAT32:
 				while(lInputIndex < aSize)
 				{
-					lPageInterpreter.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lPageInterpreter.pagePtr() + lPageInterpreter.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreter.getAttrSize(i));
-					*(float*)lAttrPointerOut = *(float*)lAttrPointerIn;
+					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
+					*(float*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(float*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -447,10 +418,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kFLOAT64:
 				while(lInputIndex < aSize)
 				{
-					lPageInterpreter.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lPageInterpreter.pagePtr() + lPageInterpreter.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreter.getAttrSize(i));
-					*(double*)lAttrPointerOut = *(double*)lAttrPointerIn;
+					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
+					*(double*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(double*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -460,10 +429,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kCHAR_STRING:
 				while(lInputIndex < aSize)
 				{
-					lPageInterpreter.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lPageInterpreter.pagePtr() + lPageInterpreter.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreter.getAttrSize(i));
-					*(const char**)lAttrPointerOut = *(const char**)lAttrPointerIn;
+					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
+					*(const char**)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(const char**)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -473,10 +440,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kDATEJD:
 				while(lInputIndex < aSize)
 				{
-					lPageInterpreter.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lPageInterpreter.pagePtr() + lPageInterpreter.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreter.getAttrSize(i));
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
+					*(uint32_t*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(uint32_t*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -486,10 +451,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 			case kSTR_SDICT:
 				while(lInputIndex < aSize)
 				{
-					lPageInterpreter.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerIn = _input[lInputIndex++]._pointer + aRelation.getOffset()[_attrNoList[i]];
-					lAttrPointerOut = lPageInterpreter.pagePtr() + lPageInterpreter.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreter.getAttrSize(i));
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
+					*(uint32_t*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(uint32_t*)(_input[lInputIndex++]._pointer + lOffsetIn);
 					if(lOutputIndex == _vectorizedSize)
 					{
 						break;
@@ -528,21 +491,19 @@ template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 void
 ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::projectPAXtoNSM(unval_vt& aTupel, PAX_Relation& aRelation, const size_t aSize, const bool aNoMoreData) 
 {
-	PageInterpreterPAX lPageInterpreterIn;
-	PageInterpreterSP lPageInterpreterOut;
-	byte_vpt	lRecordPointer(_vectorizedSize);
-	uint32_t 	lPageNo;
-	uint32_t 	lRecordNo;
-	uint 		lAttrSize;
-	byte* 		lMiniPagePointer;
-	byte* 		lAttrPointerIn;
-	byte* 		lAttrPointerOut;
-	size_t 		lOutputIndex = _outputBegin;
-	size_t 		lInputIndex = _inputBegin;
-	const size_t lNoAttributes = _noAttributes;
+	PageInterpreterPAX 	lPageInterpreterIn;
+	PageInterpreterSP 	lPageInterpreterOut;
+	lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_currentPage));
+	byte_vpt			lRecordPointer(_vectorizedSize);
+	uint32_t 			lPageNo;
+	uint32_t 			lRecordNo;
+	size_t				lOffsetOut;
+	size_t 				lOutputIndex = _outputBegin;
+	size_t 				lInputIndex = _inputBegin;
+	size_t 				lAttrSize;
+	const size_t 		lNoAttributes = _noAttributes;
 	while(lInputIndex < aSize)
 	{
-		lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_currentPage));
 		lRecordPointer[lOutputIndex] = lPageInterpreterOut.addNewRecord(_relationOut.getLogTupleSize());
 		if(lRecordPointer[lOutputIndex] == 0)
 		{
@@ -565,6 +526,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 
 	for(size_t i = 0; i < lNoAttributes; ++i)
 	{
+		lAttrSize = aRelation.getPartitionData()[_attrNoList[i]];
+		lOffsetOut = _relationOut.getOffset()[i];
 		switch(_relationOut.getAttrDesc()[i]._attrType)
 		{
 			case kCHAR:
@@ -573,11 +536,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(char*)lAttrPointerOut = *(char*)lAttrPointerIn;
+					*(char*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(char*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kUINT32:
@@ -586,11 +545,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					*(uint32_t*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(uint32_t*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kUINT64:
@@ -599,11 +554,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(uint64_t*)lAttrPointerOut = *(uint64_t*)lAttrPointerIn;
+					*(uint64_t*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(uint64_t*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kINT32:
@@ -612,11 +563,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(int32_t*)lAttrPointerOut = *(int32_t*)lAttrPointerIn;
+					*(int32_t*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(int32_t*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kFLOAT32:
@@ -625,11 +572,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(float*)lAttrPointerOut = *(float*)lAttrPointerIn;
+					*(float*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(float*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kFLOAT64:
@@ -638,11 +581,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(double*)lAttrPointerOut = *(double*)lAttrPointerIn;
+					*(double*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(double*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kCHAR_STRING:
@@ -651,11 +590,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(const char**)lAttrPointerOut = *(const char**)lAttrPointerIn;
+					*(const char**)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(const char**)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kDATEJD:
@@ -664,11 +599,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					*(uint32_t*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(uint32_t*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kSTR_SDICT:
@@ -677,11 +608,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
-					lAttrPointerOut = lRecordPointer[lOutputIndex++] + _relationOut.getOffset()[i];
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					*(uint32_t*)(_output[lOutputIndex++]._pointer + lOffsetOut) = *(uint32_t*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			default:
@@ -718,21 +645,17 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 {
 	PageInterpreterPAX lPageInterpreterIn;
 	PageInterpreterPAX lPageInterpreterOut;
+	lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_currentPage));
 
 	int_vt			lIndeces(_vectorizedSize);
 	uint32_t 		lPageNo;
 	uint32_t 		lRecordNo;
-	uint 			lAttrSize;
-	byte* 			lMiniPagePointer;
-	byte* 			lAttrPointerIn;
-	byte* 			lAttrPointerOut;
-
 	size_t 			lOutputIndex = _outputBegin;
 	size_t 			lInputIndex = _inputBegin;
+	size_t 			lAttrSize;
 	const size_t 	lNoAttributes = _noAttributes;
 	while(lInputIndex < aSize)
 	{
-		lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_currentPage));
 		lIndeces[lOutputIndex] = lPageInterpreterOut.addNewRecord(_relationOut.getLogTupleSize());
 		if(lIndeces[lOutputIndex] == -1)
 		{
@@ -756,6 +679,7 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 
 	for(size_t i = 0; i < lNoAttributes; ++i)
 	{
+		lAttrSize = aRelation.getPartitionData()[_attrNoList[i]];
 		switch(_relationOut.getAttrDesc()[i]._attrType)
 		{
 			case kCHAR:
@@ -764,12 +688,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
 					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerOut = lPageInterpreterOut.pagePtr() + lPageInterpreterOut.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreterOut.getAttrSize(i));
-					*(char*)lAttrPointerOut = *(char*)lAttrPointerIn;
+					*(char*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(char*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kUINT32:
@@ -778,12 +698,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
 					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerOut = lPageInterpreterOut.pagePtr() + lPageInterpreterOut.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreterOut.getAttrSize(i));
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					*(uint32_t*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(uint32_t*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kUINT64:
@@ -792,12 +708,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
 					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerOut = lPageInterpreterOut.pagePtr() + lPageInterpreterOut.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreterOut.getAttrSize(i));
-					*(uint64_t*)lAttrPointerOut = *(uint64_t*)lAttrPointerIn;
+					*(uint64_t*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(uint64_t*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kINT32:
@@ -806,12 +718,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
 					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerOut = lPageInterpreterOut.pagePtr() + lPageInterpreterOut.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreterOut.getAttrSize(i));
-					*(int32_t*)lAttrPointerOut = *(int32_t*)lAttrPointerIn;
+					*(int32_t*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(int32_t*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kFLOAT32:
@@ -820,12 +728,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
 					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerOut = lPageInterpreterOut.pagePtr() + lPageInterpreterOut.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreterOut.getAttrSize(i));
-					*(float*)lAttrPointerOut = *(float*)lAttrPointerIn;
+					*(float*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(float*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kFLOAT64:
@@ -834,12 +738,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
 					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerOut = lPageInterpreterOut.pagePtr() + lPageInterpreterOut.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreterOut.getAttrSize(i));
-					*(double*)lAttrPointerOut = *(double*)lAttrPointerIn;
+					*(double*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(double*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kCHAR_STRING:
@@ -848,12 +748,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
 					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerOut = lPageInterpreterOut.pagePtr() + lPageInterpreterOut.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreterOut.getAttrSize(i));
-					*(const char**)lAttrPointerOut = *(const char**)lAttrPointerIn;
+					*(const char**)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(const char**)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kDATEJD:
@@ -862,12 +758,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
 					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerOut = lPageInterpreterOut.pagePtr() + lPageInterpreterOut.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreterOut.getAttrSize(i));
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					*(uint32_t*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(uint32_t*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			case kSTR_SDICT:
@@ -876,12 +768,8 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::pro
 					lPageNo = _input[lInputIndex]._tid[0];
 					lRecordNo = _input[lInputIndex++]._tid[1];
 					lPageInterpreterIn.attach(aRelation.getSegment().getPage(lPageNo));
-					lAttrSize = lPageInterpreterIn.getAttrSize(_attrNoList[i]);
-					lMiniPagePointer = lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]);
-					lAttrPointerIn = lMiniPagePointer + (lAttrSize * lRecordNo);
 					lPageInterpreterOut.attach(_relationOut.getSegment().getPage(_output[lOutputIndex]._tid[0]));
-					lAttrPointerOut = lPageInterpreterOut.pagePtr() + lPageInterpreterOut.getMiniPageOffset(i) + (lIndeces[lOutputIndex++] * lPageInterpreterOut.getAttrSize(i));
-					*(uint32_t*)lAttrPointerOut = *(uint32_t*)lAttrPointerIn;
+					*(uint32_t*)(lPageInterpreterOut.getMiniPagePointer(i) + (lIndeces[lOutputIndex++] * lAttrSize)) = *(uint32_t*)(lPageInterpreterIn.getMiniPagePointer(_attrNoList[i]) + (lAttrSize * lRecordNo));
 				}
 				break;
 			default:
@@ -916,7 +804,5 @@ ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::fin
 	_nextOp->finish(aTupel);
 	delete[] _output;
 }
-
-
 
 #endif

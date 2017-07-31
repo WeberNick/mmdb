@@ -168,8 +168,8 @@ int main(const int argc, const char* argv[])
 			b_i_r.init(lNumberOfAttributes, lNumberOfTuples, lArgs.bufferSize());
 			// row_test_projection(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
 			// row_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
-			row_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
-			// row_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			// row_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			row_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
 		}
 		else
 		{
@@ -211,8 +211,8 @@ int main(const int argc, const char* argv[])
 			b_i_r.init(lNumberOfAttributes, lNumberOfTuples, lArgs.bufferSize());
 			// col_test_projection(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
 			// col_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
-			col_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
-			// col_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			// col_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			col_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
 		}
 		else
 		{
