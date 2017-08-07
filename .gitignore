@@ -8,7 +8,7 @@
 *.obj
 
 #Executable Main
-Database System/src/main/main
+DatabaseSystem/src/main/main
 
 # Precompiled Headers
 *.gch
@@ -35,12 +35,12 @@ Database System/src/main/main
 *.app
 
 #Tables Folder
-Database System/tables/tables_1.0/
-Database System/data/
-Database System/results/
+DatabaseSystem/tables/tables_1.0/
+DatabaseSystem/data/
+DatabaseSystem/results/
 
 #Other folder
-Database System/src/infra/gnuplot-iostream/
+DatabaseSystem/util/gnuplot-iostream/
 
 #Text Files, Gnuplot Files and CSV-Files
 *.txt
