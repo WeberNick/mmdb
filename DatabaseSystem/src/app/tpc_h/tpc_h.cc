@@ -8,14 +8,14 @@ template TPC_H<NSM_Relation>::TPC_H(bool aFlag);
 template TPC_H<PAX_Relation>::TPC_H(bool aFlag);
 
 template<typename T_Relation>
-void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSeperator, size_t aBufferSize)
+void TPC_H<T_Relation>::init(const std::string aScaleFactor, const char aDelimiter, const char aSeperator, const size_t aBufferSize, const query_infra_t& aQueryInfra)
 {
 	std::string lPath = "../tables/tables_" + aScaleFactor + "/";
 	double_vt bulk_load_sumPerRel(8, 0);
 	double_vt bulk_insert_sumPerRel(8, 0);
-	for(size_t i = 0; i < RUNS_GLOBAL; ++i)
+	for(size_t i = 0; i < aQueryInfra.runs(); ++i)
 	{
-		MemoryManager::freeAll();
+		MemoryManager::getInstance()->freeAll();
 		_relation_vector.clear();
 		_relation_vector.resize(8);
 		string_vt lFileNames(8, lPath);
@@ -31,9 +31,9 @@ void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSe
 
 		for(size_t j = 0; j < 8; ++j)
 		{
-			BulkLoader bl(lFileNames[j].c_str(), _relation_vector[j], aDelimiter, aSeperator, aBufferSize);
+			BulkLoader bl(lFileNames[j].c_str(), aDelimiter, aSeperator, aBufferSize, _relation_vector[j]);
 			Measure lMeasure;
-			if(MEASURE_GLOBAL)
+			if(aQueryInfra.measure())
 			{
 				lMeasure.start();
 			}
@@ -46,7 +46,7 @@ void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSe
 				std::cerr << "ERROR: " << ex.what() << std::endl;
 			}
 			lMeasure.stop();
-			if(MEASURE_GLOBAL)
+			if(aQueryInfra.measure())
 			{
 				bulk_load_sumPerRel[j] += lMeasure.mTotalTime();
 			}
@@ -56,7 +56,7 @@ void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSe
 			{
 				BulkInsertSP bi;
 				NSM_Relation* p = (NSM_Relation*)&_relation_vector[j];
-				if(MEASURE_GLOBAL)
+				if(aQueryInfra.measure())
 				{
 					lMeasure.start();
 				}
@@ -66,44 +66,44 @@ void TPC_H<T_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSe
 			{
 				BulkInsertPAX bi;
 				PAX_Relation* p = (PAX_Relation*)&_relation_vector[j];
-				if(MEASURE_GLOBAL)
+				if(aQueryInfra.measure())
 				{
 					lMeasure.start();
 				}
 				bi.bulk_insert(bl, p);
 			}
 			lMeasure.stop();
-			if(MEASURE_GLOBAL)
+			if(aQueryInfra.measure())
 			{
 				bulk_insert_sumPerRel[j] += lMeasure.mTotalTime();
 			}
 		}
 	}
-	if(MEASURE_GLOBAL)
+	if(aQueryInfra.measure())
 	{
 		string_vt relation_names = {"Customer", "Lineitem", "Nation", "Orders", "Part", "PartSupp", "Region", "Supplier", "Sum"};
   		double sum = 0;
   		for(size_t i = 0; i < 8; ++i)
   		{
-  			bulk_load_sumPerRel[i] /= RUNS_GLOBAL;
+  			bulk_load_sumPerRel[i] /= aQueryInfra.runs();
   			sum += bulk_load_sumPerRel[i];
   		}
   		bulk_load_sumPerRel.push_back(sum);
-  		print_bulk_load_insert_result(relation_names, bulk_load_sumPerRel, true);
+  		print_bulk_load_insert_result(relation_names, bulk_load_sumPerRel, true, aQueryInfra.printInfra());
 
   		sum = 0;
   		for(size_t i = 0; i < 8; ++i)
   		{
-  			bulk_insert_sumPerRel[i] /=  RUNS_GLOBAL;
+  			bulk_insert_sumPerRel[i] /=  aQueryInfra.runs();
   			sum += bulk_insert_sumPerRel[i];
   		}
   		bulk_insert_sumPerRel.push_back(sum);
-  		print_bulk_load_insert_result(relation_names, bulk_insert_sumPerRel, false);
+  		print_bulk_load_insert_result(relation_names, bulk_insert_sumPerRel, false, aQueryInfra.printInfra());
 	}
 }
 
-template void TPC_H<NSM_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSeperator, size_t aBufferSize);
-template void TPC_H<PAX_Relation>::init(std::string aScaleFactor, char aDelimiter, char aSeperator, size_t aBufferSize);
+template void TPC_H<NSM_Relation>::init(const std::string aScaleFactor, const char aDelimiter, const char aSeperator, const size_t aBufferSize, const query_infra_t& aQueryInfra);
+template void TPC_H<PAX_Relation>::init(const std::string aScaleFactor, const char aDelimiter, const char aSeperator, const size_t aBufferSize, const query_infra_t& aQueryInfra);
 
 template<typename T_Relation>
 typename TPC_H<T_Relation>::relation_vt& TPC_H<T_Relation>::getTPC_H_Relations()

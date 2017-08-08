@@ -2,7 +2,6 @@
 #define PAGE_INTERPRETER_PAX_HH
 
 #include "infra/webe/types.hh"
-#include "infra/webe/common.hh"
 
 
 class PageInterpreterPAX {
@@ -13,18 +12,24 @@ class PageInterpreterPAX {
         uint16_t _noAttributes;
         uint16_t _maxRecords;
     };
+
     struct slot_t {
       uint16_t _miniPageOffset; // offset to minipage
       uint16_t _miniPageAttrSize;   // size of the attributes on the mini page
     };
+
   public:
     PageInterpreterPAX();
+    static void setPageSize(const size_t aPageSize);
+
   public:
     inline void  attach(byte* aPP);
     inline void  detach(); // set at least _pp to NULL, call not mandatory but adds safety
+
   public:
     void  initNewPage(byte* aPP, const uint_vt& aPartitionData); // combines initialization of fresh page with attach and partition into mini pages
     int  addNewRecord(const uint aRecordSize);
+
   public:
     inline const byte*     pagePtr() const { return _pp; }
     inline       byte*     pagePtr()       { return _pp; }
@@ -44,14 +49,20 @@ class PageInterpreterPAX {
     inline       slot_t& slot(const uint i)       { return _slot[- (int) i]; }
     inline const uint16_t offset(const uint i) const { return _slot[- (int) i]._miniPageOffset; }
     inline       uint16_t offset(const uint i)       { return _slot[- (int) i]._miniPageOffset; }
+    inline const size_t   getPageSize() const { return _pageSize; }
+    inline       size_t   getPageSize()       { return _pageSize; }
+
   private:
-    inline header_t* get_hdr_ptr() { return ((header_t*) (_pp + PAGE_SIZE_GLOBAL - sizeof(header_t))); }
-    inline slot_t*   get_slot_base_ptr() { return ((slot_t*) (_pp + PAGE_SIZE_GLOBAL - sizeof(header_t) - sizeof(slot_t))); }
+    inline header_t* get_hdr_ptr() { return ((header_t*) (_pp + _pageSize - sizeof(header_t))); }
+    inline slot_t*   get_slot_base_ptr() { return ((slot_t*) (_pp + _pageSize - sizeof(header_t) - sizeof(slot_t))); }
     void  pagePartition(const uint_vt& aAttrSizeVec); //partitions page into mini pages
-  public:
+
+  private:
     byte*     _pp;
     header_t* _header;
     slot_t*   _slot;  // new
+    static bool _pageSizeSet;
+    static size_t _pageSize;
 };
 
 void 

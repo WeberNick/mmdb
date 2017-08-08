@@ -2,8 +2,6 @@
 #define PAGE_INTERPRETER_SP_HH
 
 #include "infra/webe/types.hh"
-#include "infra/webe/common.hh"
-
 
 class PageInterpreterSP {
   public:
@@ -13,17 +11,23 @@ class PageInterpreterSP {
         uint16_t _nextFreeRecord; // 8 byte aligned offset to next free record
         uint16_t _placeholder;
     };
+
     struct slot_t {
       uint16_t _offset; // offset to record
     };
+
   public:
     PageInterpreterSP();
+    static void setPageSize(const size_t aPageSize);
+
   public:
     void  attach(byte* aPP);
     void  detach();
+
   public:
     void  initNewPage(byte* aPP); // combines initialization of fresh page with attach
     byte* addNewRecord(const uint aRecordSize); // returns 0 if page is full
+
   public:
     inline const byte*     pagePtr() const { return _pp; }
     inline       byte*     pagePtr()       { return _pp; }
@@ -32,17 +36,23 @@ class PageInterpreterSP {
     inline uint  freeSpace() const { return header()->_freeSpace; }
     inline uint  noRecords() const { return header()->_noRecords; }
   
-    inline const byte* getRecord(const uint aRecordNo) const;
-    inline       byte* getRecord(const uint aRecordNo);
-    inline const slot_t& slot(const uint i) const { return _slots[- (int) i]; }
-    inline       slot_t& slot(const uint i)       { return _slots[- (int) i]; }
+    inline const byte*    getRecord(const uint aRecordNo) const;
+    inline       byte*    getRecord(const uint aRecordNo);
+    inline const slot_t&  slot(const uint i) const { return _slots[- (int) i]; }
+    inline       slot_t&  slot(const uint i)       { return _slots[- (int) i]; }
+    inline const size_t   getPageSize() const { return _pageSize; }
+    inline       size_t   getPageSize()       { return _pageSize; }
+
   private:
-    inline header_t* get_hdr_ptr() { return ((header_t*) (_pp + PAGE_SIZE_GLOBAL - sizeof(header_t))); }
-    inline slot_t*   get_slot_base_ptr() { return ((slot_t*) (_pp + PAGE_SIZE_GLOBAL - sizeof(header_t) - sizeof(slot_t))); }
-  public:
+    inline header_t* get_hdr_ptr() { return ((header_t*) (_pp + _pageSize - sizeof(header_t))); }
+    inline slot_t*   get_slot_base_ptr() { return ((slot_t*) (_pp + _pageSize - sizeof(header_t) - sizeof(slot_t))); }
+
+  private:
     byte*     _pp;
     header_t* _header;
     slot_t*   _slots;  // new
+    static bool _pageSizeSet;
+    static size_t _pageSize;
 };
 
 const byte* 

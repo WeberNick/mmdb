@@ -3,7 +3,6 @@
 
 #include "tpc_h_data.hh"
 #include "infra/moer/measure.hh"
-#include "infra/webe/common.hh"
 #include "infra/webe/exception.hh"
 #include "infra/webe/print_helper.hh"
 #include "infra/webe/types.hh"
@@ -14,6 +13,7 @@
 #include "relation/relation.hh"
 #include "relation/nsm_relation.hh"
 #include "relation/pax_relation.hh"
+#include "queries/test_query.hh"
 
 #include <string>
 #include <vector>
@@ -29,7 +29,7 @@ class TPC_H
 
 	public:
 		//bulk load and bulk insert
-		void init(std::string aScaleFactor, char aDelimiter, char aSeperator, size_t aBufferSize);
+		void init(const std::string aScaleFactor, const char aDelimiter, const char aSeperator, const size_t aBufferSize, const query_infra_t& aQueryInfra);
 		relation_vt& getTPC_H_Relations();
 
 	public:

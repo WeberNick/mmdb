@@ -24,6 +24,12 @@ class BaseException : public std::exception
 
 };
 
+class NoMemoryManagerException : public BaseException
+{
+	public:
+		NoMemoryManagerException(const char*  aFileName, unsigned int aLineNumber, const char* aFunctionName);
+};
+
 class OutOfMemoryException : public BaseException
 {
 	public:

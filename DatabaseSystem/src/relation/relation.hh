@@ -212,6 +212,11 @@ const byte_vpt& Relation::getContainer() const
 	return _container;
 }
 
+// const byte_vpt& Relation::getContainerAtIndex(uint aAttributeNo) const
+// {
+// 	return _container[_attrDescVec[aAttributeNo]._containerIndex];
+// }
+
 Segment& Relation::getSegment()
 {
 	return _segment;

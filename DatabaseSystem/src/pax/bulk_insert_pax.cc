@@ -3,30 +3,26 @@
 BulkInsertPAX::BulkInsertPAX()
 {}
 
-void BulkInsertPAX::bulk_insert(const std::vector<unval_t*>& aBuffer, const uint aTuplePerChunk, const uint aTupleTotal, PAX_Relation* aRelation)
+BulkInsertPAX::~BulkInsertPAX()
+{}
+
+void BulkInsertPAX::bulk_insert(const IntermediateBuffer& aBuffer, PAX_Relation* aRelation)
 {
-	// uint_vt lMiniPageOffsets(aRelation->getNoAttributes());
-	// uint_vt lMiniPageAttrSize(aRelation->getNoAttributes());
 	PageInterpreterPAX lPageInterpreter;
 	lPageInterpreter.initNewPage(aRelation->getSegment().getNewPage(), aRelation->getPhysLayoutData());
-	// for(uint i = 0; i < aRelation->getNoAttributes(); ++i)
- //    {
- //      lMiniPageOffsets[i] = lPageInterpreter.getMiniPageOffset(i);
- //      lMiniPageAttrSize[i] = lPageInterpreter.getAttrSize(i);
- //    }
-	uint lTupleCount = 0;
+	size_t lTupleCount = 0;
 
-	for(uint i = 0; i < aBuffer.size(); ++i)
+	for(uint i = 0; i < aBuffer.getBuffer().size(); ++i)
 	{
-		unval_t* lBufferPointer = aBuffer[i];
-		for(uint j = 0; j < aTuplePerChunk; )
+		unval_pt lBufferPointer = aBuffer.getBuffer()[i];
+		for(uint j = 0; j < aBuffer.getTuplePerChunk(); )
 		{
-			if(lTupleCount == aTupleTotal)
+			if(lTupleCount == aBuffer.getTupleTotal())
 			{
 				break;
 			}
-			int index = lPageInterpreter.addNewRecord(aRelation->getLogTupleSize());
-			if(index == -1)
+			int lIndex = lPageInterpreter.addNewRecord(aRelation->getLogTupleSize());
+			if(lIndex == -1)
 			{
 				lPageInterpreter.initNewPage(aRelation->getSegment().getNewPage(), aRelation->getPhysLayoutData());
 			}
@@ -34,7 +30,7 @@ void BulkInsertPAX::bulk_insert(const std::vector<unval_t*>& aBuffer, const uint
 			{
 				try
 				{
-					insertTuple(aRelation, lBufferPointer, lPageInterpreter, index);
+					insertTuple(lBufferPointer, lPageInterpreter, lIndex, aRelation);
 					++lTupleCount;
 					++j;
 				}
@@ -49,10 +45,10 @@ void BulkInsertPAX::bulk_insert(const std::vector<unval_t*>& aBuffer, const uint
 
 void BulkInsertPAX::bulk_insert(const BulkLoader& aBulkLoader, PAX_Relation* aRelation)
 {
-	bulk_insert(aBulkLoader.getBuffer(), aBulkLoader.getTuplePerChunk(), aBulkLoader.getTupleTotal(), aRelation);
+	bulk_insert(aBulkLoader.getIntermediateBuffer(), aRelation);
 }
 
-void BulkInsertPAX::insertTuple(PAX_Relation* aRelation, unval_t*& aBufferPointer, PageInterpreterPAX& aPageInterpreter, int aIndex)
+void BulkInsertPAX::insertTuple(unval_pt& aBufferPointer, PageInterpreterPAX& aPageInterpreter, const int aIndex, PAX_Relation* aRelation)
 {
 	byte* lTempPointer;
 	for(uint i = 0; i < aRelation->getNoAttributes(); ++i)

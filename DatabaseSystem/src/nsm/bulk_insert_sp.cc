@@ -1,28 +1,29 @@
 #include "bulk_insert_sp.hh"
 
 BulkInsertSP::BulkInsertSP()
-{
+{}
 
-}
+BulkInsertSP::~BulkInsertSP()
+{}
 
-void BulkInsertSP::bulk_insert(const std::vector<unval_t*>& aBuffer, const uint aTuplePerChunk, const uint aTupleTotal, NSM_Relation* aRelation)
+void BulkInsertSP::bulk_insert(const IntermediateBuffer& aBuffer, NSM_Relation* aRelation)
 {
 	PageInterpreterSP lPageInterpreter;
 	lPageInterpreter.initNewPage(aRelation->getSegment().getNewPage());
-	uint lTupleCount = 0;
+	size_t lTupleCount = 0;
 
-	for(uint i = 0; i < aBuffer.size(); ++i)
+	for(uint i = 0; i < aBuffer.getBuffer().size(); ++i)
 	{
-		unval_t* lBufferPointer = aBuffer[i];
-		for(uint j = 0; j < aTuplePerChunk; )
+		unval_pt lBufferPointer = aBuffer.getBuffer()[i];
+		for(uint j = 0; j < aBuffer.getTuplePerChunk(); )
 		{
-			if(lTupleCount == aTupleTotal)
+			if(lTupleCount == aBuffer.getTupleTotal())
 			{
 				break;
 			}
 
-			byte* pp = lPageInterpreter.addNewRecord(aRelation->getLogTupleSize());
-			if(pp == 0)
+			byte* lRecordPointer = lPageInterpreter.addNewRecord(aRelation->getLogTupleSize());
+			if(lRecordPointer == 0)
 			{
 				lPageInterpreter.initNewPage(aRelation->getSegment().getNewPage());
 			}
@@ -30,7 +31,7 @@ void BulkInsertSP::bulk_insert(const std::vector<unval_t*>& aBuffer, const uint 
 			{
 				try
 				{
-					insertTuple(aRelation, pp, lBufferPointer);
+					insertTuple(lBufferPointer, lRecordPointer, aRelation);
 					++lTupleCount;
 					++j;
 				}
@@ -45,10 +46,10 @@ void BulkInsertSP::bulk_insert(const std::vector<unval_t*>& aBuffer, const uint 
 
 void BulkInsertSP::bulk_insert(const BulkLoader& aBulkLoader, NSM_Relation* aRelation)
 {
- 	bulk_insert(aBulkLoader.getBuffer(), aBulkLoader.getTuplePerChunk(), aBulkLoader.getTupleTotal(), aRelation);
+ 	bulk_insert(aBulkLoader.getIntermediateBuffer(), aRelation);
 }
 
-void BulkInsertSP::insertTuple(NSM_Relation* aRelation, byte* aRecordPointer, unval_t*& aBufferPointer)
+void BulkInsertSP::insertTuple(unval_pt& aBufferPointer, byte* aRecordPointer, NSM_Relation* aRelation)
 {
 	byte* lTempPointer;
 	for(uint i = 0; i < aRelation->getNoAttributes(); ++i)

@@ -1,32 +1,23 @@
 #include "bulk_loader.hh"
 
-BulkLoader::BulkLoader(const char* aFileName, Relation& aRelation, char aDelimiter, char aSeperator, size_t aBufferSize) : 
+BulkLoader::BulkLoader(const char* aFileName, const char aDelimiter, const char aSeperator, const size_t aBufferSize, Relation& aRelation) :
 	_lineReader(aFileName), 
 	_delimiter(aDelimiter),
 	_seperator(aSeperator),
-	_tuplePerChunk(aBufferSize),
-	_tupleTotal(0),
-	_relation(aRelation),
-	_buffer()
+	_intermediate_buffer(aBufferSize),
+	_relation(aRelation)
 {}
 
-BulkLoader::BulkLoader(Relation& aRelation, size_t aBufferSize) :
+BulkLoader::BulkLoader(const size_t aBufferSize, Relation& aRelation) :
 	_lineReader(""), 
 	_delimiter(),
 	_seperator(),
-	_tuplePerChunk(aBufferSize),
-	_tupleTotal(0),
-	_relation(aRelation),
-	_buffer()
+	_intermediate_buffer(aBufferSize),
+	_relation(aRelation)
 {}
 
 BulkLoader::~BulkLoader()
-{
-	for (uint i = 0; i < _buffer.size(); ++i)
-	{
-		delete[] _buffer[i];
-	}
-}
+{}
 
 void BulkLoader::bulk_load()
 {
@@ -34,13 +25,13 @@ void BulkLoader::bulk_load()
 	{
 		if(_lineReader.open())
 		{
-			unval_t* lChunk;
+			unval_t* lChunk = 0;
 			do
 			{
-				if(_lineReader.linecount() % _tuplePerChunk == 1)
+				if(_lineReader.linecount() % _intermediate_buffer.getTuplePerChunk() == 1)
 				{
-					lChunk = new unval_t[_relation.getLogSchema().size() * _tuplePerChunk];
-					_buffer.push_back(lChunk);
+					lChunk = new unval_t[_relation.getLogSchema().size() * _intermediate_buffer.getTuplePerChunk()];
+					_intermediate_buffer.addChunkToBuffer(lChunk);
 				}
 				try
 				{
@@ -52,7 +43,7 @@ void BulkLoader::bulk_load()
 				}
 			}
 			while(_lineReader.next());
-			_tupleTotal = _lineReader.linecount();
+			_intermediate_buffer.setTupleTotal(_lineReader.linecount());
 			_lineReader.close();
 		}
 	}
@@ -180,13 +171,13 @@ void BulkLoader::readTuple(unval_t*& aChunk)
 
 // void BulkLoader::bulk_load_int_chunk(const size_t aSize)
 // {
-// 	unval_t* lChunk;
+// 	unval_t* lChunk = 0;
 // 	for(size_t i = 0; i < aSize; ++i)
 // 	{
-// 		if(i % _tuplePerChunk == 0)
+// 		if(i % _intermediate_buffer.getTuplePerChunk() == 0)
 // 		{
-// 			lChunk = (unval_t*)malloc(sizeof(unval_t) * _relation.getLogSchema().size() * _tuplePerChunk);
-// 			_buffer.push_back(lChunk);
+// 			lChunk = (unval_t*)malloc(sizeof(unval_t) * _relation.getLogSchema().size() * _intermediate_buffer.getTuplePerChunk());
+// 			_intermediate_buffer.addChunkToBuffer(lChunk);
 // 		}
 // 		for(size_t j = 0; j < _relation.getLogSchema().size(); ++j)
 // 		{
@@ -208,18 +199,18 @@ void BulkLoader::readTuple(unval_t*& aChunk)
 // 			++lChunk;
 // 		}
 // 	}
-// 	_tupleTotal = aSize;
+// 	_intermediate_buffer.setTupleTotal(aSize);
 // }
 
 void BulkLoader::bulk_load_int_chunk(const size_t aSize)
 {
-	unval_t* lChunk;
+	unval_t* lChunk = 0;
 	for(size_t i = 0; i < aSize; ++i)
 	{
-		if(i % _tuplePerChunk == 0)
+		if(i % _intermediate_buffer.getTuplePerChunk() == 0)
 		{
-			lChunk = (unval_t*)malloc(sizeof(unval_t) * _relation.getLogSchema().size() * _tuplePerChunk);
-			_buffer.push_back(lChunk);
+			lChunk = (unval_t*)malloc(sizeof(unval_t) * _relation.getLogSchema().size() * _intermediate_buffer.getTuplePerChunk());
+			_intermediate_buffer.addChunkToBuffer(lChunk);
 		}
 		for(size_t j = 0; j < _relation.getLogSchema().size(); ++j)
 		{
@@ -241,5 +232,5 @@ void BulkLoader::bulk_load_int_chunk(const size_t aSize)
 			++lChunk;
 		}
 	}
-	_tupleTotal = aSize;
+	_intermediate_buffer.setTupleTotal(aSize);
 }

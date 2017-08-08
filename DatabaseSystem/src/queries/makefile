@@ -1,6 +1,5 @@
-#CXXFLAGS = -g -Wall -Weffc++ -std=c++0x
 CXXFLAGS = -O2 -g -std=c++0x
-#CXXFLAGS = -O3 -Wall -Weffc++ -std=c++0x
+#CXXFLAGS = -O3 -std=c++0x
 
 CC = g++
 
@@ -12,7 +11,6 @@ HDRQ = \
 	../infra/moer/measure.hh \
 	../infra/webe/print_helper.hh \
 	../infra/webe/types.hh \
-	../infra/webe/common.hh \
 	\
 	../relation/nsm_relation.hh \
 	../relation/pax_relation.hh \

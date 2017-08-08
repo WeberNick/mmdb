@@ -108,13 +108,13 @@ std::string getEnumAsString(int aValue, bool aFlag)
 
 
 
-void print_bulk_load_insert_result(const string_vt& aRelationNames, const double_vt& aMeasurementData, const bool aFlag, const std::string aTestType)
+void print_bulk_load_insert_result(const string_vt& aRelationNames, const double_vt& aMeasurementData, const bool aFlag, const print_infra_t& aPrintInfra, const std::string aTestType)
 {
 	std::ofstream raw;
 	std::string lTestName = aFlag ? "load" : "insert";
 	GM::System lSystem;
-	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL) + "_" + aTestType;
-	std::string lPath = std::string(PATH_GLOBAL) + "raw/" + lTestName + "_" + lSetting + ".txt";
+	std::string lSetting = lSystem.hostname() + "_" + std::to_string(aPrintInfra.pageSize()) + "_" + aTestType;
+	std::string lPath = std::string(aPrintInfra.path()) + "raw/" + lTestName + "_" + lSetting + ".txt";
 	raw.open(lPath.c_str(), std::ios::out | std::ios::trunc);
 	if(raw.is_open())
 	{
@@ -127,34 +127,34 @@ void print_bulk_load_insert_result(const string_vt& aRelationNames, const double
 	
 	std::ostream* os = &std::cout;
 	std::ofstream out;
-	if(PRINT_GLOBAL)
+	if(aPrintInfra.print())
 	{	
-		lPath = PATH_GLOBAL + lSetting + ".txt";
+		lPath = aPrintInfra.path() + lSetting + ".txt";
 		out.open(lPath.c_str(), std::ios::out | std::ios::app);
 		os = &out;
 	}
 
-	if(out.is_open() == PRINT_GLOBAL)
+	if(out.is_open() == aPrintInfra.print())
 	{
 		print_header(*os, "bulk-" + lTestName);
 		for(size_t i = 0; i < aRelationNames.size(); ++i)
 		{
 			*os << std::setw(10) << aRelationNames[i] << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "s" << std::endl;
 		}
-		if(PRINT_GLOBAL)
+		if(aPrintInfra.print())
 		{	
 			out.close();
 		}
 	}
 }
 
-void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData, const std::string aTestType)
+void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData, const print_infra_t& aPrintInfra, const std::string aTestType)
 {
 	std::ofstream raw;
 	std::string lTestName = "scan";
 	GM::System lSystem;
-	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL) + "_" + aTestType;
-	std::string lPath = std::string(PATH_GLOBAL) + "raw/" + lTestName + "_" + lSetting + ".txt";
+	std::string lSetting = lSystem.hostname() + "_" + std::to_string(aPrintInfra.pageSize()) + "_" + aTestType;
+	std::string lPath = std::string(aPrintInfra.path()) + "raw/" + lTestName + "_" + lSetting + ".txt";
 	raw.open(lPath.c_str(), std::ios::out | std::ios::trunc);
 	if(raw.is_open())
 	{
@@ -167,34 +167,34 @@ void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData, 
 	
 	std::ostream* os = &std::cout;
 	std::ofstream out;
-	if(PRINT_GLOBAL)
+	if(aPrintInfra.print())
 	{	
-		lPath = PATH_GLOBAL + lSetting + ".txt";
+		lPath = aPrintInfra.path() + lSetting + ".txt";
 		out.open(lPath.c_str(), std::ios::out | std::ios::app);
 		os = &out;
 	}
 
-	if(out.is_open() == PRINT_GLOBAL)
+	if(out.is_open() == aPrintInfra.print())
 	{
 		print_header(*os, lTestName);
 		for(size_t i = 0; i < aAttrNo; ++i)
 		{
 			*os << std::setw(10) << (i+1) << " attributes" << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "ms" << std::endl;
 		}
-		if(PRINT_GLOBAL)
+		if(aPrintInfra.print())
 		{	
 			out.close();
 		}
 	}
 }
 
-void print_projection_result(const size_t aAttrNo, const double_vt& aMeasurementData, const std::string aTestType)
+void print_projection_result(const size_t aAttrNo, const double_vt& aMeasurementData, const print_infra_t& aPrintInfra, const std::string aTestType)
 {
 	std::ofstream raw;
 	std::string lTestName = "projection";
 	GM::System lSystem;
-	std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL) + "_" + aTestType;
-	std::string lPath = std::string(PATH_GLOBAL) + "raw/" + lTestName + "_" + lSetting + ".txt";
+	std::string lSetting = lSystem.hostname() + "_" + std::to_string(aPrintInfra.pageSize()) + "_" + aTestType;
+	std::string lPath = std::string(aPrintInfra.path()) + "raw/" + lTestName + "_" + lSetting + ".txt";
 	raw.open(lPath.c_str(), std::ios::out | std::ios::trunc);
 	if(raw.is_open())
 	{
@@ -207,21 +207,21 @@ void print_projection_result(const size_t aAttrNo, const double_vt& aMeasurement
 	
 	std::ostream* os = &std::cout;
 	std::ofstream out;
-	if(PRINT_GLOBAL)
+	if(aPrintInfra.print())
 	{	
-		lPath = PATH_GLOBAL + lSetting + ".txt";
+		lPath = aPrintInfra.path() + lSetting + ".txt";
 		out.open(lPath.c_str(), std::ios::out | std::ios::app);
 		os = &out;
 	}
 
-	if(out.is_open() == PRINT_GLOBAL)
+	if(out.is_open() == aPrintInfra.print())
 	{
 		print_header(*os, lTestName);
 		for(size_t i = 0; i < aAttrNo; ++i)
 		{
 			*os << std::setw(10) << (i+1) << " attributes" << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "ms" << std::endl;
 		}
-		if(PRINT_GLOBAL)
+		if(aPrintInfra.print())
 		{	
 			out.close();
 		}

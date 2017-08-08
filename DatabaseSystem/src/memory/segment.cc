@@ -23,9 +23,16 @@ byte* Segment::getNewPage()
 {
 	try 
 	{
-		byte* lPage = MemoryManager::getPage();
-		_pages.push_back(lPage);
-		return lPage;
+		if(MemoryManager::getInstance() == NULL)
+		{
+			throw NoMemoryManagerException(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		}
+		else
+		{
+			byte* lPage = MemoryManager::getInstance()->getPage();
+			_pages.push_back(lPage);
+			return lPage;
+		}
 	}
 	catch(BaseException& ex)
 	{

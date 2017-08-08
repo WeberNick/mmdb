@@ -2,7 +2,6 @@
 #define TOP_HH
 
 #include "infra/webe/types.hh"
-#include "infra/webe/common.hh"
 #include "relation/relation.hh"
 #include "relation/nsm_relation.hh"
 #include "relation/pax_relation.hh"

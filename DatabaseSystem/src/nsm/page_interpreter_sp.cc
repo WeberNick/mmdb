@@ -1,5 +1,21 @@
 #include "page_interpreter_sp.hh"
 
+bool PageInterpreterSP::_pageSizeSet = false;
+size_t PageInterpreterSP::_pageSize = 0;
+
+void PageInterpreterSP::setPageSize(const size_t aPageSize)
+{
+  if(!_pageSizeSet)
+  {
+    _pageSizeSet = !_pageSizeSet;
+    _pageSize = aPageSize;
+  }
+  else
+  {
+    std::cerr << "ERROR: Page size can only be set once" << std::endl;
+  }
+}
+
 PageInterpreterSP::PageInterpreterSP() : _pp(NULL), _header(NULL), _slots(0) {
 }
 
@@ -23,7 +39,7 @@ PageInterpreterSP::initNewPage(byte* aPP) {
   {
     attach(aPP);
     header()->_noRecords   = 0;
-    header()->_freeSpace   = (PAGE_SIZE_GLOBAL - sizeof(header_t));
+    header()->_freeSpace   = (_pageSize - sizeof(header_t));
     header()->_nextFreeRecord = 0;
     header()->_placeholder = 0;
   }

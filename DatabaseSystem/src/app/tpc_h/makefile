@@ -10,7 +10,6 @@ VPATH = .:..:../..
 HDR = \
 	tpc_h_data.hh \
 	../../infra/moer/measure.hh \
-	../../infra/webe/common.hh \
 	../../infra/webe/exception.hh \
 	../../infra/webe/print_helper.hh \
 	../../infra/webe/types.hh \

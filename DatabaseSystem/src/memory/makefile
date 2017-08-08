@@ -7,6 +7,11 @@ INCL = -I../.. -I..
 
 VPATH = .:..:../..
 
+HDR = \
+	../infra/webe/types.hh \
+	../infra/webe/exception.hh \
+	\
+
 OBJ = \
 	memory_manager.o \
 	segment.o \
@@ -14,10 +19,10 @@ OBJ = \
 
 all : $(OBJ)
 
-memory_manager.o : memory_manager.cc memory_manager.hh ../infra/webe/types.hh ../infra/webe/common.hh ../infra/webe/exception.hh
+memory_manager.o : memory_manager.cc memory_manager.hh $(HDR)
 	$(CC) -c $(CXXFLAGS) $(INCL) memory_manager.cc
 
-segment.o : segment.cc segment.hh ../infra/webe/types.hh
+segment.o : segment.cc segment.hh $(HDR)
 	$(CC) -c $(CXXFLAGS) $(INCL) segment.cc
 
 clean :

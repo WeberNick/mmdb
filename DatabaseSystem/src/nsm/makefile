@@ -7,14 +7,18 @@ INCL = -I../.. -I..
 
 VPATH = .:..:../..
 
-HDR = \
+HDRPI = \
 	../infra/webe/types.hh \
-	../infra/webe/common.hh \
+
+HDRBI = \
+	../infra/webe/types.hh \
 	../infra/webe/exception.hh \
+	../infra/webe/intermediate_buffer.hh \
 	../infra/webe/bulk_loader.hh \
 	../infra/moer/datejd.hh \
 	../relation/nsm_relation.hh \
 	../memory/segment.hh \
+	page_interpreter_sp.hh \
 
 OBJ = \
       page_interpreter_sp.o \
@@ -22,10 +26,10 @@ OBJ = \
 
 all : $(OBJ)
 
-page_interpreter_sp.o : page_interpreter_sp.cc page_interpreter_sp.hh $(HDR)
+page_interpreter_sp.o : page_interpreter_sp.cc page_interpreter_sp.hh $(HDRPI)
 	$(CC) -c $(CXXFLAGS) $(INCL) page_interpreter_sp.cc
 
-bulk_insert_sp.o : bulk_insert_sp.cc bulk_insert_sp.hh page_interpreter_sp.hh $(HDR)
+bulk_insert_sp.o : bulk_insert_sp.cc bulk_insert_sp.hh $(HDRBI)
 	$(CC) -c $(CXXFLAGS) $(INCL) bulk_insert_sp.cc
 
 clean :

@@ -13,7 +13,6 @@ HDR = \
 	../memory/segment.hh \
 	\
 	../infra/webe/types.hh \
-	../infra/webe/common.hh \
 	../infra/webe/bulk_loader.hh \
 	../infra/webe/print_helper.hh \
 	../infra/webe/args.hh \
@@ -56,6 +55,7 @@ OBJ = \
 	../memory/segment.o \
 	\
 	../infra/webe/exception.o \
+	../infra/webe/intermediate_buffer.o \
 	../infra/webe/bulk_loader.o \
 	../infra/webe/print_helper.o \
 	../infra/webe/args.o \

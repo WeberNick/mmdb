@@ -1,6 +1,22 @@
 #include "page_interpreter_pax.hh"
 
+bool PageInterpreterPAX::_pageSizeSet = false;
+size_t PageInterpreterPAX::_pageSize = 0;
+
 PageInterpreterPAX::PageInterpreterPAX() : _pp(NULL), _header(NULL), _slot(NULL) {
+}
+
+void PageInterpreterPAX::setPageSize(const size_t aPageSize)
+{
+  if(!_pageSizeSet)
+  {
+    _pageSizeSet = !_pageSizeSet;
+    _pageSize = aPageSize;
+  }
+  else
+  {
+    std::cerr << "ERROR: Page size can only be set once" << std::endl;
+  }
 }
 
 void 
@@ -10,7 +26,7 @@ PageInterpreterPAX::initNewPage(byte* aPP, const uint_vt& aPartitionData) {
     attach(aPP);
     header()->_noAttributes   = 0;
     header()->_noRecords   = 0;
-    header()->_freeSpace   = (PAGE_SIZE_GLOBAL - sizeof(header_t));
+    header()->_freeSpace   = (_pageSize - sizeof(header_t));
     header()->_maxRecords = 0;
     pagePartition(aPartitionData);
   }
@@ -32,7 +48,7 @@ PageInterpreterPAX::addNewRecord(const uint aRecordSize)
 void PageInterpreterPAX::pagePartition(const uint_vt& aAttrSizeVec)
 {
   header()->_noAttributes = aAttrSizeVec.size() - 1;
-  uint lFreeSpace = (PAGE_SIZE_GLOBAL - sizeof(header_t) - (header()->_noAttributes * sizeof(slot_t)));
+  uint lFreeSpace = (_pageSize - sizeof(header_t) - (header()->_noAttributes * sizeof(slot_t)));
   uint lTotalAttrSize = aAttrSizeVec[header()->_noAttributes];
 
   uint lNoRec = (lFreeSpace / lTotalAttrSize) + 1;

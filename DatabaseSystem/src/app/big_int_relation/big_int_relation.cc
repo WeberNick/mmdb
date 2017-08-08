@@ -11,7 +11,7 @@ template<typename T_Relation>
 void BIG_INT_RELATION<T_Relation>::init(const size_t aAttrNo, const size_t aSize, const size_t aBufferSize)
 {
 	initIntegerChunk(_relation, aAttrNo);
-	BulkLoader bl(_relation, aBufferSize);
+	BulkLoader bl(aBufferSize, _relation);
 	bl.bulk_load_int_chunk(aSize);
 	if(_flag)
 	{

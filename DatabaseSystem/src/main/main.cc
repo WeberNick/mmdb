@@ -11,7 +11,6 @@
 
 #include "memory/memory_manager.hh"
 #include "infra/webe/types.hh"
-#include "infra/webe/common.hh"
 #include "infra/webe/args.hh"
 #include "infra/webe/print_helper.hh"
 #include "infra/moer/system.hh"
@@ -31,15 +30,6 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-
-size_t 		PAGE_SIZE_GLOBAL;
-size_t 		ALIGNMENT_GLOBAL;
-size_t 		MEMCHUNK_SIZE_GLOBAL;
-size_t 		RUNS_GLOBAL;
-size_t 		VECTORIZE_SIZE_GLOBAL;
-bool		MEASURE_GLOBAL;
-bool		PRINT_GLOBAL;
-const char*	PATH_GLOBAL;
 
 int main(const int argc, const char* argv[])
 {
@@ -89,47 +79,40 @@ int main(const int argc, const char* argv[])
 	** All global variables are defined with either the respective user input or default values ********
 	***************************************************************************************************/
 
-	PAGE_SIZE_GLOBAL 		= lArgs.pageSize();
-	ALIGNMENT_GLOBAL 		= lArgs.alignment();
-	MEMCHUNK_SIZE_GLOBAL 	= lArgs.chunkSize();
-	RUNS_GLOBAL 			= lArgs.runs();
-	VECTORIZE_SIZE_GLOBAL	= lArgs.vectorized();
-	MEASURE_GLOBAL 			= lArgs.measure();
-	PRINT_GLOBAL 			= lArgs.print();
-	std::string tmp 		= lArgs.path() + storageModel + "/";
-	PATH_GLOBAL 			= tmp.c_str();
+	// std::string tmp 		= lArgs.path() + storageModel + "/";
+	// PATH_GLOBAL 			= tmp.c_str();
 
 	/***************************************************************************************************
-	** If the 'MEASURE_GLOBAL'-flag was set, the following prints an header in some output stream *************
+	** If the 'lArgs.measure()'-flag was set, the following prints an header in some output stream *************
 	***************************************************************************************************/
 
 	#ifdef __linux__
-	if(MEASURE_GLOBAL)
+	if(lArgs.measure())
 	{
 		GM::System lSystem(lHwThreadNo);
-		std::string lSetting = lSystem.hostname() + "_" + std::to_string(PAGE_SIZE_GLOBAL);
+		std::string lSetting = lSystem.hostname() + "_" + std::to_string(lArgs.pageSize());
 		DateJd jd;
 		jd.set_to_current_date();
 		std::string lHeader = storageModel + " DBS TEST (" + std::to_string(jd.day()) + "/" + std::to_string(jd.month()) + "/" + std::to_string(jd.year()) + ")";
 		std::ostream* os = &std::cout;
 		std::ofstream out;
-		if(PRINT_GLOBAL)
+		if(lArgs.print())
 		{	
-			std::string lPath = PATH_GLOBAL + lSetting + ".txt";
+			std::string lPath = (lArgs.path() + storageModel + "/").c_str() + lSetting + ".txt";
 			out.open(lPath.c_str(), std::ios::out | std::ios::app);
 			os = &out;
 		}
 
-		if(out.is_open() == PRINT_GLOBAL)
+		if(out.is_open() == lArgs.print())
 		{
 			print_header(*os, lHeader);
-			*os << std::setw(15) << "Page Size: " << PAGE_SIZE_GLOBAL << "    " << "Alignment: " << ALIGNMENT_GLOBAL << "    " << "#Runs: " << RUNS_GLOBAL << "    " << "VectorizedSize: " << VECTORIZE_SIZE_GLOBAL << std::endl;
+			*os << std::setw(15) << "Page Size: " << lArgs.pageSize() << "    " << "Alignment: " << lArgs.alignment() << "    " << "#Runs: " << lArgs.runs() << "    " << "VectorizedSize: " << lArgs.vectorized() << std::endl;
 			print_header(*os, "System");
 			lSystem.print(*os);
 			print_header(*os, "RANDOM vs. SEQUENTIAL MEMORY ACCESS");
 			MemoryAccess memoryAccess(10 * 1000 * 1000);
 			memoryAccess.fRunTest(*os);
-			if(PRINT_GLOBAL)
+			if(lArgs.print())
 			{	
 				out.close();
 			}
@@ -137,9 +120,17 @@ int main(const int argc, const char* argv[])
 	}
 	#endif
 
+
+	MemoryManager::createInstance(lArgs.alignment(), lArgs.chunkSize(), lArgs.pageSize());
+	PageInterpreterSP::setPageSize(lArgs.pageSize());
+	PageInterpreterPAX::setPageSize(lArgs.pageSize());
+	print_infra_t lPrintInfra = {(lArgs.path() + storageModel + "/").c_str(), lArgs.print(), lArgs.pageSize()};
+	query_infra_t lQueryInfra = {lArgs.runs(), lArgs.measure(), lArgs.vectorized(), lPrintInfra};
+
 	/***************************************************************************************************
 	** If the 'NSM'- or 'PAX'-flag was set, the DBS loads the respective storage model mode ************
 	***************************************************************************************************/
+
 
 	if(lArgs.nsm())
 	{
@@ -148,22 +139,22 @@ int main(const int argc, const char* argv[])
 			TPC_H<NSM_Relation> tpc_h(true);
 			if(lArgs.all())
 			{
-				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize());
-				// row_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorized());
-				// row_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lArgs.vectorized());
-				row_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lArgs.vectorized());
+				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize(), lQueryInfra);
+				// row_test_query(tpc_h.getTPC_H_Relations()[1], lQueryInfra);
+				// row_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lQueryInfra);
+				row_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lQueryInfra);
 
 
-				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_updateInt_path);
-				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, MEASURE_GLOBAL, 1, r_bulk_load_path);
-				// row_test_query1(nsm_rel_vec[1], VECTORIZE_SIZE_GLOBAL, selectivity, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_query1_path);
-				// row_test_update1(nsm_rel_vec[1], attrUpdates, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_update1_path);
+				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, lArgs.measure(), lArgs.runs(), r_test_updateInt_path);
+				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, lArgs.measure(), 1, r_bulk_load_path);
+				// row_test_query1(nsm_rel_vec[1], lArgs.vectorized(), selectivity, lArgs.measure(), lArgs.runs(), r_test_query1_path);
+				// row_test_update1(nsm_rel_vec[1], attrUpdates, lArgs.measure(), lArgs.runs(), r_test_update1_path);
 			}
 			else
 			{
 				if(lArgs.bl())
 				{
-					tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize());
+					tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize(), lQueryInfra);
 				}
 			}
 		}
@@ -173,10 +164,10 @@ int main(const int argc, const char* argv[])
 			const size_t lNumberOfAttributes = 100;
 			BIG_INT_RELATION<NSM_Relation> b_i_r(true);
 			b_i_r.init(lNumberOfAttributes, lNumberOfTuples, lArgs.bufferSize());
-			// row_test_projection(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
-			// row_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
-			// row_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
-			row_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			// row_test_projection(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
+			// row_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
+			// row_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
+			row_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
 		}
 		else
 		{
@@ -191,22 +182,22 @@ int main(const int argc, const char* argv[])
 			TPC_H<PAX_Relation> tpc_h(false);
 			if(lArgs.all())
 			{
-				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize());
-				// col_test_query(tpc_h.getTPC_H_Relations()[1], lArgs.vectorized());
-				col_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lArgs.vectorized());
-				// col_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lArgs.vectorized());
+				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize(), lQueryInfra);
+				// col_test_query(tpc_h.getTPC_H_Relations()[1], lQueryInfra);
+				col_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lQueryInfra);
+				// col_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lQueryInfra);
 
 
-				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_updateInt_path);
-				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, MEASURE_GLOBAL, 1, r_bulk_load_path);
-				// row_test_query1(nsm_rel_vec[1], VECTORIZE_SIZE_GLOBAL, selectivity, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_query1_path);
-				// row_test_update1(nsm_rel_vec[1], attrUpdates, MEASURE_GLOBAL, RUNS_GLOBAL, r_test_update1_path);
+				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, lArgs.measure(), lArgs.runs(), r_test_updateInt_path);
+				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, lArgs.measure(), 1, r_bulk_load_path);
+				// row_test_query1(nsm_rel_vec[1], lArgs.vectorized(), selectivity, lArgs.measure(), lArgs.runs(), r_test_query1_path);
+				// row_test_update1(nsm_rel_vec[1], attrUpdates, lArgs.measure(), lArgs.runs(), r_test_update1_path);
 			}
 			else
 			{
 				if(lArgs.bl())
 				{
-					tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize());
+					tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize(), lQueryInfra);
 				}
 			}
 		}
@@ -216,10 +207,10 @@ int main(const int argc, const char* argv[])
 			const size_t lNumberOfAttributes = 100;
 			BIG_INT_RELATION<PAX_Relation> b_i_r(false);
 			b_i_r.init(lNumberOfAttributes, lNumberOfTuples, lArgs.bufferSize());
-			// col_test_projection(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
-			// col_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
-			// col_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
-			col_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lArgs.vectorized());
+			// col_test_projection(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
+			// col_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
+			// col_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
+			col_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
 		}
 		else
 		{
@@ -228,7 +219,11 @@ int main(const int argc, const char* argv[])
 		}
 	}
 
-	MemoryManager::freeAll();
+	/***************************************************************************************************
+	** The DBS finished its processing, all allocated memory is freed and the application terminates ***
+	***************************************************************************************************/
+
+	MemoryManager::getInstance()->freeAll();
 	return 0;
 }
 

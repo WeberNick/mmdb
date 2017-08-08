@@ -28,6 +28,10 @@ void BaseException::print() const
   std::cerr << "An error occured in " << _file << ", line " << _line  << ", '" << _func << "':\n\t\"" << _errMsg << "\"" << std::endl;
 }
 
+NoMemoryManagerException::NoMemoryManagerException(const char*  aFileName, unsigned int aLineNumber, const char* aFunctionName) :
+	BaseException(aFileName, aLineNumber, aFunctionName, "No MemoryManager created. Cannot allocate memory without a MemoryManager.")
+{}
+
 OutOfMemoryException::OutOfMemoryException(const char*  aFileName, unsigned int aLineNumber, const char* aFunctionName) :
 	BaseException(aFileName, aLineNumber, aFunctionName, "There was insufficient memory to fulfill the allocation request.")
 {}

@@ -2,7 +2,6 @@
 #define SCAN_HH
 
 #include "infra/webe/types.hh"
-#include "infra/webe/common.hh"
 #include "relation/nsm_relation.hh"
 #include "nsm/page_interpreter_sp.hh"
 #include "relation/pax_relation.hh"
