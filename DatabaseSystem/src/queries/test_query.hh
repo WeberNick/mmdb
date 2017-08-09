@@ -2,6 +2,7 @@
 #define TEST_QUERY_HH
 
 #include "infra/moer/measure.hh"
+#include "infra/moer/random_permutation.hh"
 #include "infra/webe/print_helper.hh"
 #include "infra/webe/types.hh"
 #include "relation/nsm_relation.hh"
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <vector>
+#include <random>
 
 struct query_infra_t
 {
@@ -83,6 +85,8 @@ void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, con
 void row_test_projection_mat_optimized_switch(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra);
 
 void col_test_projection_mat_optimized_switch(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra);
+
+void random_permutation(uint_vt& aAttrList, const size_t aSize);
 
 
 #endif

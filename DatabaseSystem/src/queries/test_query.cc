@@ -40,12 +40,14 @@ void col_test_query(PAX_Relation& aRelation, const query_infra_t& aQueryInfra)
 void row_test_tpch_projection(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			row_top_test_query_t							lTop;
@@ -78,12 +80,14 @@ void row_test_tpch_projection(NSM_Relation& aRelation, const size_t aNoTuple, co
 void col_test_tpch_projection(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			col_top_test_query_t							lTop;
@@ -116,12 +120,14 @@ void col_test_tpch_projection(PAX_Relation& aRelation, const size_t aNoTuple, co
 void row_test_tpch_projection_optimized_switch(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			row_top_test_query_t										lTop;
@@ -155,12 +161,14 @@ void row_test_tpch_projection_optimized_switch(NSM_Relation& aRelation, const si
 void col_test_tpch_projection_optimized_switch(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			col_top_test_query_t										lTop;
@@ -197,12 +205,14 @@ void col_test_tpch_projection_optimized_switch(PAX_Relation& aRelation, const si
 void row_test_projection(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			row_top_test_query_t							lTop;
@@ -235,12 +245,14 @@ void row_test_projection(NSM_Relation& aRelation, const size_t aNoTuple, const s
 void col_test_projection(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			col_top_test_query_t							lTop;
@@ -273,12 +285,14 @@ void col_test_projection(PAX_Relation& aRelation, const size_t aNoTuple, const s
 void row_test_projection_optimized_switch(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			row_top_test_query_t										lTop;
@@ -311,12 +325,14 @@ void row_test_projection_optimized_switch(NSM_Relation& aRelation, const size_t 
 void col_test_projection_optimized_switch(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			col_top_test_query_t										lTop;
@@ -349,12 +365,14 @@ void col_test_projection_optimized_switch(PAX_Relation& aRelation, const size_t 
 void row_test_projection_mat(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			row_top_test_query_t									lTop;
@@ -390,12 +408,14 @@ void row_test_projection_mat(NSM_Relation& aRelation, const size_t aNoTuple, con
 void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			col_top_test_query_t									lTop;
@@ -431,12 +451,14 @@ void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, con
 void row_test_projection_mat_optimized_switch(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			row_top_test_query_t												lTop;
@@ -472,12 +494,14 @@ void row_test_projection_mat_optimized_switch(NSM_Relation& aRelation, const siz
 void col_test_projection_mat_optimized_switch(PAX_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)
 {
 	double_vt measure_int_projection(aNoAttr, 0);
+	uint_vt lAttrProjectionRandomized;
+	random_permutation(lAttrProjectionRandomized, aNoAttr);
 	uint_vt lAttrNoList;
-	
+
 	for(size_t i = 0; i < aNoAttr; ++i)
 	{
 		std::cout << "Attr. " << (i+1) << "/" << aNoAttr << std::endl;
-		lAttrNoList.push_back(i);
+		lAttrNoList.push_back(lAttrProjectionRandomized[i]);
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			col_top_test_query_t												lTop;
@@ -508,6 +532,17 @@ void col_test_projection_mat_optimized_switch(PAX_Relation& aRelation, const siz
 		// print_projection_result(aNoAttr, measure_int_projection, aQueryInfra.printInfra(), "MaterializedOptimizedSwitch[BTR]c2r");
 		print_projection_result(aNoAttr, measure_int_projection, aQueryInfra.printInfra(), "MaterializedOptimizedSwitch[BTR]c2c");
 	}
+}
+
+void random_permutation(uint_vt& aAttrList, const size_t aSize)
+{
+	for(size_t i = 0; i < aSize; ++i)
+	{
+		aAttrList.push_back(i);
+	}
+
+	std::mt19937 mt_rand(time(0));
+	random_permutation(mt_rand, aAttrList, aAttrList.size());
 }
 
 

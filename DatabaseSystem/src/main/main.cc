@@ -6,7 +6,16 @@
  *	@todos	Currently no todos
  *
  *	@section DESCRIPTION
- *	
+ *	This part of the application starts all the procedures. First of all a
+ *	command line arguement parser is constructed and checks for certain
+ *	commands like '--help' which prints all the possible command line arguements
+ *	and then terminates the application. Secondly, if there are no problems 
+ *	with the command line arguements (e.g., wrong or contradicting arguements),
+ *	a system test is conducted if the application is running on a linux system.
+ *	After the system test was conducted, several command line arguements are
+ *	used to initialize the system (like the memory page size to use, and so on).
+ *	In the end, several conditions check if certain flags were set by the user
+ *	which indicate which tests are conducted.
  */
 
 #include "infra/webe/types.hh"
@@ -18,6 +27,12 @@
 #include "queries/test_query.hh"
 #include "app/tpc_h/tpc_h.hh"
 #include "app/big_int_relation/big_int_relation.hh"
+
+
+#ifdef __linux__
+#include "infra/moer/system.hh"
+#include "infra/moer/memory_access.hh"
+#endif
 
 #include <string>
 #include <fstream>
@@ -50,8 +65,6 @@ int main(const int argc, const char* argv[])
 	}
 
 	#ifdef __linux__
-	#include "infra/moer/system.hh"
-	#include "infra/moer/memory_access.hh"
 	uint lHwThreadNo = lArgs.core();
 	cpu_set_t lMask;
 	CPU_ZERO(&lMask);
@@ -190,7 +203,7 @@ int main(const int argc, const char* argv[])
 	** The DBS finished its processing, all allocated memory is freed and the application terminates ***
 	***************************************************************************************************/
 
-	MemoryManager::getInstance()->freeAll();
+	MemoryManager::destroyInstance();
 	return 0;
 }
 

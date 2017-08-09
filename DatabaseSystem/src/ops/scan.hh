@@ -1,3 +1,34 @@
+/**
+ *	@file 	scan.hh
+ *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *	@brief	Scan operator of the physical algebra, used to scan the database
+ *	@bugs 	Currently no bugs known
+ *	@todos	Currently no todos
+ *
+ *	@section DESCRIPTION
+ *	This template class implements the physical algebra operator 'Scan'.
+ *	The Scan operator can be used to scan the database and depending on
+ *	the storage layout in use, different representations of a scanned
+ *	record are implemented.
+ *	
+ *	NSM:	The Scan operator uses the NSM_Relation class to access all
+ *			pages, filled with records of the relation. It then uses a
+ *			page interpreter (@see PageInterpreterSP) to scan each page
+ *			for all records. This is done with the help of the function
+ *			'getRecord(aRecordNo)' which is provided by the page
+ *			interpreter. This function uses the slotted page's offsets
+ *			to get the pointer to each record (stored in the slots).
+ *			These pointer are then returned and stored in an output
+ *			data structure used by the scan. The scan operator then
+ *			either one record after the other to the next operator or
+ *			it fills its output data structure with a user defined 
+ *			number of record pointer before passing them to the next
+ *			operator (this is called vectorized processing). After
+ *			scanning all records and all pages, the 'finish' procedure
+ *			is initiated, calling all the 'finish' procedures of the 
+ *			following operators and deallocating all used memory for
+ *			the output data structure.
+ */
 #ifndef SCAN_HH
 #define SCAN_HH
 

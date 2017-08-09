@@ -2,6 +2,7 @@
 #define PROJECT_MAT_HH
 
 #include "infra/webe/types.hh"
+#include "memory/segment.hh"
 #include "relation/relation_infra.hh"
 #include "relation/relation.hh"
 #include "relation/nsm_relation.hh"
@@ -34,6 +35,7 @@ class ProjectMaterialized
 	private:
 		T_Consumer* _nextOp;
 		T_RelationIn& _relationIn;
+		Segment _outSegment;
 		T_RelationOut _relationOut;
 		const uint_vt& _attrNoList;
 		const size_t _noAttributes;
