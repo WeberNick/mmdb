@@ -61,7 +61,7 @@
  *
  *	The description for the PAX specific part:	
  *	
- *	PAX:	In PAX, a record can not be clearly identified with a single 
+ *	PAX		In PAX, a record can not be clearly identified with a single 
  *			pointer. Each attribute of a record is stored on a mini page,
  *			associated with this attribute (i.e., all attribute values of
  *			a specific attribute are stored together on a mini page).

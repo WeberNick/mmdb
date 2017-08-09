@@ -47,7 +47,7 @@
  *
  *	The description for the PAX specific part:	
  *	
- *	PAX:	TODO
+ *	PAX 	TODO
  */
 #ifndef PROJECT_HH
 #define PROJECT_HH
