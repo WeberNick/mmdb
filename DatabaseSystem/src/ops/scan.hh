@@ -3,31 +3,75 @@
  *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
  *	@brief	Scan operator of the physical algebra, used to scan the database
  *	@bugs 	Currently no bugs known
- *	@todos	Currently no todos
+ *	@todos	PAX record representation with the TID concept may change in the future
  *
  *	@section DESCRIPTION
  *	This template class implements the physical algebra operator 'Scan'.
- *	The Scan operator can be used to scan the database and depending on
- *	the storage layout in use, different representations of a scanned
- *	record are implemented.
+ *	The scan operator can be used to scan the database and depending on
+ *	the storage layout in use (NSM or PAX), different approaches of 
+ *	representing a scanned record are implemented.
+ *
+ *	First the description for the storage layout independent part:
+ *
+ *	General	At the start, the operator is initialized by calling the 'init'
+ *			procedure. This allocates memory for the output of the scan and
+ *			initializes certain variables neeeded by the scan operator.
+ *			The database scan is started with a call to 'startScan'.
+ *			The scan operator uses an associated relation object to get 
+ *			all pages which store records of the relation. It then uses 
+ *			a storage layout dependent page interpreter to scan each page
+ *			for all records stored on the page. This can be done by using
+ *			functions provided by the page interpreter. These functions
+ *			allow to operate on the memory pages without detailed knowledge
+ *			of the underlying page format/layout. For each record on the
+ *			page data to clearly identify the record is collected. This 
+ *			data, needed to identify the record, is dependent of the
+ *			storage layout (e.g., in row stores a single pointer to the
+ *			beginning of each record is enough to reconstruct the record).
+ *			The data is stored in an output data structure. Each operator
+ *			in the chain has an associated operator which will follow next
+ *			in the chain (the last operator, 'Top', is the only exception).
+ *			Each associated next operator has a procedure called 'step'.
+ *			By calling 'step' on the next operator (and passing the output
+ *			data structure as parameter) in the chain, output from one 
+ *			operator can be passed to the next operator. One way to hand 
+ *			over the data to the next operator is to call the 'step' 
+ *			procedure for each scanned record (one tuple at a time).
+ *			Another, and hopefully more efficient, way is to fill the output
+ *			data structure with a user defined number of records before
+ *			passing the data to the next operator (this is called vectorized
+ *			processing). Therefore, the next operator can process a chunk
+ *			of records instead of one tuple at a time. After all records
+ *			have been scanned and passed to the next operator, the scan
+ *			operator calls the 'finish' procedure, which in turn calls the
+ *			'finish' procedure of all following operators. In the 'finish'
+ *			procedure, all allocated memory by the operator is deallocated.
+ *
  *	
- *	NSM:	The Scan operator uses the NSM_Relation class to access all
- *			pages, filled with records of the relation. It then uses a
- *			page interpreter (@see PageInterpreterSP) to scan each page
- *			for all records. This is done with the help of the function
- *			'getRecord(aRecordNo)' which is provided by the page
- *			interpreter. This function uses the slotted page's offsets
- *			to get the pointer to each record (stored in the slots).
- *			These pointer are then returned and stored in an output
- *			data structure used by the scan. The scan operator then
- *			either one record after the other to the next operator or
- *			it fills its output data structure with a user defined 
- *			number of record pointer before passing them to the next
- *			operator (this is called vectorized processing). After
- *			scanning all records and all pages, the 'finish' procedure
- *			is initiated, calling all the 'finish' procedures of the 
- *			following operators and deallocating all used memory for
- *			the output data structure.
+ *	The description for the NSM specific part:		
+ *			
+ *	NSM		In NSM, a record on a page can be scanned by calling 'getRecord' 
+ *			on the page interpreter (@see PageInterpreterSP) associated with
+ *			this page. This function uses the slotted page's offsets to get 
+ *			a pointer to each record (stored in the slots). These pointer are 
+ *			then returned and stored in the output data structure. The next
+ *			operator can directly access a record by using the pointer to
+ *			this record.
+ *
+ *
+ *	The description for the PAX specific part:	
+ *	
+ *	PAX:	In PAX, a record can not be clearly identified with a single 
+ *			pointer. Each attribute of a record is stored on a mini page,
+ *			associated with this attribute (i.e., all attribute values of
+ *			a specific attribute are stored together on a mini page).
+ *			To reconstruct a record on a pax page, the page number and the
+ *			record number is needed. These two identifiers are called TID
+ *			(or Tuple IDentifier) together. With the page id (pid) one can
+ *			access the memory page and with the record id (rid) one can
+ *			combine all attributes of this record on each mini page to
+ *			reconstruct the record. So instead of storing a single pointer
+ *			in the output data structure, the TID is stored.
  */
 #ifndef SCAN_HH
 #define SCAN_HH
@@ -46,24 +90,54 @@ template<typename T_Consumer, typename T_Relation>
 class Scan
 {
 	public:
+		/* constructor for the scan operator without a vectorized size (size 1 (i.e., no vectorized processing) is assumed) */
 		Scan(T_Consumer* aConsumer, T_Relation& aRelation);
+		/* constructor for the scan operator with a vectorized size */
 		Scan(T_Consumer* aConsumer, T_Relation& aRelation, const size_t aVectorizedSize);
 
 	public:
+		/**
+		 *	@brief	This procedure is called from the outside in order to start the scan operator
+		 */
 		void run();
 
 	private:
+		/**
+		 *	@brief	This procedure is called by the 'run()' procedure to start the initialization
+		 */
 		void init();
-		void finish();
+
+		/**
+		 *	@brief	This procedure is called by the 'run()' procedure to start the scanning
+		 *
+		 *	@param 	aRelation  a NSM relation whichs records shall be scanned
+		 */
 		void startScan(NSM_Relation& aRelation);
+
+		/**
+		 *	@brief	This procedure is called by the 'run()' procedure to start the scanning
+		 *
+		 *	@param 	aRelation  a PAX relation whichs records shall be scanned
+		 */
 		void startScan(PAX_Relation& aRelation);
 
+		/**
+		 *	@brief	This procedure is called by the 'run()' procedure to finish the scanning
+		 */
+		void finish();
+
 	private:
+		/* The associated next operator */
 		T_Consumer* _nextOp;
+		/* The associated relation to scan */
 		T_Relation& _relation;
+		/* The size for the vectorized processing */
 		const size_t _vectorizedSize;
+		/* The vector containing the output data structure */
 		unval_vt _tuple;
+		/* Index to the output data structure within the vector '_tuple' */
 		size_t _indexNo;
+		/* Output data structure of the scan operator */
 		unval_pt _output;
 
 };

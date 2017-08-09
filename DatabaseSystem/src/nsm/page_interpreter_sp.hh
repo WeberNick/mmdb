@@ -21,7 +21,7 @@ class PageInterpreterSP {
     static void setPageSize(const size_t aPageSize);
 
   public:
-    void  attach(byte* aPP);
+    inline void  attach(byte* aPP);
     void  detach();
 
   public:
@@ -54,6 +54,13 @@ class PageInterpreterSP {
     static bool _pageSizeSet;
     static size_t _pageSize;
 };
+
+void 
+PageInterpreterSP::attach(byte* aPP) {
+  _pp = aPP;
+  _header = get_hdr_ptr();
+  _slots  = get_slot_base_ptr();
+}
 
 const byte* 
 PageInterpreterSP::getRecord(const uint aRecordNo) const { 

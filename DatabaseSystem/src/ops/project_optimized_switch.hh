@@ -1,3 +1,63 @@
+/**
+ *	@file 	project_optimized_switch.hh
+ *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *	@brief	Project operator of the physical algebra, used to project attributes
+ *	@bugs 	Currently no bugs known
+ *	@todos	PAX record representation with the TID concept may change in the future
+ *
+ *	@section DESCRIPTION
+ *	This template class implements the physical algebra operator 'Project'.
+ *	The project operator can be used to project certain attributes. 
+ *	Depending on the storage layout in use (NSM or PAX), different approaches 
+ *	of how to project attributes must be implemented.
+ *	
+ *	NOTE: 	Several different implementations of the project operator are
+ *			implemented. The following description is only valid for this
+ *			exact file/operator.
+ *
+ *	First the description for the storage layout independent part:
+ *
+ *	General	The following is more or less a copy of the project.hh comment.
+ *			At the end (marked with **NEW**) is a explanation what differs.
+ *			
+ *			At the start, the operator is initialized by calling the 'init'
+ *			procedure. This allocates memory for the output of the project 
+ *			and initializes certain variables neeeded by the project 
+ *			operator. As soon as the 'step' procedure is called by a
+ *			previous operator, the projection process starts. The project 
+ *			operator uses an associated attribute list indicating which 
+ *			attributes have to be projected. An attribute is projected by 
+ *			finding the respective stored attribute's address, copying its
+ *			content and writing it to destination address. In this projection
+ *			implementation, the attributes are projected into an union type
+ *			data structure which exists only as long the projection operator
+ *			exists (the projected attributes are not materialized). This 
+ *			approach was easy and fast to implement but doesn't have full
+ *			compatibility with other operators which have to work with the
+ *			output produced by this operator. Instead of writing the output
+ *			on a memory page (in either NSM or PAX format), this operator
+ *			uses an union type storage (basically a row store) but the
+ *			following operators will expect a output format as produced by
+ *			the scan or select for example. The output data structure can contain
+ *			either a single record (tuple at a time) or a user defined
+ *			number of records (@see scan.hh for more detailed information).
+ *
+ *			**NEW**	The inner for loop, operating on the attributes, is now
+ *					the outer loop. The goal is to prevent the switch statements
+ *					overhead by first projecting all the same attributes of all 
+ *					records before projection of the next attribute starts.
+ *					This makes only a difference if vectorized processing is used.
+ *					
+ *	
+ *	The description for the NSM specific part:		
+ *			
+ *	NSM		TODO
+ *
+ *
+ *	The description for the PAX specific part:	
+ *	
+ *	PAX:	TODO
+ */
 #ifndef PROJECT_OPTIMIZED_SWITCH_HH
 #define PROJECT_OPTIMIZED_SWITCH_HH
 

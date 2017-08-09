@@ -108,6 +108,7 @@ class Relation
 		 * 
 		 * @return 	a reference to the segment the relation is associated with
 		 */
+		const inline Segment& getSegment() const;
 		inline Segment& getSegment();
 
 		/**
@@ -216,6 +217,11 @@ const byte_vpt& Relation::getContainer() const
 // {
 // 	return _container[_attrDescVec[aAttributeNo]._containerIndex];
 // }
+
+const Segment& Relation::getSegment() const
+{
+	return _segment;
+}
 
 Segment& Relation::getSegment()
 {

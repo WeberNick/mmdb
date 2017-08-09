@@ -19,13 +19,6 @@ void PageInterpreterSP::setPageSize(const size_t aPageSize)
 PageInterpreterSP::PageInterpreterSP() : _pp(NULL), _header(NULL), _slots(0) {
 }
 
-void 
-PageInterpreterSP::attach(byte* aPP) {
-  _pp = aPP;
-  _header = get_hdr_ptr();
-  _slots  = get_slot_base_ptr();
-}
-
 void
 PageInterpreterSP::detach() {
   _pp     = 0;
