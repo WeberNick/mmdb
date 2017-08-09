@@ -9,21 +9,13 @@
  *	
  */
 
-#include "memory/memory_manager.hh"
 #include "infra/webe/types.hh"
 #include "infra/webe/args.hh"
-#include "infra/webe/print_helper.hh"
-#include "infra/moer/system.hh"
-#include "infra/moer/memory_access.hh"
-#include "infra/moer/stime.hh"
-#include "infra/moer/datejd.hh"
-#include "relation/relation.hh"
+#include "memory/memory_manager.hh"
+#include "modes.hh"
 #include "relation/nsm_relation.hh"
 #include "relation/pax_relation.hh"
-
-#include "modes.hh"
 #include "queries/test_query.hh"
-
 #include "app/tpc_h/tpc_h.hh"
 #include "app/big_int_relation/big_int_relation.hh"
 
@@ -58,6 +50,8 @@ int main(const int argc, const char* argv[])
 	}
 
 	#ifdef __linux__
+	#include "infra/moer/system.hh"
+	#include "infra/moer/memory_access.hh"
 	uint lHwThreadNo = lArgs.core();
 	cpu_set_t lMask;
 	CPU_ZERO(&lMask);
@@ -71,22 +65,11 @@ int main(const int argc, const char* argv[])
 	{
 		std::cerr << "binding thread to " << lHwThreadNo << " succeeded." << std::endl;
 	}
-	#endif
-
-	
 
 	/***************************************************************************************************
-	** All global variables are defined with either the respective user input or default values ********
+	** If the 'lArgs.measure()'-flag was set, the following prints an header in some output stream *****
 	***************************************************************************************************/
 
-	// std::string tmp 		= lArgs.path() + storageModel + "/";
-	// PATH_GLOBAL 			= tmp.c_str();
-
-	/***************************************************************************************************
-	** If the 'lArgs.measure()'-flag was set, the following prints an header in some output stream *************
-	***************************************************************************************************/
-
-	#ifdef __linux__
 	if(lArgs.measure())
 	{
 		GM::System lSystem(lHwThreadNo);
@@ -141,14 +124,8 @@ int main(const int argc, const char* argv[])
 			{
 				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize(), lQueryInfra);
 				// row_test_query(tpc_h.getTPC_H_Relations()[1], lQueryInfra);
-				// row_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lQueryInfra);
-				row_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lQueryInfra);
-
-
-				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, lArgs.measure(), lArgs.runs(), r_test_updateInt_path);
-				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, lArgs.measure(), 1, r_bulk_load_path);
-				// row_test_query1(nsm_rel_vec[1], lArgs.vectorized(), selectivity, lArgs.measure(), lArgs.runs(), r_test_query1_path);
-				// row_test_update1(nsm_rel_vec[1], attrUpdates, lArgs.measure(), lArgs.runs(), r_test_update1_path);
+				// row_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, MODE_TPCH_NO_ATTR, lQueryInfra);
+				row_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, MODE_TPCH_NO_ATTR, lQueryInfra);
 			}
 			else
 			{
@@ -160,14 +137,12 @@ int main(const int argc, const char* argv[])
 		}
 		else if(lArgs.intRelation())
 		{
-			const size_t lNumberOfTuples = 1000000;
-			const size_t lNumberOfAttributes = 100;
 			BIG_INT_RELATION<NSM_Relation> b_i_r(true);
-			b_i_r.init(lNumberOfAttributes, lNumberOfTuples, lArgs.bufferSize());
-			// row_test_projection(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
-			// row_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
-			// row_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
-			row_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
+			b_i_r.init(MODE_BIR_NO_ATTR, MODE_BIR_NO_TUPLE, lArgs.bufferSize());
+			// row_test_projection(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
+			// row_test_projection_optimized_switch(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
+			// row_test_projection_mat(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
+			row_test_projection_mat_optimized_switch(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
 		}
 		else
 		{
@@ -184,14 +159,8 @@ int main(const int argc, const char* argv[])
 			{
 				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize(), lQueryInfra);
 				// col_test_query(tpc_h.getTPC_H_Relations()[1], lQueryInfra);
-				col_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lQueryInfra);
-				// col_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, 16, lQueryInfra);
-
-
-				// ints_bulk_load_and_update<NSM_Relation, true>(intAttrNo, intChunkSize, lArgs.measure(), lArgs.runs(), r_test_updateInt_path);
-				// bulk_load_insert<initRelationNSM_vt, NSM_Relation, true>(functionsNSM, nsm_rel_vec, lArgs.measure(), 1, r_bulk_load_path);
-				// row_test_query1(nsm_rel_vec[1], lArgs.vectorized(), selectivity, lArgs.measure(), lArgs.runs(), r_test_query1_path);
-				// row_test_update1(nsm_rel_vec[1], attrUpdates, lArgs.measure(), lArgs.runs(), r_test_update1_path);
+				col_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, MODE_TPCH_NO_ATTR, lQueryInfra);
+				// col_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, MODE_TPCH_NO_ATTR, lQueryInfra);
 			}
 			else
 			{
@@ -203,14 +172,12 @@ int main(const int argc, const char* argv[])
 		}
 		else if(lArgs.intRelation())
 		{
-			const size_t lNumberOfTuples = 1000000;
-			const size_t lNumberOfAttributes = 100;
 			BIG_INT_RELATION<PAX_Relation> b_i_r(false);
-			b_i_r.init(lNumberOfAttributes, lNumberOfTuples, lArgs.bufferSize());
-			// col_test_projection(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
-			// col_test_projection_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
-			// col_test_projection_mat(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
-			col_test_projection_mat_optimized_switch(b_i_r.getRelation(), lNumberOfTuples, lNumberOfAttributes, lQueryInfra);
+			b_i_r.init(MODE_BIR_NO_ATTR, MODE_BIR_NO_TUPLE, lArgs.bufferSize());
+			// col_test_projection(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
+			// col_test_projection_optimized_switch(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
+			// col_test_projection_mat(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
+			col_test_projection_mat_optimized_switch(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
 		}
 		else
 		{
