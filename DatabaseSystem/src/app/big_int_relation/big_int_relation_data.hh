@@ -1,3 +1,14 @@
+/**
+ *	@file 	big_int_relation_data.hh
+ *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *	@brief	Infrastructure file for the big_ing_relation.hh file
+ *	@bugs 	Currently no bugs known
+ *	@todos	Currently no todos
+ *
+ *	@section DESCRIPTION
+ *	TODO
+ *
+ */
 #include "infra/webe/types.hh"
 #include "infra/webe/exception.hh"
 #include "infra/moer/measure.hh"

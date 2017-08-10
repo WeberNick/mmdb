@@ -1,3 +1,13 @@
+/**
+ *  @file   page_interpreter_sp.hh
+ *  @author Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *  @brief  A page interpreter class to operate on slotted pages (NSM)
+ *  @bugs   Currently no bugs known
+ *  @todos  Currently no todos
+ *
+ *  @section DESCRIPTION
+ *  TODO
+ */
 #ifndef PAGE_INTERPRETER_SP_HH
 #define PAGE_INTERPRETER_SP_HH
 

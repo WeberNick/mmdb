@@ -1,3 +1,14 @@
+/**
+ *	@file 	tpc_h_data.hh
+ *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *	@brief	Infrastructure file for the tpc_h.hh file
+ *	@bugs 	Currently no bugs known
+ *	@todos	Currently no todos
+ *
+ *	@section DESCRIPTION
+ *	TODO
+ *
+ */
 #include "infra/webe/types.hh"
 #include "infra/webe/exception.hh"
 #include "infra/moer/measure.hh"

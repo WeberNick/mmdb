@@ -1,3 +1,14 @@
+/**
+ *	@file 	tpc_h.hh
+ *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *	@brief	Implements the infrastructure for the TPC-H relations
+ *	@bugs 	Currently no bugs known
+ *	@todos	Currently no todos
+ *
+ *	@section DESCRIPTION
+ *	TODO
+ *
+ */
 #ifndef TPC_H_HH
 #define TPC_H_HH
 

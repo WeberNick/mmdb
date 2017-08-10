@@ -1,3 +1,14 @@
+/**
+ *	@file 	exception.hh
+ *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *	@brief	Provides a central class for exception handling
+ *	@bugs 	Currently no bugs known
+ *	@todos	Needs major rework and redesign
+ *
+ *	@section DESCRIPTION
+ *	TODO
+ *
+ */
 #ifndef INFRA_WEBE_EXCEPTION_HH
 #define INFRA_WEBE_EXCEPTION_HH
 

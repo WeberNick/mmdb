@@ -1,3 +1,14 @@
+/**
+ *	@file 	project_mat.hh
+ *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *	@brief	Project operator of the physical algebra, used to project and materialize attributes
+ *	@bugs 	Currently no bugs known
+ *	@todos	PAX record representation with the TID concept may change in the future
+ *
+ *	@section DESCRIPTION
+ *	TODO
+ *
+ */
 #ifndef PROJECT_MAT_HH
 #define PROJECT_MAT_HH
 

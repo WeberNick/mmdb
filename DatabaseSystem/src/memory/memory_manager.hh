@@ -8,7 +8,7 @@
  *	@section DESCRIPTION
  *	This class manages all the memory allocations and deallocations. The memory pages are organized
  *	in chunks of memory (size of chunk is user defined). The MemoryManager maintains pointer to its
- *	memory chunks in an vector of pointer. As soon a chunk is full, the next request for memory leads
+ *	memory chunks in a vector of pointer. As soon a chunk is full, the next request for memory leads
  *	to the allocation of a new chunk. This class is a singleton, so only one instance of it can be
  *	constructed (private constructor) by calling the function createInstance(). Multiple calls to
  *	createInstance() are possible but this will not create multipe MemoryManager instances. To access

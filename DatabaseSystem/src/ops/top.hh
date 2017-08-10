@@ -1,3 +1,14 @@
+/**
+ *	@file 	top.hh
+ *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *	@brief	Top operator of the physical algebra. This operator marks the end of the operator tree
+ *	@bugs 	Currently no bugs known
+ *	@todos	PAX record representation with the TID concept may change in the future
+ *
+ *	@section DESCRIPTION
+ *	TODO
+ *
+ */
 #ifndef TOP_HH
 #define TOP_HH
 

@@ -1,3 +1,13 @@
+/**
+ *  @file   page_interpreter_pax.hh
+ *  @author Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *  @brief  A page interpreter class to operate on PAX pages
+ *  @bugs   Currently no bugs known
+ *  @todos  Currently no todos
+ *
+ *  @section DESCRIPTION
+ *  TODO
+ */
 #ifndef PAGE_INTERPRETER_PAX_HH
 #define PAGE_INTERPRETER_PAX_HH
 

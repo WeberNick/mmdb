@@ -1,3 +1,14 @@
+/**
+ *	@file 	big_int_relation.hh
+ *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *	@brief	Implements the infrastructure for a big test relation, filled with interger and floats (4byte)
+ *	@bugs 	Currently no bugs known
+ *	@todos	Currently no todos
+ *
+ *	@section DESCRIPTION
+ *	TODO
+ *
+ */
 #ifndef BIG_INT_RELATION_HH
 #define BIG_INT_RELATION_HH
 

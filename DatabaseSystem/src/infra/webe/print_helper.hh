@@ -1,3 +1,14 @@
+/**
+ *	@file 	print_helper.hh
+ *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
+ *	@brief	Provides procedures to print test results in files
+ *	@bugs 	Currently no bugs known
+ *	@todos	Currently no todos
+ *
+ *	@section DESCRIPTION
+ *	TODO
+ *
+ */
 #ifndef INFRA_WEBE_PRINT_HEADER_HH
 #define INFRA_WEBE_PRINT_HEADER_HH
 
