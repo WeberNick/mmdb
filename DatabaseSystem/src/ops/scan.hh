@@ -82,8 +82,6 @@
 #include "relation/pax_relation.hh"
 #include "pax/page_interpreter_pax.hh"
 
-#include "infra/moer/measure.hh"
-
 #include <vector>
 
 template<typename T_Consumer, typename T_Relation>

@@ -6,7 +6,7 @@
  *	@todos	Think about exception handling
  *
  *	@section DESCRIPTION
- *	This class serves as layer between a relation and its allocated memory. Each relation has an associated segment as member.
+ *	This class serves as layer between a relation and its allocated memory. Each relation has an associated segment as a member variable.
  *	If the relation's memory pages are full, the relation can use its segment in order to request a new (empty) memory page.
  *	When a new page is requested, the Segment will forward this request to the memory manager. At success (a new page could be allocated),
  *	the segment adds the address of the allocated memory page into its vector of previously allocated pages. The segment maintains all
