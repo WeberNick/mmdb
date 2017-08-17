@@ -22,10 +22,13 @@ class TestPred
 		const bool operator()(const unval_t* aInputTuple, unval_t* aOutputTuple, const size_t aInputSize, const size_t aOutputSize, NSM_Relation& aRelation);
 		const bool operator()(const unval_t* aInputTuple, unval_t* aOutputTuple, const size_t aInputSize, const size_t aOutputSize, PAX_Relation& aRelation);
 
+		const bool operator()(const byte* aRecordPointer, NSM_Relation& aRelation);
+		const bool operator()(const size_t aPageNo, const size_t aRecordNo, PAX_Relation& aRelation);
+
 	public:
-		inline const size_t getInputIndex();
+		inline const size_t getInputIndex() const;
 		inline void setInputIndexZero();
-		inline const size_t getOutputIndex();
+		inline const size_t getOutputIndex() const;
 
 	private:
 		size_t _inputIndex;
@@ -35,7 +38,7 @@ class TestPred
 
 };
 
-const size_t TestPred::getInputIndex()
+const size_t TestPred::getInputIndex() const
 {
 	return _inputIndex;
 }
@@ -45,7 +48,7 @@ void TestPred::setInputIndexZero()
 	_inputIndex = 0;
 }
 
-const size_t TestPred::getOutputIndex()
+const size_t TestPred::getOutputIndex() const
 {
 	return _outputIndex;
 }

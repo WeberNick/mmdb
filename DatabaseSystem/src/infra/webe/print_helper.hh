@@ -46,6 +46,8 @@ void print_bulk_load_insert_result(const string_vt& aRelationNames, const double
 
 void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData, const print_infra_t& aPrintInfra, const std::string aTestType = "Unknown");
 
+void print_selection_result(const uint_vt& aSelectivity, const double_vt& aMeasurementData, const print_infra_t& aPrintInfra, const std::string aTestType = "Unknown");
+
 void print_projection_result(const size_t aAttrNo, const double_vt& aMeasurementData, const print_infra_t& aPrintInfra, const std::string aTestType = "Unknown");
 
 #endif

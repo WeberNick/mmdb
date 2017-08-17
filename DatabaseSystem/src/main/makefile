@@ -45,9 +45,8 @@ HDR = \
 	\
 	\
 	../queries/test_query.hh \
-	../queries/test_update.hh \
+	../queries/test_pred.hh \
 	\
-	modes.hh \
 
 
 OBJ = \

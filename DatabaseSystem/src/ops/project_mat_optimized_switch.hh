@@ -27,8 +27,7 @@ template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 class ProjectMaterializedOptimizedSwitch
 {
 	public:
-		ProjectMaterializedOptimizedSwitch(T_Consumer* aConsumer, T_RelationIn& aRelation, const uint_vt& aAttrNoList);
-		ProjectMaterializedOptimizedSwitch(T_Consumer* aConsumer, T_RelationIn& aRelation,const uint_vt& aAttrNoList, const size_t aVectorizedSize);
+		ProjectMaterializedOptimizedSwitch(T_Consumer* aConsumer, T_RelationIn& aRelation,const uint_vt& aAttrNoList, const size_t aVectorizedSize = 1);
 
 	public:
 		void init(unval_vt& aTupel);
@@ -63,16 +62,8 @@ template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::ProjectMaterializedOptimizedSwitch(
 									T_Consumer* aConsOp,
 									T_RelationIn& aRelation, 
-									const uint_vt& aAttrNoList)
-	: _nextOp(aConsOp), _relationIn(aRelation), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(1), _indexNo1(0), _input(), _indexNo2(0), _output(), _currentPage(0), _inputBegin(0), _outputBegin(0)
-{}
-
-template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
-ProjectMaterializedOptimizedSwitch<T_Consumer, T_RelationIn, T_RelationOut>::ProjectMaterializedOptimizedSwitch(
-									T_Consumer* aConsOp,
-									T_RelationIn& aRelation, 
 									const uint_vt& aAttrNoList, 
-									size_t aVectorizedSize)
+									const size_t aVectorizedSize)
 	: _nextOp(aConsOp), _relationIn(aRelation), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(aVectorizedSize), _indexNo1(0), _input(), _indexNo2(0), _output(), _currentPage(0), _inputBegin(0), _outputBegin(0)
 {}
 

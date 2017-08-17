@@ -22,15 +22,43 @@ typedef unsigned int uint;
 typedef std::vector<int> int_vt;
 typedef std::vector<uint> uint_vt;
 typedef std::vector<uint_vt> uint_vvt;
+typedef std::vector<float> float_vt;
 typedef std::vector<double> double_vt;
 typedef std::vector<std::string> string_vt;
 typedef std::vector<string_vt> string_vvt;
 
+const double MS = (1000.0L);
+const double US = (1000.0L * 1000.0L);
 const double NS = (1000.0L * 1000.0L * 1000.0L);
+
+inline double secToMilliSec(const double aTime) 
+{
+	return aTime * MS;
+}
+
+inline double secToMilliSec(const double aTime, const double aNumber) 
+{
+	return secToMilliSec(aTime) / aNumber;
+}
+
+inline double secToMicroSec(const double aTime) 
+{
+	return aTime * US;
+}
+
+inline double secToMicroSec(const double aTime, const double aNumber) 
+{
+	return secToMicroSec(aTime) / aNumber;
+}
+
+inline double secToNanoSec(const double aTime) 
+{
+	return aTime * NS;
+}
 
 inline double secToNanoSec(const double aTime, const double aNumber) 
 {
-	return (aTime / aNumber) * NS;
+	return secToNanoSec(aTime) / aNumber;
 }
 
 /**

@@ -31,6 +31,9 @@ class Top
 		void step(unval_vt& aTupel, PAX_Relation& aRelation, const size_t aSize, const bool aNoMoreData);
 		void finish(unval_vt& aTupel);
 
+	public:
+		const size_t getTupleCount() const;
+
 	private:
 		size_t _indexNo;
 		size_t _tplCount;
@@ -77,6 +80,13 @@ void
 Top<print>::finish(unval_vt& aTupel) 
 {
 	std::cout << "(FIN) Tuple Count: " << _tplCount << std::endl;
+}
+
+template<bool print>
+const size_t 
+Top<print>::getTupleCount() const
+{
+	return _tplCount;
 }
 
 

@@ -45,10 +45,8 @@ template<typename T_Consumer, typename T_Predicate, typename T_Relation>
 class Select
 {
 	public:
-		/* constructor for the select operator without a vectorized size (size 1 (i.e., no vectorized processing) is assumed) */
-		Select(T_Consumer* aConsumer, T_Predicate& aPredicate);
 		/* constructor for the select operator with a vectorized size */
-		Select(T_Consumer* aConsumer, T_Predicate& aPredicate, const size_t aVectorizedSize);
+		Select(T_Consumer* aConsumer, T_Predicate& aPredicate, const size_t aVectorizedSize = 1);
 
 	public:
 		/**
@@ -92,13 +90,6 @@ class Select
 		unval_pt _output;
 
 };
-
-template<typename T_Consumer, typename T_Predicate, typename T_Relation>
-Select<T_Consumer, T_Predicate, T_Relation>::Select(
-									T_Consumer* aConsOp,
-									T_Predicate& aPredicate)
-	: _nextOp(aConsOp), _pred(aPredicate), _vectorizedSize(1), _indexNo1(), _input(), _indexNo2(), _output()
-{}
 
 template<typename T_Consumer, typename T_Predicate, typename T_Relation>
 Select<T_Consumer, T_Predicate, T_Relation>::Select(
