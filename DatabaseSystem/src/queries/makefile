@@ -34,6 +34,7 @@ HDRP = \
 OBJ = \
 	test_query.o \
 	test_pred.o \
+	\
 	
 all : $(OBJ)
 

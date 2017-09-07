@@ -199,6 +199,56 @@ void plotScan(const std::string nsmPath, const string_vt& nsmDataFilesToPlot, co
 	}
 }
 
+void plotSelection(const std::string nsmPath, const string_vt& nsmDataFilesToPlot, const string_vvt& nsmFileNameTokens, const uint_vt& nsmPlotIndeces, const std::string paxPath, const string_vt& paxDataFilesToPlot, const string_vvt& paxFileNameTokens, const uint_vt& paxPlotIndeces)
+{
+	const size_t numberOfFilesToPlot = nsmPlotIndeces.size() + paxPlotIndeces.size();
+	if(numberOfFilesToPlot != 0)
+	{
+		Gnuplot gp;
+		gp << ("set terminal " + G_FORMAT + "\n");
+		gp << ("set output '../results/selection." + G_FORMAT + "'\n");
+		gp << "set grid\n";
+		gp << "set autoscale\n";
+		gp << "set ylabel 'Average Time in ms' font ', 8'\n";
+		gp << "set xlabel 'Selectivity in \%' font ', 8'\n";
+		gp << "set title 'Average Selection Time for each Selectivity' font ',12'\n";
+		gp << "set style data linespoints\n";
+		gp << "set pointsize 0.5\n";
+		gp << "set auto x\n";
+		gp << "set yrange [0:150]\n";
+		gp << "set key top left font ', 6'\n";
+
+		std::string command = "plot ";
+		std::string title;
+		uint count = 0;
+		uint index;
+		for(size_t i = 0; i < nsmPlotIndeces.size(); ++i)
+		{
+			index = nsmPlotIndeces[i];
+			title = "NSM-" + nsmFileNameTokens[index][0] + "(" + nsmFileNameTokens[index][1] + "/" + nsmFileNameTokens[index][2] + "/" + nsmFileNameTokens[index][3] + ")";
+			command += "'" + nsmPath + nsmDataFilesToPlot[index] + "' using 1:2 title '" + title + "'";
+			++count;
+			if(count < numberOfFilesToPlot)
+			{
+				command += ", ";
+			}
+		}
+		for(size_t i = 0; i < paxPlotIndeces.size(); ++i)
+		{
+			index = paxPlotIndeces[i];
+			title = "PAX-" + paxFileNameTokens[index][0] + "(" + paxFileNameTokens[index][1] + "/" + paxFileNameTokens[index][2] + "/" + paxFileNameTokens[index][3] + ")";
+			command += "'" + paxPath + paxDataFilesToPlot[index] + "' using 1:2 title '" + title + "'";
+			++count;
+			if(count < numberOfFilesToPlot)
+			{
+				command += ", ";
+			}
+		}
+		command += "\n";
+		gp << command;
+	}
+}
+
 void startPlotProcess(const char* aPlotG_FORMAT)
 {
 	G_FORMAT = std::string(aPlotG_FORMAT);
@@ -238,8 +288,8 @@ void startPlotProcess(const char* aPlotG_FORMAT)
 	** Stores all the indeces from '[...]DataFilesToPlot' which belong to the same test together  ******
 	** [0][...] are bulk load test indeces, [1][...] are [PLACEHOLDER]                            ******
 	***************************************************************************************************/
-	uint_vvt nsmPlotIndeces(4);
-	uint_vvt paxPlotIndeces(4);
+	uint_vvt nsmPlotIndeces(5);
+	uint_vvt paxPlotIndeces(5);
 	getIndeces(nsmPlotIndeces[0], nsmFileNameTokens, paxPlotIndeces[0], paxFileNameTokens, "load");
 	plotBulkLoadInsert(true, nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[0], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[0]);
 	getIndeces(nsmPlotIndeces[1], nsmFileNameTokens, paxPlotIndeces[1], paxFileNameTokens, "insert");
@@ -248,4 +298,6 @@ void startPlotProcess(const char* aPlotG_FORMAT)
 	plotProjection(nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[2], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[2]);
 	getIndeces(nsmPlotIndeces[3], nsmFileNameTokens, paxPlotIndeces[3], paxFileNameTokens, "scan");
 	plotScan(nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[3], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[3]);
+	getIndeces(nsmPlotIndeces[4], nsmFileNameTokens, paxPlotIndeces[4], paxFileNameTokens, "selection");
+	plotSelection(nsmPath, nsmDataFilesToPlot, nsmFileNameTokens, nsmPlotIndeces[4], paxPath, paxDataFilesToPlot, paxFileNameTokens, paxPlotIndeces[4]);
 }

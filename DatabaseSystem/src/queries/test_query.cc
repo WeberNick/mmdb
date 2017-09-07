@@ -1,40 +1,72 @@
 #include "test_query.hh"
 
-void row_test_query(NSM_Relation& aRelation, const query_infra_t& aQueryInfra)
+void row_test_tpch_selection(NSM_Relation& aRelation, const float_vt& aSelectivities, const query_infra_t& aQueryInfra)
 {
-	for(size_t i = 0; i < aQueryInfra.runs(); ++i)
+	double_vt avg(11, 0);
+	uint_vt sel(11, 0);
+	
+	for(size_t i = 0; i < aSelectivities.size(); ++i)
 	{
-		TestPred::Parameter lPara = {5, 100000.99};
+		TestPred::Parameter lPara = {5, aSelectivities[i]};
 		TestPred lPredicate(lPara);
-		const uint_vt lAttrNoList = {0,1,2,3,4,5};
+		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
+		{
+			// row_top_test_query_t		lTop;
+			// row_select_test_query_t 	lSelect(&lTop, lPredicate, aQueryInfra.vectorizedSize());
+			// row_scan_test_query_t 		lScan(&lSelect, aRelation, aQueryInfra.vectorizedSize());
 
-		row_top_test_query_t		lTop;
-		row_project_test_query_t	lProject(&lTop, lAttrNoList, aQueryInfra.vectorizedSize());
-		row_select_test_query_t 	lSelect(&lProject, lPredicate, aQueryInfra.vectorizedSize());
-		row_scan_test_query_t 		lScan(&lSelect, aRelation, aQueryInfra.vectorizedSize());
+			row_top_test_query_t 			lTop;
+			row_scan_select_test_query_t	lScan(&lTop, lPredicate, aRelation, aQueryInfra.vectorizedSize());
 
-
-		lScan.run();
+			Measure lMeasure;
+			if(aQueryInfra.measure())
+			{
+				lMeasure.start();
+			}
+			lScan.run();
+			lMeasure.stop();
+			avg[i] += secToMilliSec(lMeasure.mTotalTime());
+			double lPercentageQualifiedTuples = (((lTop.getTupleCount()) / 6001215.0) * 100);
+			sel[i] = (uint)round(lPercentageQualifiedTuples);
+		}
+		avg[i] /= aQueryInfra.runs();
 	}
+	print_selection_result(sel, avg, aQueryInfra.printInfra(), "Standard[TPCH]");
 
 }
 
-void col_test_query(PAX_Relation& aRelation, const query_infra_t& aQueryInfra)
+void col_test_tpch_selection(PAX_Relation& aRelation, const float_vt& aSelectivities, const query_infra_t& aQueryInfra)
 {
-	for(size_t i = 0; i < aQueryInfra.runs(); ++i)
+	double_vt avg(11, 0);
+	uint_vt sel(11, 0);
+	
+	for(size_t i = 0; i < aSelectivities.size(); ++i)
 	{
-		TestPred::Parameter lPara = {5, 100000.99};
+		TestPred::Parameter lPara = {5, aSelectivities[i]};
 		TestPred lPredicate(lPara);
-		const uint_vt lAttrNoList = {0,1,2,3,4,5};
+		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
+		{
+			// col_top_test_query_t		lTop;
+			// col_select_test_query_t 	lSelect(&lTop, lPredicate, aQueryInfra.vectorizedSize());
+			// col_scan_test_query_t 	lScan(&lSelect, aRelation, aQueryInfra.vectorizedSize());
 
-		col_top_test_query_t		lTop;
-		col_project_test_query_t	lProject(&lTop, lAttrNoList);
-		col_select_test_query_t 	lSelect(&lProject, lPredicate);
-		col_scan_test_query_t 		lScan(&lSelect, aRelation);
+			col_top_test_query_t 			lTop;
+			col_scan_select_test_query_t	lScan(&lTop, lPredicate, aRelation, aQueryInfra.vectorizedSize());
 
-
-		lScan.run();
+			Measure lMeasure;
+			if(aQueryInfra.measure())
+			{
+				lMeasure.start();
+			}
+			lScan.run();
+			lMeasure.stop();
+			avg[i] += secToMilliSec(lMeasure.mTotalTime());
+			double lPercentageQualifiedTuples = (((lTop.getTupleCount()) / 6001215.0) * 100);
+			sel[i] = (uint)round(lPercentageQualifiedTuples);
+		}
+		avg[i] /= aQueryInfra.runs();
 	}
+	print_selection_result(sel, avg, aQueryInfra.printInfra(), "Standard[TPCH]");
 }
 
 void row_test_tpch_projection(NSM_Relation& aRelation, const size_t aNoTuple, const size_t aNoAttr, const query_infra_t& aQueryInfra)

@@ -73,8 +73,7 @@ template<typename T_Consumer>
 class ProjectOptimizedSwitch
 {
 	public:
-		ProjectOptimizedSwitch(T_Consumer* aConsumer, const uint_vt& aAttrNoList);
-		ProjectOptimizedSwitch(T_Consumer* aConsumer, const uint_vt& aAttrNoList, const size_t aVectorizedSize);
+		ProjectOptimizedSwitch(T_Consumer* aConsumer, const uint_vt& aAttrNoList, const size_t aVectorizedSize = 1);
 
 	public:
 		void init(unval_vt& aTupel);
@@ -99,15 +98,8 @@ class ProjectOptimizedSwitch
 template<typename T_Consumer>
 ProjectOptimizedSwitch<T_Consumer>::ProjectOptimizedSwitch(
 									T_Consumer* aConsOp, 
-									const uint_vt& aAttrNoList)
-	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(1), _indexNo1(0), _input(), _indexNo2(0), _output(), _inputBegin(0), _outputBegin(0)
-{}
-
-template<typename T_Consumer>
-ProjectOptimizedSwitch<T_Consumer>::ProjectOptimizedSwitch(
-									T_Consumer* aConsOp, 
 									const uint_vt& aAttrNoList, 
-									size_t aVectorizedSize)
+									const size_t aVectorizedSize)
 	: _nextOp(aConsOp), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(aVectorizedSize), _indexNo1(0), _input(), _indexNo2(0), _output(), _inputBegin(0), _outputBegin(0)
 {}
 

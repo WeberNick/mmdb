@@ -179,7 +179,47 @@ void print_scan_result(const size_t aAttrNo, const double_vt& aMeasurementData, 
 		print_header(*os, lTestName);
 		for(size_t i = 0; i < aAttrNo; ++i)
 		{
-			*os << std::setw(10) << (i+1) << " attributes" << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "ms" << std::endl;
+			*os << std::setw(10) << (i+1) << " attributes" << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "ns" << std::endl;
+		}
+		if(aPrintInfra.print())
+		{	
+			out.close();
+		}
+	}
+}
+
+void print_selection_result(const uint_vt& aSelectivity, const double_vt& aMeasurementData, const print_infra_t& aPrintInfra, const std::string aTestType)
+{
+	std::ofstream raw;
+	std::string lTestName = "selection";
+	GM::System lSystem;
+	std::string lSetting = lSystem.hostname() + "_" + std::to_string(aPrintInfra.pageSize()) + "_" + aTestType;
+	std::string lPath = std::string(aPrintInfra.path()) + "raw/" + lTestName + "_" + lSetting + ".txt";
+	raw.open(lPath.c_str(), std::ios::out | std::ios::trunc);
+	if(raw.is_open())
+	{
+		for(size_t i = 0; i < aSelectivity.size(); ++i)
+		{
+			raw << (i * 10) << ' ' << std::setprecision(3) << std::fixed << aMeasurementData[i] << std::endl;
+		}
+		raw.close();
+	}
+	
+	std::ostream* os = &std::cout;
+	std::ofstream out;
+	if(aPrintInfra.print())
+	{	
+		lPath = aPrintInfra.path() + lSetting + ".txt";
+		out.open(lPath.c_str(), std::ios::out | std::ios::app);
+		os = &out;
+	}
+
+	if(out.is_open() == aPrintInfra.print())
+	{
+		print_header(*os, lTestName);
+		for(size_t i = 0; i < aSelectivity.size(); ++i)
+		{
+			*os << std::setw(10) << (i * 10) << "\% Selectivity" << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "ms" << std::endl;
 		}
 		if(aPrintInfra.print())
 		{	
@@ -219,7 +259,7 @@ void print_projection_result(const size_t aAttrNo, const double_vt& aMeasurement
 		print_header(*os, lTestName);
 		for(size_t i = 0; i < aAttrNo; ++i)
 		{
-			*os << std::setw(10) << (i+1) << " attributes" << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "ms" << std::endl;
+			*os << std::setw(10) << (i+1) << " attributes" << ": " << std::setprecision(3) << std::fixed << aMeasurementData[i] << "ns" << std::endl;
 		}
 		if(aPrintInfra.print())
 		{	

@@ -3,7 +3,7 @@
  *	@author	Nick Weber (nickwebe@pi3.informatik.uni-mannheim.de)
  *	@brief	Combination of the operators described in scan.hh and select.hh
  *	@bugs 	Currently no bugs known
- *	@todos	PAX record representation with the TID concept may change in the future
+ *	@todos	Optimization needed (implementation is not ideal atm), PAX record representation with the TID concept may change in the future
  *
  *	@section DESCRIPTION (@see scan.hh select.hh)
  */
@@ -22,10 +22,8 @@ template<typename T_Consumer, typename T_Predicate, typename T_Relation>
 class ScanAndSelect
 {
 	public:
-		/* constructor for the scan operator without a vectorized size (size 1 (i.e., no vectorized processing) is assumed) */
-		ScanAndSelect(T_Consumer* aConsumer, T_Predicate& aPredicate, T_Relation& aRelation);
 		/* constructor for the scan operator with a vectorized size */
-		ScanAndSelect(T_Consumer* aConsumer, T_Predicate& aPredicate, T_Relation& aRelation, const size_t aVectorizedSize);
+		ScanAndSelect(T_Consumer* aConsumer, T_Predicate& aPredicate, T_Relation& aRelation, const size_t aVectorizedSize = 1);
 
 	public:
 		/**
@@ -80,16 +78,8 @@ template<typename T_Consumer, typename T_Predicate, typename T_Relation>
 ScanAndSelect<T_Consumer, T_Predicate, T_Relation>::ScanAndSelect(
 									T_Consumer* aConsOp,
 									T_Predicate& aPredicate, 
-									T_Relation& aRelation)
-	: _nextOp(aConsOp), _pred(aPredicate), _relation(aRelation), _vectorizedSize(1), _tuple(), _indexNo(), _output()
-{}
-
-template<typename T_Consumer, typename T_Predicate, typename T_Relation>
-ScanAndSelect<T_Consumer, T_Predicate, T_Relation>::ScanAndSelect(
-									T_Consumer* aConsOp,
-									T_Predicate& aPredicate, 
 									T_Relation& aRelation,
-									size_t aVectorizedSize)
+									const size_t aVectorizedSize)
 	: _nextOp(aConsOp), _pred(aPredicate), _relation(aRelation), _vectorizedSize(aVectorizedSize), _tuple(), _indexNo(), _output()
 {}
 
@@ -137,8 +127,11 @@ ScanAndSelect<T_Consumer, T_Predicate, T_Relation>::startScan(NSM_Relation& aRel
 		{
 			if(lCounter < _vectorizedSize)		//if the vectorized buffer is not full, insert record pointer
 			{
-				_output[lCounter]._pointer = lPageInterpreter.getRecord(lRecordNo);
-				++lCounter;
+				if(_pred(lPageInterpreter.getRecord(lRecordNo), aRelation))
+				{
+					_output[lCounter]._pointer = lPageInterpreter.getRecord(lRecordNo);
+					++lCounter;
+				}
 				++lRecordNo;
 			}
 			else												//if the vectorized buffer is full hand it over to the next operator
@@ -173,9 +166,12 @@ ScanAndSelect<T_Consumer, T_Predicate, T_Relation>::startScan(PAX_Relation& aRel
 		{
 			if(lCounter < _vectorizedSize)		//if the vectorized buffer is not full, insert record pointer
 			{
-				_output[lCounter]._tid[0] = lPageNo;
-				_output[lCounter]._tid[1] = lRecordNo;
-				++lCounter;
+				if(_pred(lPageNo, lRecordNo, aRelation))
+				{
+					_output[lCounter]._tid[0] = lPageNo;
+					_output[lCounter]._tid[1] = lRecordNo;
+					++lCounter;
+				}
 				++lRecordNo;
 			}
 			else												//if the vectorized buffer is full hand it over to the next operator

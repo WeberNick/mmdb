@@ -40,6 +40,10 @@ void MemoryManager::destroyInstance()
 	if(MemoryManager::instance_created)
 	{ 
 		delete MemoryManager::mm_instance;
+<<<<<<< HEAD
+=======
+		std::cout << "Instance deleted" << std::endl;
+>>>>>>> 9cc7384c149f104f27646f7650e6d72921327ce8
 	}
 	else
 	{

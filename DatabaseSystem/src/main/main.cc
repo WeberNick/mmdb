@@ -21,7 +21,6 @@
 #include "infra/webe/types.hh"
 #include "infra/webe/args.hh"
 #include "memory/memory_manager.hh"
-#include "modes.hh"
 #include "relation/nsm_relation.hh"
 #include "relation/pax_relation.hh"
 #include "queries/test_query.hh"
@@ -120,14 +119,19 @@ int main(const int argc, const char* argv[])
 	MemoryManager::createInstance(lArgs.alignment(), lArgs.chunkSize(), lArgs.pageSize());
 	PageInterpreterSP::setPageSize(lArgs.pageSize());
 	PageInterpreterPAX::setPageSize(lArgs.pageSize());
-	print_infra_t lPrintInfra = {(lArgs.path() + storageModel + "/").c_str(), lArgs.print(), lArgs.pageSize()};
-	query_infra_t lQueryInfra = {lArgs.runs(), lArgs.measure(), lArgs.vectorized(), lPrintInfra};
+	std::string lPath = lArgs.path() + storageModel + "/";
+	print_infra_t lPrintInfra = {lPath.c_str(), lArgs.print(), lArgs.pageSize()};
+	query_infra_t lQueryInfra = {lArgs.vectorized(), lArgs.runs(), lArgs.measure(), lPrintInfra};
 
 	/***************************************************************************************************
 	** If the 'NSM'- or 'PAX'-flag was set, the DBS loads the respective storage model mode ************
 	***************************************************************************************************/
 
-
+	const float_vt 	SELECTIVITIES 	= {0, 8000, 15000, 22500, 29500, 37000, 44000, 51500, 59500, 71000, 105000};
+	const size_t 	TPCH_NO_ATTR 	= 16;
+	const size_t 	BIR_NO_ATTR 	= 100;
+	const size_t 	BIR_NO_TUPLE 	= 1000000;
+	
 	if(lArgs.nsm())
 	{
 		if(lArgs.tpch())
@@ -136,9 +140,9 @@ int main(const int argc, const char* argv[])
 			if(lArgs.all())
 			{
 				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize(), lQueryInfra);
-				// row_test_query(tpc_h.getTPC_H_Relations()[1], lQueryInfra);
-				// row_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, MODE_TPCH_NO_ATTR, lQueryInfra);
-				row_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, MODE_TPCH_NO_ATTR, lQueryInfra);
+				row_test_tpch_selection(tpc_h.getTPC_H_Relations()[1], SELECTIVITIES, lQueryInfra);
+				// row_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, TPCH_NO_ATTR, lQueryInfra);
+				// row_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, TPCH_NO_ATTR, lQueryInfra);
 			}
 			else
 			{
@@ -151,11 +155,11 @@ int main(const int argc, const char* argv[])
 		else if(lArgs.intRelation())
 		{
 			BIG_INT_RELATION<NSM_Relation> b_i_r(true);
-			b_i_r.init(MODE_BIR_NO_ATTR, MODE_BIR_NO_TUPLE, lArgs.bufferSize());
-			// row_test_projection(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
-			// row_test_projection_optimized_switch(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
-			// row_test_projection_mat(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
-			row_test_projection_mat_optimized_switch(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
+			b_i_r.init(BIR_NO_ATTR, BIR_NO_TUPLE, lArgs.bufferSize());
+			// row_test_projection(b_i_r.getRelation(), BIR_NO_TUPLE, BIR_NO_ATTR, lQueryInfra);
+			// row_test_projection_optimized_switch(b_i_r.getRelation(), BIR_NO_TUPLE, BIR_NO_ATTR, lQueryInfra);
+			// row_test_projection_mat(b_i_r.getRelation(), BIR_NO_TUPLE, BIR_NO_ATTR, lQueryInfra);
+			row_test_projection_mat_optimized_switch(b_i_r.getRelation(), BIR_NO_TUPLE, BIR_NO_ATTR, lQueryInfra);
 		}
 		else
 		{
@@ -171,9 +175,9 @@ int main(const int argc, const char* argv[])
 			if(lArgs.all())
 			{
 				tpc_h.init(lArgs.sf(), lArgs.delimiter(), lArgs.seperator(), lArgs.bufferSize(), lQueryInfra);
-				// col_test_query(tpc_h.getTPC_H_Relations()[1], lQueryInfra);
-				col_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, MODE_TPCH_NO_ATTR, lQueryInfra);
-				// col_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, MODE_TPCH_NO_ATTR, lQueryInfra);
+				col_test_tpch_selection(tpc_h.getTPC_H_Relations()[1], SELECTIVITIES, lQueryInfra);
+				// col_test_tpch_projection(tpc_h.getTPC_H_Relations()[1], 6000000, TPCH_NO_ATTR, lQueryInfra);
+				// col_test_tpch_projection_optimized_switch(tpc_h.getTPC_H_Relations()[1], 6000000, TPCH_NO_ATTR, lQueryInfra);
 			}
 			else
 			{
@@ -186,11 +190,11 @@ int main(const int argc, const char* argv[])
 		else if(lArgs.intRelation())
 		{
 			BIG_INT_RELATION<PAX_Relation> b_i_r(false);
-			b_i_r.init(MODE_BIR_NO_ATTR, MODE_BIR_NO_TUPLE, lArgs.bufferSize());
-			// col_test_projection(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
-			// col_test_projection_optimized_switch(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
-			// col_test_projection_mat(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
-			col_test_projection_mat_optimized_switch(b_i_r.getRelation(), MODE_BIR_NO_TUPLE, MODE_BIR_NO_ATTR, lQueryInfra);
+			b_i_r.init(BIR_NO_ATTR, BIR_NO_TUPLE, lArgs.bufferSize());
+			// col_test_projection(b_i_r.getRelation(), BIR_NO_TUPLE, BIR_NO_ATTR, lQueryInfra);
+			// col_test_projection_optimized_switch(b_i_r.getRelation(), BIR_NO_TUPLE, BIR_NO_ATTR, lQueryInfra);
+			// col_test_projection_mat(b_i_r.getRelation(), BIR_NO_TUPLE, BIR_NO_ATTR, lQueryInfra);
+			col_test_projection_mat_optimized_switch(b_i_r.getRelation(), BIR_NO_TUPLE, BIR_NO_ATTR, lQueryInfra);
 		}
 		else
 		{

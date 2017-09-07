@@ -88,10 +88,8 @@ template<typename T_Consumer, typename T_Relation>
 class Scan
 {
 	public:
-		/* constructor for the scan operator without a vectorized size (size 1 (i.e., no vectorized processing) is assumed) */
-		Scan(T_Consumer* aConsumer, T_Relation& aRelation);
 		/* constructor for the scan operator with a vectorized size */
-		Scan(T_Consumer* aConsumer, T_Relation& aRelation, const size_t aVectorizedSize);
+		Scan(T_Consumer* aConsumer, T_Relation& aRelation, const size_t aVectorizedSize = 1);
 
 	public:
 		/**
@@ -139,13 +137,6 @@ class Scan
 		unval_pt _output;
 
 };
-
-template<typename T_Consumer, typename T_Relation>
-Scan<T_Consumer, T_Relation>::Scan(
-									T_Consumer* aConsOp,
-									T_Relation& aRelation)
-	: _nextOp(aConsOp), _relation(aRelation), _vectorizedSize(1), _tuple(), _indexNo(), _output()
-{}
 
 template<typename T_Consumer, typename T_Relation>
 Scan<T_Consumer, T_Relation>::Scan(

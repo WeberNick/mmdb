@@ -28,8 +28,7 @@ template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 class ProjectMaterialized
 {
 	public:
-		ProjectMaterialized(T_Consumer* aConsumer, T_RelationIn& aRelation, const uint_vt& aAttrNoList);
-		ProjectMaterialized(T_Consumer* aConsumer, T_RelationIn& aRelation,const uint_vt& aAttrNoList, const size_t aVectorizedSize);
+		ProjectMaterialized(T_Consumer* aConsumer, T_RelationIn& aRelation,const uint_vt& aAttrNoList, const size_t aVectorizedSize = 1);
 
 	public:
 		void init(unval_vt& aTupel);
@@ -60,14 +59,6 @@ class ProjectMaterialized
 		uint32_t _currentPage;
 
 };
-
-template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
-ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::ProjectMaterialized(
-									T_Consumer* aConsOp,
-									T_RelationIn& aRelation, 
-									const uint_vt& aAttrNoList)
-	: _nextOp(aConsOp), _relationIn(aRelation), _attrNoList(aAttrNoList), _noAttributes(_attrNoList.size()), _vectorizedSize(1), _indexNo1(0), _input(), _indexNo2(0), _output(), _inputIndex(0), _outputIndex(0), _currentPage(0)
-{}
 
 template<typename T_Consumer, typename T_RelationIn, typename T_RelationOut>
 ProjectMaterialized<T_Consumer, T_RelationIn, T_RelationOut>::ProjectMaterialized(

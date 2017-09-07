@@ -1,7 +1,6 @@
 #include "test_pred.hh"
 
-TestPred::TestPred(Parameter aParas) : _inputIndex(0), _outputIndex(0), _paras(aParas)
-{}
+TestPred::TestPred(Parameter aParas) : _inputIndex(0), _outputIndex(0), _paras(aParas){}
 
 const bool TestPred::operator()(const unval_t* aInputTuple, unval_t* aOutputTuple, const size_t aInputSize, const size_t aOutputSize, NSM_Relation& aRelation)
 {
@@ -60,4 +59,33 @@ const bool TestPred::operator()(const unval_t* aInputTuple, unval_t* aOutputTupl
 	}
 	_inputIndex = 0;
 	return false;
+}
+
+const bool TestPred::operator()(const byte* aRecordPointer, NSM_Relation& aRelation)
+{
+	const uint someTestParaOffset = aRelation.getPhysLayoutData()[_paras.someTestParaAttrNo];
+	if(*(float*)(aRecordPointer + someTestParaOffset) < _paras.someTestParaValue)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+const bool TestPred::operator()(const size_t aPageNo, const size_t aRecordNo, PAX_Relation& aRelation)
+{
+
+	PageInterpreterPAX aPageInterpreter;
+	aPageInterpreter.attach(aRelation.getSegment().getPage(aPageNo));
+	const uint lAttrSize = aRelation.getPhysLayoutData()[_paras.someTestParaAttrNo];
+	if(*(float*)(aPageInterpreter.getMiniPagePointer(_paras.someTestParaAttrNo) + (lAttrSize * aRecordNo)) < _paras.someTestParaValue)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
