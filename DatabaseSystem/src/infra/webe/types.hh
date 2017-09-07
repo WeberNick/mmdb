@@ -14,7 +14,6 @@
 #include <stdint.h>
 #include <cstdint>
 #include <vector>
-#include <iostream>
 
 typedef uint8_t byte;
 typedef std::vector<byte*> byte_vpt;

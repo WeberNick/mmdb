@@ -17,8 +17,8 @@ MemoryManager::MemoryManager(const size_t aPageAlignment, const size_t aMemoryCh
 MemoryManager::~MemoryManager()
 {
 	freeAll();
-	destroyInstance();
 	MemoryManager::mm_instance = NULL;
+	MemoryManager::instance_created = false;
 	std::cout << "MemoryManager destroyed" << std::endl;
 }
 
@@ -40,8 +40,6 @@ void MemoryManager::destroyInstance()
 	if(MemoryManager::instance_created)
 	{ 
 		delete MemoryManager::mm_instance;
-		std::cout << "Instance deleted" << std::endl;
-		MemoryManager::instance_created = false;
 	}
 	else
 	{

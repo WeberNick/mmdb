@@ -53,7 +53,7 @@ void plotBulkLoadInsert(const bool aIsLoad, const std::string nsmPath, const str
 	{
 		Gnuplot gp;
 		gp << ("set terminal " + G_FORMAT + "\n");
-		gp << "set output '../results/" << lFileName << ("." + G_FORMAT + "'\n");
+		gp << "set output '../../results/" << lFileName << ("." + G_FORMAT + "'\n");
 		gp << "set grid\n";
 		gp << "set autoscale\n";
 		gp << "set ylabel 'Average time in sec' font ', 8'\n";
@@ -105,7 +105,7 @@ void plotProjection(const std::string nsmPath, const string_vt& nsmDataFilesToPl
 	{
 		Gnuplot gp;
 		gp << ("set terminal " + G_FORMAT + "\n");
-		gp << ("set output '../results/projection." + G_FORMAT + "'\n");
+		gp << ("set output '../../results/projection." + G_FORMAT + "'\n");
 		gp << "set grid\n";
 		gp << "set autoscale\n";
 		gp << "set ylabel 'Average projection time per tuple in ns' font ', 8'\n";
@@ -115,7 +115,7 @@ void plotProjection(const std::string nsmPath, const string_vt& nsmDataFilesToPl
 		gp << "set pointsize 0.5\n";
 		gp << "set auto x\n";
 		// gp << "set xrange [0:20]\n";
-		gp << "set yrange [0:800]\n";
+		gp << "set yrange [0:1000]\n";
 		gp << "set key top left font ', 6'\n";
 
 		std::string command = "plot ";
@@ -156,7 +156,7 @@ void plotScan(const std::string nsmPath, const string_vt& nsmDataFilesToPlot, co
 	{
 		Gnuplot gp;
 		gp << ("set terminal " + G_FORMAT + "\n");
-		gp << ("set output '../results/scan." + G_FORMAT + "'\n");
+		gp << ("set output '../../results/scan." + G_FORMAT + "'\n");
 		gp << "set grid\n";
 		gp << "set autoscale\n";
 		gp << "set ylabel 'Average time in ms' font ', 8'\n";
@@ -205,8 +205,8 @@ void startPlotProcess(const char* aPlotG_FORMAT)
 	/***************************************************************************************************
 	** Path to the NSM and PAX data files **************************************************************
 	***************************************************************************************************/
-	const std::string nsmPath = "../data/NSM/raw/";
-	const std::string paxPath = "../data/PAX/raw/";
+	const std::string nsmPath = "../../data/NSM/raw/";
+	const std::string paxPath = "../../data/PAX/raw/";
 	/***************************************************************************************************
 	** Stores all .txt file names in a vector and print a list for the user ****************************
 	***************************************************************************************************/

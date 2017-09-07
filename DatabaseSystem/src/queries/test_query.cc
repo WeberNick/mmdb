@@ -376,10 +376,10 @@ void row_test_projection_mat(NSM_Relation& aRelation, const size_t aNoTuple, con
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			row_top_test_query_t									lTop;
-			// rowToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aQueryInfra.vectorizedSize());
-			// Scan<rowToRow_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aQueryInfra.vectorizedSize());
-			rowToCol_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aQueryInfra.vectorizedSize());
-			Scan<rowToCol_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aQueryInfra.vectorizedSize());
+			rowToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aQueryInfra.vectorizedSize());
+			Scan<rowToRow_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aQueryInfra.vectorizedSize());
+			// rowToCol_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aQueryInfra.vectorizedSize());
+			// Scan<rowToCol_project_mat_test_query_t, NSM_Relation> 	lScan(&lProject, aRelation, aQueryInfra.vectorizedSize());
 			Measure lMeasure;
 			if(aQueryInfra.measure())
 			{
@@ -400,8 +400,8 @@ void row_test_projection_mat(NSM_Relation& aRelation, const size_t aNoTuple, con
 		{
 			measure_int_projection[i] /= aQueryInfra.runs();
 		}
-		// print_projection_result(aNoAttr, measure_int_projection, aQueryInfra.printInfra(), "Materialized[BTR]r2r");
-		print_projection_result(aNoAttr, measure_int_projection, aQueryInfra.printInfra(), "Materialized[BTR]r2c");
+		print_projection_result(aNoAttr, measure_int_projection, aQueryInfra.printInfra(), "Materialized[BTR]r2r");
+		// print_projection_result(aNoAttr, measure_int_projection, aQueryInfra.printInfra(), "Materialized[BTR]r2c");
 	}
 }
 
@@ -419,10 +419,10 @@ void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, con
 		for(size_t j = 0; j < aQueryInfra.runs(); ++j)
 		{
 			col_top_test_query_t									lTop;
-			// colToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aQueryInfra.vectorizedSize());
-			// Scan<colToRow_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aQueryInfra.vectorizedSize());
-			colToCol_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aQueryInfra.vectorizedSize());
-			Scan<colToCol_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aQueryInfra.vectorizedSize());
+			colToRow_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aQueryInfra.vectorizedSize());
+			Scan<colToRow_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aQueryInfra.vectorizedSize());
+			// colToCol_project_mat_test_query_t						lProject(&lTop, aRelation, lAttrNoList, aQueryInfra.vectorizedSize());
+			// Scan<colToCol_project_mat_test_query_t, PAX_Relation> 	lScan(&lProject, aRelation, aQueryInfra.vectorizedSize());
 			Measure lMeasure;
 			if(aQueryInfra.measure())
 			{
@@ -443,8 +443,8 @@ void col_test_projection_mat(PAX_Relation& aRelation, const size_t aNoTuple, con
 		{
 			measure_int_projection[i] /= aQueryInfra.runs();
 		}
-		// print_projection_result(aNoAttr, measure_int_projection, aQueryInfra.printInfra(), "Materialized[BTR]c2r");
-		print_projection_result(aNoAttr, measure_int_projection, aQueryInfra.printInfra(), "Materialized[BTR]c2c");
+		print_projection_result(aNoAttr, measure_int_projection, aQueryInfra.printInfra(), "Materialized[BTR]c2r");
+		// print_projection_result(aNoAttr, measure_int_projection, aQueryInfra.printInfra(), "Materialized[BTR]c2c");
 	}
 }
 
