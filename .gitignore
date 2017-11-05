@@ -41,6 +41,7 @@ DatabaseSystem/results/
 
 #Other folder
 DatabaseSystem/util/gnuplot-iostream/
+.vscode
 
 #Text Files, Gnuplot Files and CSV-Files
 *.txt

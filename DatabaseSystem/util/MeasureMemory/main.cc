@@ -1,25 +1,23 @@
 #include "measure.hh"
 
 #include "immintrin.h"
-#include <cstring>
 #include <stdlib.h>
-#include <stdint.h>
 #include <cstdint>
+#include <cstddef>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 
-typedef uint8_t byte;
-typedef std::vector<byte*> byte_vpt;
 typedef std::vector<double> double_vt;
-const size_t G_ChunkSize = 1000000;
-const size_t G_TupleSize = 100;
-const size_t G_AttrSize = sizeof(uint32_t);
-const size_t G_Alignment = 32;
-const size_t G_PageSize = 16384;
-const size_t G_NumbPages = ((G_ChunkSize * G_TupleSize * G_AttrSize) / G_PageSize) + 1;
-const std::string G_Path = "data/";
+const size_t G_NUMBER_OF_TUPLES = 1000000;
+const size_t G_NO_ATTR = 100;
+const size_t G_ATTR_SIZE = sizeof(uint32_t);
+const size_t G_TUPLE_SIZE = G_NO_ATTR * G_ATTR_SIZE;
+const size_t G_CHUNK_SIZE = G_NUMBER_OF_TUPLES * G_TUPLE_SIZE;
+const size_t G_ALIGNMENT = 32;
+const std::string G_PATH = "data/";
 
 const double NS = (1000.0L * 1000.0L * 1000.0L);
 
@@ -30,50 +28,48 @@ double secToNanoSec(const double aTime, const double aNumber)
 
 void printSettings()
 {
-	std::cout << "Chunk Size:     " << G_ChunkSize << std::endl;
-	std::cout << "Tuple Size:     " << G_TupleSize << std::endl;
-	std::cout << "Attribute Size: " << G_AttrSize << " bytes" << std::endl;
-	std::cout << "Alignment:      " << G_Alignment << " bytes" << std::endl;
-	std::cout << "Page Size:      " << G_PageSize << " bytes" << std::endl;
-	std::cout << "No. Pages:      " << G_NumbPages << std::endl;
+	std::cout << "Numb. of Tuples: " << G_NUMBER_OF_TUPLES << std::endl;
+	std::cout << "Numb. of Attr.:  " << G_NO_ATTR << std::endl;
+	std::cout << "Attribute Size:  " << G_ATTR_SIZE << " bytes" << std::endl;
+	std::cout << "Tuple Size:      " << G_TUPLE_SIZE << " bytes" << std::endl;
+	std::cout << "Alignment:       " << G_ALIGNMENT << " bytes" << std::endl;
 }
 
-void allocateMemory(byte*& aInputChunk, byte*& aOutputChunk)
+void allocateMemory(std::byte*& aInputChunk, std::byte*& aOutputChunk)
 {
-	if(posix_memalign((void**)&aInputChunk, G_Alignment, G_NumbPages * G_PageSize) != 0)
+	if(posix_memalign((void**)&aInputChunk, G_ALIGNMENT, G_CHUNK_SIZE) != 0)
 	{
 		std::cerr << "An error ocurred while allocating memory for the input chunk" << std::endl;
 	}
-	if(posix_memalign((void**)&aOutputChunk, G_Alignment, G_NumbPages * G_PageSize) != 0)
+	if(posix_memalign((void**)&aOutputChunk, G_ALIGNMENT, G_CHUNK_SIZE) != 0)
 	{
 		std::cerr << "An error ocurred while allocating memory for the output chunk" << std::endl;
 	}
 }
 
-void freeMemory(byte*& aInputChunk, byte*& aOutputChunk)
+void freeMemory(std::byte*& aInputChunk, std::byte*& aOutputChunk)
 {
 	free(aInputChunk);
-	aInputChunk = 0;
+	aInputChunk = nullptr;
 	free(aOutputChunk);
-	aOutputChunk = 0;
+	aOutputChunk = nullptr;
 }
 
-void fillInputChunkWithData(byte_vpt& aInputTuplePointer)
+void fillInputChunkWithData(std::byte* aInputChunk)
 {
 	uint32_t lCounter = 1;
-	for(size_t i = 0; i < G_ChunkSize; ++i)
+	for(size_t i = 0; i < G_NUMBER_OF_TUPLES * G_NO_ATTR; ++i)
 	{
-		for(size_t j = 0; j < G_TupleSize; ++j)
-		{
-			*((uint32_t*)(aInputTuplePointer[i] + (j * G_AttrSize))) = lCounter++;
-		}
+		*((uint32_t*)aInputChunk) = lCounter++;
+		aInputChunk += G_ATTR_SIZE;
 	}
 }
 
 void printToFile(const double_vt& aResult, const std::string aFileName)
 {
 	std::ofstream out;
-	std::string lPathToFile = G_Path + aFileName;
+	std::string lPathToFile = G_PATH + aFileName;
+	std::cout << "Write results in file '" << aFileName << "' at '" << lPathToFile << "'" << std::endl;
 	out.open(lPathToFile.c_str(), std::ios::out | std::ios::trunc);
 	if(out.is_open())
 	{
@@ -85,166 +81,143 @@ void printToFile(const double_vt& aResult, const std::string aFileName)
 	}
 }
 
-void measure_ManualWrites(const byte_vpt& aInputTuplePointer, const byte_vpt& aOutputTuplePointer)
+void measure_ManualWrites(std::byte* const aInputChunk, std::byte* const aOutputChunk)
 {
 	std::cout << "Manual Writes" << std::endl;
-	double_vt lMeasureResults(G_TupleSize, 0);
-	
-	for(size_t lNoAttr = 0; lNoAttr < G_TupleSize; ++lNoAttr)
+	double_vt lMeasureResults(G_NO_ATTR, 0);
+
+	std::byte* lInPointer;
+	std::byte* lOutPointer;
+
+	for(size_t lNoAttr = 0; lNoAttr < G_NO_ATTR; ++lNoAttr)
 	{	
-		std::cout << "Attribute " << (lNoAttr+1) << "/" << G_TupleSize << std::endl;
+		std::cout << "Attribute " << (lNoAttr+1) << "/" << G_NO_ATTR << std::endl;
 		Measure lMeasure;
 		lMeasure.start();
-		for(size_t i = 0; i < G_ChunkSize; ++i)
-		{
+		for(size_t i = 0; i < G_NUMBER_OF_TUPLES; ++i)
+		{	
+			lInPointer = aInputChunk + (i * G_TUPLE_SIZE);
+			lOutPointer = aOutputChunk + (i * G_TUPLE_SIZE);
 			for(size_t j = 0; j <= lNoAttr; ++j)
 			{
-				*((uint32_t*)(aOutputTuplePointer[i] + (j * G_AttrSize))) = *((uint32_t*)(aInputTuplePointer[i] + (j * G_AttrSize)));
+				*((uint32_t*)(lOutPointer)) = *((uint32_t*)(lInPointer));
+				lInPointer += G_ATTR_SIZE;
+				lOutPointer += G_ATTR_SIZE;
 			}
 		}
 		lMeasure.stop();
-		lMeasureResults[lNoAttr] = secToNanoSec(lMeasure.mTotalTime(), G_ChunkSize);
+		lMeasureResults[lNoAttr] = secToNanoSec(lMeasure.mTotalTime(), G_NUMBER_OF_TUPLES);
 	}
 	printToFile(lMeasureResults, "manual.txt");
 }
 
-void measure_NormalWrites(const byte_vpt& aInputTuplePointer, const byte_vpt& aOutputTuplePointer)
+void measure_NormalWrites(std::byte* const aInputChunk, std::byte* const aOutputChunk)
+
 {
 	std::cout << "Normal Writes" << std::endl;
-	double_vt lMeasureResults(G_TupleSize, 0);
+	double_vt lMeasureResults(G_NO_ATTR, 0);
 	
-	for(size_t lNoAttr = 0; lNoAttr < G_TupleSize; ++lNoAttr)
+	std::byte* lInPointer;
+	std::byte* lOutPointer;
+
+	for(size_t lNoAttr = 0; lNoAttr < G_NO_ATTR; ++lNoAttr)
 	{	
-		std::cout << "Attribute " << (lNoAttr+1) << "/" << G_TupleSize << std::endl;
-		const size_t lBytesToCopy = (lNoAttr + 1)  * G_AttrSize;
+		std::cout << "Attribute " << (lNoAttr+1) << "/" << G_NO_ATTR << std::endl;
+		const size_t lBytesToCopy = (lNoAttr + 1)  * G_ATTR_SIZE;
 		Measure lMeasure;
 		lMeasure.start();
-		for(size_t i = 0; i < G_ChunkSize; ++i)
+		for(size_t i = 0; i < G_NUMBER_OF_TUPLES; ++i)
 		{
-			memcpy((void*)aOutputTuplePointer[i], (void*)aInputTuplePointer[i], lBytesToCopy);
+			lInPointer = aInputChunk + (i * G_TUPLE_SIZE);
+			lOutPointer = aOutputChunk + (i * G_TUPLE_SIZE);
+			memcpy((void*)lOutPointer , (void*)lInPointer, lBytesToCopy);
 		}
 		lMeasure.stop();
-		lMeasureResults[lNoAttr] = secToNanoSec(lMeasure.mTotalTime(), G_ChunkSize);
+		lMeasureResults[lNoAttr] = secToNanoSec(lMeasure.mTotalTime(), G_NUMBER_OF_TUPLES);
 	}
+	std::cout << "Begin Input: " << aInputChunk << " / Begin Output: " << aOutputChunk << std::endl;
+	std::cout << "End Input: " << lInPointer << " / End Output: " << lOutPointer << std::endl;
 	printToFile(lMeasureResults, "normal.txt");
 }
 
-// __m256i _mm256_load_si256 (__m256i const * mem_addr);
-
-// void _mm256_stream_si256 (__m256i * mem_addr, __m256i a);
-
-void measure_NonTemporalWrites(byte* aInputPointer, byte* aOutputPointer)
+void measure_NonTemporalWrites(std::byte* const aInputChunk, std::byte* const aOutputChunk)
 {
 	std::cout << "Streaming Writes" << std::endl;
-	double_vt lMeasureResults(G_TupleSize, 0);
-	const size_t lBytesToRead = G_ChunkSize * G_TupleSize * G_AttrSize;
-	const size_t lRunsToReadAllBytes = lBytesToRead / (256 / 8);
+	double_vt lMeasureResults(G_NO_ATTR, 0);
 
-	std::cout << "Bytes to read: " << lBytesToRead << " bytes" << std::endl;
-	std::cout << "Number of " << (256 / 8) << " byte reads needed: " << lRunsToReadAllBytes << std::endl;
+	std::byte* lInPointer;
+	std::byte* lOutPointer;
+
+	const size_t lStreamWidth = sizeof(__m256i); //32 bytes
+	const size_t lNoAttrPerStream = lStreamWidth / G_ATTR_SIZE; //32 bytes / 4 = 8attrPerWrite
+
+	uint lNextTuple;
+	uint lBytesToAlign;
+	uint lOffset;
 
 
-	Measure lMeasure;
-	lMeasure.start();
-	for(size_t i = 0; i < lRunsToReadAllBytes; ++i)
+	for(size_t lNoAttr = 0; lNoAttr < G_NO_ATTR; ++lNoAttr)
 	{	
-		_mm256_stream_si256((__m256i *)&aOutputPointer[0], _mm256_load_si256((__m256i *)&aInputPointer[0]));
-		aInputPointer += (256 / 8);
-		aOutputPointer += (256 / 8);
+		std::cout << "Attribute " << (lNoAttr+1) << "/" << G_NO_ATTR << std::endl;
+		Measure lMeasure;
+		lMeasure.start();
+		for(size_t i = 0; i < G_NUMBER_OF_TUPLES; ++i)
+		{	
+			lNextTuple = i * G_TUPLE_SIZE;
+			lBytesToAlign = ((lNextTuple + 31) & ~(uint) 0x1F) - lNextTuple; 
+			lOffset = lNextTuple - lBytesToAlign;
+			int j = 0 - (lBytesToAlign / G_ATTR_SIZE);
+			//std::cout << "Next Tuple: " << lNextTuple
+				//<< ",  Alignment: " << lBytesToAlign
+				//<< ",  Offset: " << lOffset
+				//<< ",  j = " << j
+				//<< std::endl;
+			lInPointer = aInputChunk + lOffset;
+			lOutPointer = aOutputChunk + lOffset; 
+			do 
+			{
+				//__m256i a = _mm256_load_si256((__m256i*)lInPointer);
+				//_mm256_stream_si256((__m256i*)lOutPointer, a);
+				_mm256_stream_si256((__m256i *)&lOutPointer[0], _mm256_load_si256((__m256i *)&lInPointer[0]));		
+				lInPointer += lStreamWidth; 
+				lOutPointer += lStreamWidth; 
+				j += lNoAttrPerStream;
+			}
+			while (j <= lNoAttr);
+		}
+		lMeasure.stop();
+		lMeasureResults[lNoAttr] = secToNanoSec(lMeasure.mTotalTime(), G_NUMBER_OF_TUPLES);
 	}
-	lMeasure.stop();
-	lMeasureResults[G_TupleSize-1] = secToNanoSec(lMeasure.mTotalTime(), G_ChunkSize);
 
 	printToFile(lMeasureResults, "streaming.txt");
 }
 
-// __m256i _mm256_load_si256 (__m256i const * mem_addr);
-
-// void _mm256_stream_si256 (__m256i * mem_addr, __m256i a);
-
-// void measure_NonTemporalWrites(const byte_vpt& aInputTuplePointer, const byte_vpt& aOutputTuplePointer)
-// {
-// 	double_vt lMeasureResults(G_TupleSize, 0);
-// 	const size_t lAttrPer256Bit = (256 / 8) / G_AttrSize;
-
-// 	for(size_t lNoAttr = 0; lNoAttr < G_TupleSize; ++lNoAttr)
-// 	{	
-// 		for(size_t i = 0; i < G_ChunkSize; ++i)
-// 		{
-// 			size_t j = 0;
-// 			while(j++ < ((lNoAttr / lAttrPer256Bit) + 1 ))
-// 			{
-// 				_mm256_load_si256(aInputTuplePointer[i])
-// 				_mm256_stream_si256();
-// 			}
-// 		}
-
-
-// 	}
-
-
-// 	const size_t lTupleSizeInBytes = G_AttrSize * G_TupleSize;
-
-	
-// 	for(size_t lNoAttr = 0; lNoAttr < G_TupleSize; ++lNoAttr)
-// 	{	
-// 		const size_t lBytesToCopy = (lNoAttr + 1)  * G_AttrSize;
-// 		Measure lMeasure;
-// 		lMeasure.start();
-// 		for(size_t i = 0; i < G_ChunkSize; ++i)
-// 		{
-// 			const size_t lOffset = i * lTupleSizeInBytes;
-// 			memcpy((void*)(aOutputTuplePointer[i] + lOffset), (void*)(aInputTuplePointer[i] + lOffset), lBytesToCopy);
-// 		}
-// 		lMeasure.stop();
-// 		lMeasureResults[lNoAttr] = secToNanoSec(lMeasure.mTotalTime(), G_ChunkSize);
-// 	}
-// 	printToFile(lMeasureResults, "streaming.txt");
-// }
+void printChunk(const std::byte* const aOutputChunk)
+{
+	for(size_t i = 0; i < G_NUMBER_OF_TUPLES * G_NO_ATTR; i++) {
+		std::cout << *(uint32_t*)(aOutputChunk + (i * G_ATTR_SIZE)) << std::endl;
+	}
+}
 
 int main()
 {
 	printSettings();
 
-	byte* lInputChunk;
-	byte* lOutputChunk;
+	std::byte* lInputChunk;
+	std::byte* lOutputChunk;
 	allocateMemory(lInputChunk, lOutputChunk);
 
+	fillInputChunkWithData(lInputChunk);
 
-	byte_vpt lInputTuplePointer(G_ChunkSize);
-	byte_vpt lOutputTuplePointer(G_ChunkSize);
-
-	for(size_t i = 0; i < G_ChunkSize; ++i)
-	{
-		lInputTuplePointer[i] = lInputChunk + (i * G_TupleSize * G_AttrSize);
-		lOutputTuplePointer[i] = lOutputChunk + (i * G_TupleSize * G_AttrSize);
-	}
-
-	fillInputChunkWithData(lInputTuplePointer);
-
-	// std::cout << (void*)lInputTuplePointer[0] << std::endl;
-	// std::cout << (void*)lInputTuplePointer[1] << std::endl;
-	// std::cout << (uint)(lInputTuplePointer[1] - lInputTuplePointer[0]) << std::endl;
-	// uint64_t ptr_in_int = (uint64_t)lInputTuplePointer[0];
-	// std::cout << ptr_in_int << std::endl;
-	// ptr_in_int = (ptr_in_int + 31) & ~(uint64_t)0x1F;
-	// std::cout << ptr_in_int << std::endl;
-	// uint64_t ptr_in_int2 = (uint64_t)lInputTuplePointer[1];
-	// std::cout << ptr_in_int2 << std::endl;
-	// ptr_in_int2 = (ptr_in_int2 + 31) & ~(uint64_t)0x1F;
-	// std::cout << ptr_in_int2 << std::endl;
-	// std::cout << (void*)ptr_in_int << std::endl;
-	// std::cout << (void*)ptr_in_int2 << std::endl;
-
-
-	measure_ManualWrites(lInputTuplePointer, lOutputTuplePointer);
-
-	measure_NormalWrites(lInputTuplePointer, lOutputTuplePointer);
-
+	measure_ManualWrites(lInputChunk, lOutputChunk);
+	//printChunk(lOutputChunk);
+	//system("read");
+	measure_NormalWrites(lInputChunk, lOutputChunk);
+	//printChunk(lOutputChunk);
+	//system("read");
 	measure_NonTemporalWrites(lInputChunk, lOutputChunk);
-
-	
-
+	//printChunk(lOutputChunk);
+	//system("read");
 	freeMemory(lInputChunk, lOutputChunk);
 	return 0;
 }
