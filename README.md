@@ -2,19 +2,19 @@
 
 Implementation of a main memory database system with two different storage layouts. This implementation is only suited for testing the performance differences between the storage layouts and research on main memory database systems.
 
-##Getting Started
+## Getting Started
 
-###Prerequisites
+### Prerequisites
 
 To build and run, you'll need the Build-Management-Tool _make_ and a C++11 compatible compiler (only tested with GCC)
 
-###Installing
+### Installing
 
 ```
 https://github.com/WeberNick/MainMemoryDatabaseSystem.git
 ```
 
-###Building
+### Building
 
 In the git repository directory (_MainMemoryDatabaseSystem_) go to directory '_src_' and run _make_:
 ```
@@ -22,7 +22,7 @@ cd DatabaseSystem/src
 make
 ```
 
-###Running (Quickstart guide)
+### Running (Quickstart guide)
 To execute the program, go to the build directory _src_ and type 
 
 ```
@@ -67,9 +67,9 @@ Without any further arguements, the program will do nothing special and terminat
 
 Note: Since this is still under construction, some tests may be disabled or commented out.
 
-##Project Status
+## Project Status
 
-###Already implemented
+### Already implemented
 
 * Storage Models "N-ary Storage Model" (NSM) and "Partition Attributes Across" (PAX)
 * Bulk load from from file into main memory
@@ -88,7 +88,7 @@ Note: Since this is still under construction, some tests may be disabled or comm
 * Measurements of Queries
 * Helper tools to visualize the measurements (using gnuplot)
 
-###Todo
+### Todo
 
 * Implement Joins
 * Implement TPC-H Benchmarks
