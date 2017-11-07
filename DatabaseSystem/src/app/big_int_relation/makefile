@@ -1,11 +1,9 @@
-#CXXFLAGS = -g -Wall -Weffc++ -std=c++0x
-CXXFLAGS = -O2 -g -std=c++0x
+#CXXFLAGS = -g -Wall -Weffc++ -std=c++11
+CXXFLAGS = -O2 -Wall -std=c++11
 
 CC = g++
 
 INCL = -I../.. -I..
-
-VPATH = .:..:../..
 
 HDR = \
 	big_int_relation_data.hh \

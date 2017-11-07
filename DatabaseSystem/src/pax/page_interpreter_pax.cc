@@ -13,10 +13,6 @@ void PageInterpreterPAX::setPageSize(const size_t aPageSize)
     _pageSizeSet = !_pageSizeSet;
     _pageSize = aPageSize;
   }
-  else
-  {
-    std::cerr << "ERROR: Page size can only be set once" << std::endl;
-  }
 }
 
 void 

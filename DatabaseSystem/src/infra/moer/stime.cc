@@ -1,11 +1,11 @@
 #include "stime.hh"
 
-STime::STime(const std::string& x, char sep) {
+STime::STime(const std::string& x, char sep) : _val(0) {
   const char* s = x.c_str();
   set(s, sep);
 }
 
-STime::STime(const char* x, char sep) {
+STime::STime(const char* x, char sep) : _val(0) {
   const char* s = x;
   set(s, sep);
 }

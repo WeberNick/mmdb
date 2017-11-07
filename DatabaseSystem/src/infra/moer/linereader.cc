@@ -15,6 +15,7 @@ LineReader::LineReader(const char* aFileName,
              _linecount(0),
              _commentlinecount(0),
              _no_bytes_read(0),
+             _noSplit(0),
              _splits(),
              _splitsEnd(),
              _subsplitsBegin(),
@@ -37,7 +38,11 @@ LineReader::LineReader(std::istream& aIs,
              _linecount(0),
              _commentlinecount(0),
              _no_bytes_read(0),
-             _splits() {
+             _noSplit(0),
+             _splits(),
+             _splitsEnd(),
+            _subsplitsBegin(),
+            _subsplitsEnd() {
   _buffer = new char[linebuffersize()];
 }
 

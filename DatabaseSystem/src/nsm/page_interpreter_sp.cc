@@ -10,10 +10,6 @@ void PageInterpreterSP::setPageSize(const size_t aPageSize)
     _pageSizeSet = !_pageSizeSet;
     _pageSize = aPageSize;
   }
-  else
-  {
-    std::cerr << "ERROR: Page size can only be set once" << std::endl;
-  }
 }
 
 PageInterpreterSP::PageInterpreterSP() : _pp(NULL), _header(NULL), _slots(0) {

@@ -1,11 +1,9 @@
-CXXFLAGS = -O2 -g -std=c++0x
-#CXXFLAGS = -O3 -std=c++0x
+#CXXFLAGS = -g -Wall -Weffc++-std=c++11
+CXXFLAGS = -O3 -Wall -std=c++11
 
 CC = g++
 
 INCL = -I../.. -I..
-
-VPATH = .:..:../..
 
 HDRQ = \
 	../infra/moer/measure.hh \

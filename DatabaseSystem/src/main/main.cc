@@ -128,7 +128,7 @@ int main(const int argc, const char* argv[])
 	***************************************************************************************************/
 
 	const float_vt 	SELECTIVITIES 	= {0, 8000, 15000, 22500, 29500, 37000, 44000, 51500, 59500, 71000, 105000};
-	const size_t 	TPCH_NO_ATTR 	= 16;
+	// const size_t 	TPCH_NO_ATTR 	= 16;
 	const size_t 	BIR_NO_ATTR 	= 100;
 	const size_t 	BIR_NO_TUPLE 	= 1000000;
 	
