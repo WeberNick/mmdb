@@ -11,7 +11,7 @@ To build and run, you'll need the Build-Management-Tool _make_ and a C++11 compa
 ### Installing
 
 ```
-https://github.com/WeberNick/MainMemoryDatabaseSystem.git
+git clone https://github.com/WeberNick/MainMemoryDatabaseSystem.git
 ```
 
 ### Building
@@ -35,7 +35,7 @@ or go in the _main_ directory and type
 ./main
 ```
 
-To actually use the DBS, several command line arguements are needed. To get a list of possible arguements (from the main directory) type
+To actually use the DBS, several command line arguments are needed. To get a list of possible arguements (from the main directory) type
 
 ```
 ./main --help
@@ -59,7 +59,7 @@ Note: In order to use the _TPC-H_ dataset, place the TPC-H tables in a directory
 ./main --nsm --tpch --sf 0.001
 ```
 
-Without any further arguements, the program will do nothing special and terminate. To execute all implemented tests type
+Without any further arguments, the program will do nothing special and terminate. To execute all implemented tests type
 
 ```
 ./main --nsm --tpch --sf 0.001 --all
