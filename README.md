@@ -1,4 +1,4 @@
-# MainMemoryDatabaseSystem
+# Main Memory Database System
 
 Implementation of a main memory database system with two different storage layouts. This implementation is only suited for testing the performance differences between the storage layouts and research on main memory database systems.
 
