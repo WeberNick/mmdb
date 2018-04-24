@@ -1,6 +1,6 @@
 # Main Memory Database System
 
-Implementation of a main memory database system with two different storage layouts. This implementation is only suited for testing the performance differences between the storage layouts and research on main memory database systems.
+Implementation of a main memory database system with two different storage layouts. The project started as a bachelors thesis and development on the system continued as part of my work at the [Chair of Applied Computer Science III, University of Mannheim](http://lspi3.informatik.uni-mannheim.de/en/home/). This implementation is only suited for testing the performance differences between the storage layouts and research on main memory database systems.
 
 ## Getting Started
 
