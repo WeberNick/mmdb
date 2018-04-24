@@ -8,10 +8,10 @@ Implementation of a main memory database system with two different storage layou
 
 To build and run, you'll need the Build-Management-Tool _make_ and a C++11 compatible compiler (only tested with GCC)
 
-### Installing
+### Cloning
 
 ```
-git clone https://github.com/WeberNick/MainMemoryDatabaseSystem.git
+git clone https://github.com/WeberNick/mmdb.git
 ```
 
 ### Building
