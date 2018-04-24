@@ -16,7 +16,7 @@ git clone https://github.com/WeberNick/MainMemoryDatabaseSystem.git
 
 ### Building
 
-In the git repository directory (_MainMemoryDatabaseSystem_) go to directory '_src_' and run _make_:
+In the git repository directory (_mmdb_) go to directory '_src_' and run _make_:
 ```
 cd DatabaseSystem/src
 make
